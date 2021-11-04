@@ -41,7 +41,9 @@ Promise.all([
         ],
         cli: {
             entitiesDir: 'dist/entity'
-        }
+        },
+        username: process.env.DB_USER,
+        password: process.env.DB_PASSWORD
     }),
     FastMQ.Client.connect(process.env.SERVICE_CHANNEL, 7500, process.env.MQ_ADDRESS),
     readConfig()
