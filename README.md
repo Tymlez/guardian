@@ -207,11 +207,11 @@ To get a local copy up and running, follow these simple example steps. When buil
    - Policy Workflow State Transactions
 
    The quickest way to go through this demo while learning how to configure a Policy Workflow is to import the configPolicy.ts file. To do so, navigate to the [Demo Artifacts folder](https://github.com/hashgraph/guardian/tree/main/Demo%20Artifacts) folder and copy everything inside the `irec-policy-config.txt` file. Go back into the Policy editor and click on the "code" icon on the upper right-hand side. Paste the mock configuration.
-   
+
    ![Guardian step 7](https://user-images.githubusercontent.com/40637665/137964384-6e05ee6e-1e5a-41c3-801b-ec94a50de916.png)
-   
+
    Click on the "block" icon that is just to the right of the "code" icon. You'll notice that the Policy configuration editor now visually shows the Policy Workflow with all of the necessary Workgroups, Actions, State Objects, and Transactions. Click through on several blocks, and you'll notice that you can edit some elements on the right-hand side. Depending on what you are clicking on, different properties will display on the right-bottom box. You can edit properties from permissions, dependencies, tags, UI elements, etc. Moving along with our flow. Click on the **mint_token** block and select the token we created from the properties box in the right hand side. We will now press the **Save** button and the **Publish** button.
-   
+
    ![Guardian step 7 2](https://user-images.githubusercontent.com/40637665/137965045-951900d7-fd64-489a-9282-8131ca9216b4.png)
 
 8. Click on the Root Authority's profile icon and select "Log Out." We will now go back into the **Admin Panel**. This time we will select **Installer**
@@ -226,12 +226,12 @@ To get a local copy up and running, follow these simple example steps. When buil
 
 ![Guardian step 10](https://user-images.githubusercontent.com/40637665/137965789-6e5b888d-88a2-4a6d-917e-fd797b060b2d.png)
 
-11. Now, we can click on the **Policies** tab. This is where the specific actions required by the Policy Workflow will be found. We can click the **Open** button to the right of the iRec Policy the Root Authority created. 
+11. Now, we can click on the **Policies** tab. This is where the specific actions required by the Policy Workflow will be found. We can click the **Open** button to the right of the iRec Policy the Root Authority created.
 
 ![Guardian step 11](https://user-images.githubusercontent.com/40637665/137966063-7add24f7-319b-472e-a93d-418075a74999.png)
 
-   Here we will see the form that is based on the imported schema in step 4. This form is one of the Policy Workflow State Objects. Once you fill out the required information, press the **OK** button. Note: There is a known issue that no dialogue box comes up to let you know the form is completed. That's ok for now, we are working to provide a UI update. Everything works, so just move onto the next step :)
-   
+Here we will see the form that is based on the imported schema in step 4. This form is one of the Policy Workflow State Objects. Once you fill out the required information, press the **OK** button. Note: There is a known issue that no dialogue box comes up to let you know the form is completed. That's ok for now, we are working to provide a UI update. Everything works, so just move onto the next step :)
+
 ![Guardian step 11 2](https://user-images.githubusercontent.com/40637665/137966739-1872360d-a7bd-45a3-8fe5-7fd7d59af66d.png)
 
 12. The next step of our flow is to log out and sign back in as the Root Authority. Navigate to the **Policies** tab and click the **Open** button on the far right. Here you will find the approval actions based on our Policy Workflow required by the Root Authority. You will be able to view the Verifiable Credential prior to approval by selecting the **View Document** link. Once you are ready to approve the document, you can click on the **Approve** button.
@@ -254,19 +254,19 @@ To get a local copy up and running, follow these simple example steps. When buil
 
 ![Guardian step 16](https://user-images.githubusercontent.com/40637665/137971538-94b68559-a8e2-464d-b595-fd13f23b97e9.png)
 
-  Press the **green triangle** to begin generating the data. Navigate back to the Guardian Policies tab, and you can click into the **MRV** tab. Here, you will see the data that the IoT sensor generated, such as date, period, amount, etc.
-  
-  ![Guardian step 16 2](https://user-images.githubusercontent.com/40637665/137971702-79cc597f-90a7-4038-8058-caa9f85a55e0.png)
+Press the **green triangle** to begin generating the data. Navigate back to the Guardian Policies tab, and you can click into the **MRV** tab. Here, you will see the data that the IoT sensor generated, such as date, period, amount, etc.
 
-17. The last step is to log out of the Installer account and log into the Auditor account. 
+![Guardian step 16 2](https://user-images.githubusercontent.com/40637665/137971702-79cc597f-90a7-4038-8058-caa9f85a55e0.png)
+
+17. The last step is to log out of the Installer account and log into the Auditor account.
 
 ![Guardian step 17](https://user-images.githubusercontent.com/40637665/137971921-041a209a-fec2-4f0a-854b-d46c7b26eaf7.png)
 
-  There are two tabs in this view: **Audit** and **Trust Chain**. Clicking into the Audit tab offers high-level public information from our reference implementation such as the Verifiable Presentation ID, the Hash of the Verifiable Presentation, the DID of the sensor, the date information the Verifiable Presentation was created, the type of activity, and the ability to view the Verifiable Presentation.
-  
-  ![Guardian step 17 2](https://user-images.githubusercontent.com/40637665/137972020-ea74c1ad-2ec3-49b4-9089-c807ed79241b.png)
+There are two tabs in this view: **Audit** and **Trust Chain**. Clicking into the Audit tab offers high-level public information from our reference implementation such as the Verifiable Presentation ID, the Hash of the Verifiable Presentation, the DID of the sensor, the date information the Verifiable Presentation was created, the type of activity, and the ability to view the Verifiable Presentation.
 
-18. Lastly, let's navigate to The Trust Chain tab. The Trust Chain tab will ask for one of two pieces of information, either the Verifiable Presentation ID (which can be found either in the Audit tab or the memo field of the transaction field on a Hedera explorer-like Dragon Glass) or the Transaction Hash. Entering either of those important identifiers will open all necessary information for you to discover. 
+![Guardian step 17 2](https://user-images.githubusercontent.com/40637665/137972020-ea74c1ad-2ec3-49b4-9089-c807ed79241b.png)
+
+18. Lastly, let's navigate to The Trust Chain tab. The Trust Chain tab will ask for one of two pieces of information, either the Verifiable Presentation ID (which can be found either in the Audit tab or the memo field of the transaction field on a Hedera explorer-like Dragon Glass) or the Transaction Hash. Entering either of those important identifiers will open all necessary information for you to discover.
 
 ![Guardian step 18](https://user-images.githubusercontent.com/40637665/137972170-7970a07e-7a76-410b-90a7-22a9f3586103.png)
 
@@ -312,6 +312,7 @@ The Guardian solution is built with the following major frameworks/libraries.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Roadmap
+
 Roadmap TBA
 
 - [] Feature 1
@@ -322,11 +323,13 @@ See the [open issues](https://github.com/hashgraph/guardian/issues) for a full l
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Change Log
+
 All notable changes to this project will be documented in this [CHANGELOG.md](CHANGELOG.md) file.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Contributing
+
 Thank you for your interest in contributing to the Guardian!
 
 We appreciate your interest in helping the rest of our community and us. We welcome bug reports, feature requests, and code contributions.
@@ -336,18 +339,22 @@ For contributing guidelines, please see the [CONTRIBUTING.md](CONTRIBUTING.md) h
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## License
+
 This repo is under Apache 2.0 License. See [LICENSE](LICENSE) for more
 information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Security
+
 Please do not file a public ticket mentioning the vulnerability. Refer to the security policy defined in the [SECURITY.md](SECURITY.md).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Contact
+
 For any questions, please reach out to the Envision Blockchain Solutions team at:
+
 - Website: <www.envisionblockchain.com>
 - Email: <info@envisionblockchain.com>
 
@@ -355,3 +362,11 @@ For any questions, please reach out to the Envision Blockchain Solutions team at
 
 [license-shield]: https://img.shields.io/hexpm/l/apa
 [license-url]: https://github.com/hashgraph/guardian/blob/main/LICENSE
+
+# Tymlez Deployment
+
+## Bootstrap
+
+```
+gcloud auth configure-docker
+```

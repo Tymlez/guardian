@@ -22,3 +22,7 @@ interfaces/dist/
 interfaces/node_modules/
 www-data/
 ui-service/.vs/
+/node_modules/
+guardian-service/config.json
+ui-service/.env
+ui-service/.env.docker
