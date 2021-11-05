@@ -3,62 +3,58 @@ import { promise as exec } from 'exec-sh';
 export async function deploy() {
   console.log('Paul Debug: deploy');
 
+  // Paul Debug: need to be dynamic
   const projectId = 'tymlez-platform-328903';
+  const imageTag = process.env.GIT_TAG ?? Date.now().toString();
 
+  await pushImage({
+    projectId,
+    imageName: 'guardian-message-broker',
+    imageTag,
+  });
+
+  await pushImage({
+    projectId,
+    imageName: 'guardian-service',
+    imageTag,
+  });
+
+  // await pushImage({
+  //   projectId,
+  //   imageName: 'guardian-ui-service',
+  //   imageTag,
+  // });
+
+  // await pushImage({
+  //   projectId,
+  //   imageName: 'guardian-mrv-sender',
+  //   imageTag,
+  // });
+}
+
+async function pushImage({
+  projectId,
+  imageName,
+  imageTag,
+}: {
+  projectId: string;
+  imageName: string;
+  imageTag: string;
+}) {
   await exec(
     [
       `docker`,
       `tag`,
-      `guardian-message-broker`,
-      `asia.gcr.io/${projectId}/guardian-message-broker`,
+      imageName,
+      `asia.gcr.io/${projectId}/${imageName}:${imageTag}`,
     ].join(' '),
-  );
-
-  await exec(
-    [`docker`, `push`, `asia.gcr.io/${projectId}/guardian-message-broker`].join(
-      ' ',
-    ),
   );
 
   await exec(
     [
       `docker`,
-      `tag`,
-      `guardian-service`,
-      `asia.gcr.io/${projectId}/guardian-service`,
+      `push`,
+      `asia.gcr.io/${projectId}/${imageName}:${imageTag}`,
     ].join(' '),
-  );
-  await exec(
-    [`docker`, `push`, `asia.gcr.io/${projectId}/guardian-service`].join(' '),
-  );
-
-  await exec(
-    [
-      `docker`,
-      `tag`,
-      `guardian-mrv-sender`,
-      `asia.gcr.io/${projectId}/guardian-mrv-sender`,
-    ].join(' '),
-  );
-
-  await exec(
-    [`docker`, `push`, `asia.gcr.io/${projectId}/guardian-mrv-sender`].join(
-      ' ',
-    ),
-  );
-
-  await exec(
-    [
-      `docker`,
-      `tag`,
-      `guardian-ui-service`,
-      `asia.gcr.io/${projectId}/guardian-ui-service`,
-    ].join(' '),
-  );
-
-  await exec(
-    [`docker`, `push`, `asia.gcr.io/${projectId}/guardian-ui-service`].join(
-      ' ',
-    ),
   );
 }
