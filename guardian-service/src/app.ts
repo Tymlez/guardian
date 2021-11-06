@@ -44,9 +44,9 @@ Promise.all([
     entities: ['dist/entity/*.js'],
     cli: {
       entitiesDir: 'dist/entity',
-        },
-        username: process.env.DB_USER,
-        password: process.env.DB_PASSWORD
+    },
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
   }),
   FastMQ.Client.connect(
     process.env.SERVICE_CHANNEL,
