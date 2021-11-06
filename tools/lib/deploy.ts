@@ -1,32 +1,37 @@
+import assert from 'assert';
 import { promise as exec } from 'exec-sh';
+import { getConfig } from './getConfig';
 
 export async function deploy() {
-  console.log('Paul Debug: deploy');
+  assert(process.env.ENV, `ENV is missing`);
+  assert(process.env.ENV !== 'local', `Cannot deploy to local`);
 
-  // Paul Debug: need to be dynamic
-  const projectId = 'tymlez-platform-328903';
+  const { GCP_PROJECT_ID } = await getConfig({ env: process.env.ENV });
+  assert(GCP_PROJECT_ID, `GCP_PROJECT_ID is missing`);
+
   const imageTag = process.env.GIT_TAG ?? Date.now().toString();
 
   await pushImage({
-    projectId,
+    projectId: GCP_PROJECT_ID,
     imageName: 'guardian-message-broker',
     imageTag,
   });
 
   await pushImage({
-    projectId,
+    projectId: GCP_PROJECT_ID,
     imageName: 'guardian-service',
     imageTag,
   });
 
+  // Paul Debug
   // await pushImage({
-  //   projectId,
+  //   projectId: GCP_PROJECT_ID,
   //   imageName: 'guardian-ui-service',
   //   imageTag,
   // });
 
   // await pushImage({
-  //   projectId,
+  //   projectId: GCP_PROJECT_ID,
   //   imageName: 'guardian-mrv-sender',
   //   imageTag,
   // });

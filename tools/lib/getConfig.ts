@@ -14,6 +14,18 @@ export const getConfig = async ({ env }: { env: string }): Promise<IConfig> => {
   assert(GUARDIAN_OPERATOR_ID, `GUARDIAN_OPERATOR_ID is missing`);
   assert(GUARDIAN_OPERATOR_KEY, `GUARDIAN_OPERATOR_KEY is missing`);
 
+  if (env !== 'local') {
+    const [GCP_PROJECT_ID] = await getParameters([
+      `/${env}/tymlez-platform/gcp-project-id`,
+    ]);
+
+    return {
+      GUARDIAN_OPERATOR_ID,
+      GUARDIAN_OPERATOR_KEY,
+      GCP_PROJECT_ID,
+    };
+  }
+
   return {
     GUARDIAN_OPERATOR_ID,
     GUARDIAN_OPERATOR_KEY,
@@ -42,4 +54,5 @@ async function getOperatorInfo(env: string) {
 interface IConfig {
   GUARDIAN_OPERATOR_ID: string;
   GUARDIAN_OPERATOR_KEY: string;
+  GCP_PROJECT_ID?: string;
 }
