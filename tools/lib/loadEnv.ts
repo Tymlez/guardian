@@ -8,11 +8,11 @@ const { readFile, writeFile } = fs.promises;
 export const loadEnv = async (): Promise<void> => {
   assert(process.env.ENV, 'ENV is missing');
 
+  console.log(`--- Loading ENV for ${process.env.ENV}`);
+
   const { GUARDIAN_OPERATOR_ID, GUARDIAN_OPERATOR_KEY } = await getConfig({
     env: process.env.ENV,
   });
-
-  console.log(`--- Loading ENV for ${process.env.ENV}`);
 
   await updateTemplate({
     templateFile: './ui-service/.env.docker.template',
