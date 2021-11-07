@@ -20,7 +20,6 @@ jobs:
   deploy-dev:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    needs: check
     env:
       ENV: dev
 

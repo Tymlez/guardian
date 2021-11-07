@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: asia.gcr.io/tymlez-platform-328903/guardian-message-broker
   pullPolicy: IfNotPresent
-  tag: 'latest'
+  tag: ''
 
 imagePullSecrets: []
 nameOverride: ''

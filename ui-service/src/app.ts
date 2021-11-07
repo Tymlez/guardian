@@ -8,6 +8,7 @@ import {
   rootAPI,
   schemaAPI,
   tokenAPI,
+  infoAPI,
 } from '@api/service';
 import { Policy } from '@entity/policy';
 import { Guardians } from '@helpers/guardians';
@@ -31,6 +32,7 @@ console.log('Starting ui-service', {
   BUILD_VERSION: process.env.BUILD_VERSION,
   DEPLOY_VERSION: process.env.DEPLOY_VERSION,
   OPERATOR_ID: process.env.OPERATOR_ID,
+  MRV_ADDRESS: process.env.MRV_ADDRESS,
 });
 
 Promise.all([
@@ -89,6 +91,7 @@ Promise.all([
   app.use('/api/profile/', authorizationHelper, profileAPI);
   app.use('/api/schema', authorizationHelper, schemaAPI);
   app.use('/api/tokens', authorizationHelper, tokenAPI);
+  app.use('/api/info', infoAPI);
   app.use('/api/', authorizationHelper, rootAPI, auditAPI, otherAPI);
   app.use('/', frontendService);
   /////////////////////////////////////////

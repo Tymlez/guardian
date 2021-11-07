@@ -36,6 +36,6 @@ dependencies:
     version: '0.1.0'
     repository: 'file://../guardian-service'
 
-  # - name: guardian-ui-service
-  #   version: '0.1.0'
-  #   repository: 'file://../guardian-ui-service'
+  - name: guardian-ui-service
+    version: '0.1.0'
+    repository: 'file://../guardian-ui-service'

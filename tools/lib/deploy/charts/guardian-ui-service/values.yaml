@@ -5,9 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: asia.gcr.io/tymlez-platform-328903/guardian-ui-service
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: ''
 
 imagePullSecrets: []
@@ -30,8 +29,12 @@ securityContext:
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
-  port: 80
+  type: LoadBalancer
+  ports:
+    - port: 3002
+      targetPort: 'p3002'  # named port from deployment
+      protocol: TCP
+      name: 'p3002'
 
 resources:
   {}
@@ -51,3 +54,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+configmap: 
+  data: {}

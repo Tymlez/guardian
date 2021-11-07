@@ -16,16 +16,10 @@ export async function deploy() {
 
   const imageTag = process.env.GIT_TAG ?? Date.now().toString();
 
-  // Paul Debug
   await pushImages({
     gcpProjectId: GCP_PROJECT_ID,
     imageTag,
   });
-
-  //   helm dependency update && helm upgrade --install --debug tymlez-gardian-dev .
-  // --set-string guardian-message-broker.configmap.data.PAUL_DEBUG1="paul debug runtime 4" \
-  // --set-string guardian-service.configmap.data.PAUL_DEBUG1="paul debug runtime 4b" \
-  // --set-string guardian-service.configmap.data.PAUL_DEBUG2="paul debug runtime 4c"
 
   // Paul Debug
   const GKE_CLUSTER = 'guardian-paul1';
@@ -67,7 +61,11 @@ export async function deploy() {
       `--set-string guardian-service.configmap.data.DB_PASSWORD="${GUARDIAN_MONGO_PASSWORD}"`,
       `--set-string guardian-service.configmap.data.DEPLOY_VERSION="${imageTag}"`,
 
-      // Paul Debug
+      `--set-string guardian-ui-service.image.tag="${imageTag}"`,
+      `--set-string guardian-ui-service.configmap.data.DB_USER="${GUARDIAN_MONGO_USERNAME}"`,
+      `--set-string guardian-ui-service.configmap.data.DB_PASSWORD="${GUARDIAN_MONGO_PASSWORD}"`,
+      `--set-string guardian-ui-service.configmap.data.DEPLOY_VERSION="${imageTag}"`,
+
       // '--dry-run',
     ].join(' '),
     {
@@ -97,18 +95,17 @@ async function pushImages({
     imageTag,
   });
 
-  // Paul Debug
-  // await pushImage({
-  //   gcpProjectId,
-  //   imageName: 'guardian-ui-service',
-  //   imageTag,
-  // });
+  await pushImage({
+    gcpProjectId,
+    imageName: 'guardian-ui-service',
+    imageTag,
+  });
 
-  // await pushImage({
-  //   gcpProjectId: GCP_PROJECT_ID,
-  //   imageName: 'guardian-mrv-sender',
-  //   imageTag,
-  // });
+  await pushImage({
+    gcpProjectId,
+    imageName: 'guardian-mrv-sender',
+    imageTag,
+  });
 }
 
 async function pushImage({
@@ -135,5 +132,20 @@ async function pushImage({
       `push`,
       `asia.gcr.io/${gcpProjectId}/${imageName}:${imageTag}`,
     ].join(' '),
+  );
+
+  await exec(
+    [
+      `docker`,
+      `tag`,
+      imageName,
+      `asia.gcr.io/${gcpProjectId}/${imageName}:latest`,
+    ].join(' '),
+  );
+
+  await exec(
+    [`docker`, `push`, `asia.gcr.io/${gcpProjectId}/${imageName}:latest`].join(
+      ' ',
+    ),
   );
 }

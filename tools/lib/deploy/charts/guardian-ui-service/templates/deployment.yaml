@@ -31,19 +31,22 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: p3002
+              containerPort: 3002
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /api/info
+              port: p3002
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /api/info
+              port: p3002
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "guardian-ui-service.fullname" . }}-{{ .Release.Revision }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
