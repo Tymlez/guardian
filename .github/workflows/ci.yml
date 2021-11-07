@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*.*'
+    paths-ignore:
+      - '**/*.md'
+
+env:
+  CI: 'true'
+  AWS_SDK_LOAD_CONFIG: 'true'
+  AWS_REGION: ap-southeast-2
+  AWS_DEFAULT_REGION: ap-southeast-2
+  TF_TOKEN: ${{ secrets.TF_TOKEN }}
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: check
+    env:
+      ENV: dev
+
+    steps:
+      - name: Get GIT_SHA and GIT_TAG
+        env:
+          GIT_TAG: ${{ github.sha }}
+        run: |
+          GIT_SHA=${GIT_TAG:0:7}
+
+          echo "GIT_SHA=$GIT_SHA"
+          echo "GIT_SHA=$GIT_SHA" >> $GITHUB_ENV
+
+          echo "GIT_TAG=$GIT_TAG"
+          echo "GIT_TAG=$GIT_TAG" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      # Paul Debug
+      # - name: npm install
+      #   run: |
+      #     npm install
+
+      # - name: Deploy
+      #   run: |
+      #     npm run deploy
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

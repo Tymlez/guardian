@@ -4,6 +4,13 @@ import { DefaultDocumentLoader, HederaHelper, VCHelper } from 'vc-modules';
 import { VCDocumentLoader } from './document-loader/vc-document-loader';
 
 const PORT = process.env.PORT || 3005;
+
+console.log('Starting mrv-sender', {
+  PORT,
+  BUILD_VERSION: process.env.BUILD_VERSION,
+  DEPLOY_VERSION: process.env.DEPLOY_VERSION,
+});
+
 (async () => {
   const app = express();
 
@@ -106,8 +113,8 @@ const PORT = process.env.PORT || 3005;
 
     res.status(200).json({
       NAME: 'mrv-sender',
-      RELEASE_VERSION: process.env.RELEASE_VERSION,
-      OPERATOR_ID: process.env.OPERATOR_ID,
+      BUILD_VERSION: process.env.BUILD_VERSION,
+      DEPLOY_VERSION: process.env.DEPLOY_VERSION,
     });
   });
 

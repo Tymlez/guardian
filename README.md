@@ -146,7 +146,7 @@ To get a local copy up and running, follow these simple example steps. When buil
    npm run build
    ```
 
-   To start the service (found on http://localhost:3004):
+   To start the service (found on http://localhost:3001):
 
    ```
    npm start

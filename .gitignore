@@ -26,3 +26,4 @@ ui-service/.vs/
 guardian-service/config.json
 ui-service/.env
 ui-service/.env.docker
+*.tgz

@@ -22,6 +22,17 @@ import { StateContainer } from '@policy-engine/state-container';
 
 const PORT = process.env.PORT || 3002;
 
+console.log('Starting ui-service', {
+  PORT,
+  DB_HOST: process.env.DB_HOST,
+  DB_DATABASE: process.env.DB_DATABASE,
+  DB_USER: process.env.DB_USER,
+
+  BUILD_VERSION: process.env.BUILD_VERSION,
+  DEPLOY_VERSION: process.env.DEPLOY_VERSION,
+  OPERATOR_ID: process.env.OPERATOR_ID,
+});
+
 Promise.all([
   createConnection({
     type: 'mongodb',
@@ -34,6 +45,7 @@ Promise.all([
     cli: {
       entitiesDir: 'dist/entity',
     },
+    authSource: 'admin',
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
   }),

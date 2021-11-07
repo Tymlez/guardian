@@ -5,6 +5,12 @@ const server = FastMQ.Server.create('master', 7500, '0.0.0.0');
 
 const PORT = process.env.PORT || 3003;
 
+console.log('Starting message-broker', {
+  PORT,
+  BUILD_VERSION: process.env.BUILD_VERSION,
+  DEPLOY_VERSION: process.env.DEPLOY_VERSION,
+});
+
 // start server
 Promise.all([server.start()]).then(async () => {
   const app = express();
@@ -28,8 +34,8 @@ Promise.all([server.start()]).then(async () => {
 
     res.status(200).json({
       NAME: 'message-broker',
-      RELEASE_VERSION: process.env.RELEASE_VERSION,
-      OPERATOR_ID: process.env.OPERATOR_ID,
+      BUILD_VERSION: process.env.BUILD_VERSION,
+      DEPLOY_VERSION: process.env.DEPLOY_VERSION,
     });
   });
 

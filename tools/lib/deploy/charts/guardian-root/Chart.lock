@@ -1,0 +1,12 @@
+dependencies:
+- name: mongodb
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.29.0
+- name: guardian-message-broker
+  repository: file://../guardian-message-broker
+  version: 0.1.0
+- name: guardian-service
+  repository: file://../guardian-service
+  version: 0.1.0
+digest: sha256:d1178b3d4981b9318e2b929c837f82b0d6b1190f63250012a0fd3331aa6ddf65
+generated: "2021-11-05T17:10:57.848542+11:00"

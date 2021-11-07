@@ -33,6 +33,16 @@ import { SchemaDocumentLoader } from './document-loader/vc-document-loader';
 
 const PORT = process.env.PORT || 3001;
 
+console.log('Starting guardian-service', {
+  PORT,
+  DB_HOST: process.env.DB_HOST,
+  DB_DATABASE: process.env.DB_DATABASE,
+  DB_USER: process.env.DB_USER,
+
+  BUILD_VERSION: process.env.BUILD_VERSION,
+  DEPLOY_VERSION: process.env.DEPLOY_VERSION,
+});
+
 Promise.all([
   createConnection({
     type: 'mongodb',
@@ -45,6 +55,7 @@ Promise.all([
     cli: {
       entitiesDir: 'dist/entity',
     },
+    authSource: 'admin',
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
   }),
@@ -154,8 +165,9 @@ Promise.all([
 
     res.status(200).json({
       NAME: 'guardian-service',
-      RELEASE_VERSION: process.env.RELEASE_VERSION,
-      OPERATOR_ID: process.env.OPERATOR_ID,
+      BUILD_VERSION: process.env.BUILD_VERSION,
+      DEPLOY_VERSION: process.env.DEPLOY_VERSION,
+      OPERATOR_ID: fileConfig.OPERATOR_ID,
     });
   });
 

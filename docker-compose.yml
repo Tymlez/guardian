@@ -5,6 +5,11 @@ services:
     restart: always
     expose:
       - 27017
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password}
   message-broker:
     build:
       context: .
@@ -21,6 +26,9 @@ services:
     image: guardian-ui-service
     ports:
       - 3002:3002
+    environment:
+      DB_USER: ${MONGO_INITDB_ROOT_USERNAME:-root}
+      DB_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password}
     depends_on:
       - mongo
       - message-broker
@@ -30,8 +38,11 @@ services:
       context: .
       dockerfile: ./guardian-service/Dockerfile
     image: guardian-service
-    #    ports:
-    #      - 3004:3004
+    ports:
+      - 3001:3001
+    environment:
+      DB_USER: ${MONGO_INITDB_ROOT_USERNAME:-root}
+      DB_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password}
     depends_on:
       - mongo
       - message-broker
