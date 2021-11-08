@@ -7,12 +7,24 @@ export const getConfig = async ({ env }: { env: string }): Promise<IConfig> => {
     `Unsupported env: '${env}'.`,
   );
 
-  const { GUARDIAN_OPERATOR_ID, GUARDIAN_OPERATOR_KEY } = await getOperatorInfo(
-    env,
-  );
+  const {
+    GUARDIAN_OPERATOR_ID,
+    GUARDIAN_OPERATOR_KEY,
+    GUARDIAN_ADDRESS_BOOK,
+    GUARDIAN_VC_TOPIC_ID,
+    GUARDIAN_DID_TOPIC_ID,
+  } = await getOperatorInfo(env);
 
   assert(GUARDIAN_OPERATOR_ID, `GUARDIAN_OPERATOR_ID is missing`);
   assert(GUARDIAN_OPERATOR_KEY, `GUARDIAN_OPERATOR_KEY is missing`);
+
+  const localEnv = {
+    GUARDIAN_OPERATOR_ID,
+    GUARDIAN_OPERATOR_KEY,
+    GUARDIAN_ADDRESS_BOOK,
+    GUARDIAN_VC_TOPIC_ID,
+    GUARDIAN_DID_TOPIC_ID,
+  };
 
   if (env !== 'local') {
     const [
@@ -30,8 +42,8 @@ export const getConfig = async ({ env }: { env: string }): Promise<IConfig> => {
     ]);
 
     return {
-      GUARDIAN_OPERATOR_ID,
-      GUARDIAN_OPERATOR_KEY,
+      ...localEnv,
+
       GCP_PROJECT_ID,
       GUARDIAN_MONGO_USERNAME,
       GUARDIAN_MONGO_PASSWORD,
@@ -40,27 +52,39 @@ export const getConfig = async ({ env }: { env: string }): Promise<IConfig> => {
     };
   }
 
-  return {
-    GUARDIAN_OPERATOR_ID,
-    GUARDIAN_OPERATOR_KEY,
-  };
+  return localEnv;
 };
 
 async function getOperatorInfo(env: string) {
   if (env !== 'local') {
-    const [GUARDIAN_OPERATOR_ID, GUARDIAN_OPERATOR_KEY] = await getParameters([
+    const [
+      GUARDIAN_OPERATOR_ID,
+      GUARDIAN_OPERATOR_KEY,
+      GUARDIAN_ADDRESS_BOOK,
+      GUARDIAN_VC_TOPIC_ID,
+      GUARDIAN_DID_TOPIC_ID,
+    ] = await getParameters([
       `/${env}/tymlez-platform/guardian-operator-id`,
       `/${env}/tymlez-platform/guardian-operator-key`,
+      `/${env}/tymlez-platform/guardian-address-book`,
+      `/${env}/tymlez-platform/guardian-vc-topic-id`,
+      `/${env}/tymlez-platform/guardian-did-topic-id`,
     ]);
 
     return {
       GUARDIAN_OPERATOR_ID,
       GUARDIAN_OPERATOR_KEY,
+      GUARDIAN_ADDRESS_BOOK,
+      GUARDIAN_VC_TOPIC_ID,
+      GUARDIAN_DID_TOPIC_ID,
     };
   } else {
     return {
       GUARDIAN_OPERATOR_ID: process.env.GUARDIAN_OPERATOR_ID,
       GUARDIAN_OPERATOR_KEY: process.env.GUARDIAN_OPERATOR_KEY,
+      GUARDIAN_ADDRESS_BOOK: process.env.GUARDIAN_ADDRESS_BOOK,
+      GUARDIAN_VC_TOPIC_ID: process.env.GUARDIAN_VC_TOPIC_ID,
+      GUARDIAN_DID_TOPIC_ID: process.env.GUARDIAN_DID_TOPIC_ID,
     };
   }
 }
@@ -68,6 +92,10 @@ async function getOperatorInfo(env: string) {
 interface IConfig {
   GUARDIAN_OPERATOR_ID: string;
   GUARDIAN_OPERATOR_KEY: string;
+  GUARDIAN_ADDRESS_BOOK?: string;
+  GUARDIAN_VC_TOPIC_ID?: string;
+  GUARDIAN_DID_TOPIC_ID?: string;
+
   GCP_PROJECT_ID?: string;
   GUARDIAN_MONGO_USERNAME?: string;
   GUARDIAN_MONGO_PASSWORD?: string;

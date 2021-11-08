@@ -54,6 +54,7 @@ export async function deployToGke({
       `--set-string guardian-ui-service.configmap.data.DB_USER="${guardianMongoUsername}"`,
       `--set-string guardian-ui-service.configmap.data.DB_PASSWORD="${guardianMongoPassword}"`,
       `--set-string guardian-ui-service.configmap.data.DEPLOY_VERSION="${imageTag}"`,
+
       // '--dry-run',
     ].join(' '),
     {
