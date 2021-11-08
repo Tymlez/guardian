@@ -6,6 +6,7 @@ const server = FastMQ.Server.create('master', 7500, '0.0.0.0');
 const PORT = process.env.PORT || 3003;
 
 console.log('Starting message-broker', {
+  now: new Date().toString(),
   PORT,
   BUILD_VERSION: process.env.BUILD_VERSION,
   DEPLOY_VERSION: process.env.DEPLOY_VERSION,

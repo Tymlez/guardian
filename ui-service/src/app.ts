@@ -24,6 +24,7 @@ import { StateContainer } from '@policy-engine/state-container';
 const PORT = process.env.PORT || 3002;
 
 console.log('Starting ui-service', {
+  now: new Date().toString(),
   PORT,
   DB_HOST: process.env.DB_HOST,
   DB_DATABASE: process.env.DB_DATABASE,

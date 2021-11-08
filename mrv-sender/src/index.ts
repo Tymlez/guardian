@@ -6,6 +6,7 @@ import { VCDocumentLoader } from './document-loader/vc-document-loader';
 const PORT = process.env.PORT || 3005;
 
 console.log('Starting mrv-sender', {
+  now: new Date().toString(),
   PORT,
   BUILD_VERSION: process.env.BUILD_VERSION,
   DEPLOY_VERSION: process.env.DEPLOY_VERSION,

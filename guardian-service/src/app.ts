@@ -34,6 +34,7 @@ import { SchemaDocumentLoader } from './document-loader/vc-document-loader';
 const PORT = process.env.PORT || 3001;
 
 console.log('Starting guardian-service', {
+  now: new Date().toString(),
   PORT,
   DB_HOST: process.env.DB_HOST,
   DB_DATABASE: process.env.DB_DATABASE,
