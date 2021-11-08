@@ -15,12 +15,19 @@ export const getConfig = async ({ env }: { env: string }): Promise<IConfig> => {
   assert(GUARDIAN_OPERATOR_KEY, `GUARDIAN_OPERATOR_KEY is missing`);
 
   if (env !== 'local') {
-    const [GCP_PROJECT_ID, GUARDIAN_MONGO_USERNAME, GUARDIAN_MONGO_PASSWORD] =
-      await getParameters([
-        `/${env}/tymlez-platform/gcp-project-id`,
-        `/${env}/tymlez-platform/guardian-mongo-username`,
-        `/${env}/tymlez-platform/guardian-mongo-password`,
-      ]);
+    const [
+      GCP_PROJECT_ID,
+      GUARDIAN_MONGO_USERNAME,
+      GUARDIAN_MONGO_PASSWORD,
+      GKE_CLUSTER,
+      GEK_REGION,
+    ] = await getParameters([
+      `/${env}/tymlez-platform/gcp-project-id`,
+      `/${env}/tymlez-platform/guardian-mongo-username`,
+      `/${env}/tymlez-platform/guardian-mongo-password`,
+      `/${env}/tymlez-platform/gke-cluster`,
+      `/${env}/tymlez-platform/gke-region`,
+    ]);
 
     return {
       GUARDIAN_OPERATOR_ID,
@@ -28,6 +35,8 @@ export const getConfig = async ({ env }: { env: string }): Promise<IConfig> => {
       GCP_PROJECT_ID,
       GUARDIAN_MONGO_USERNAME,
       GUARDIAN_MONGO_PASSWORD,
+      GKE_CLUSTER,
+      GEK_REGION,
     };
   }
 
@@ -62,4 +71,6 @@ interface IConfig {
   GCP_PROJECT_ID?: string;
   GUARDIAN_MONGO_USERNAME?: string;
   GUARDIAN_MONGO_PASSWORD?: string;
+  GKE_CLUSTER?: string;
+  GEK_REGION?: string;
 }

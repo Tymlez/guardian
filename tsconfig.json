@@ -33,5 +33,6 @@
     // avoid type conflict between libraries
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
-  }
+  },
+  "include": ["tools/"]
 }

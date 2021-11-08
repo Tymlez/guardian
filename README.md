@@ -367,6 +367,8 @@ For any questions, please reach out to the Envision Blockchain Solutions team at
 
 ## Bootstrap
 
-```
+```sh
+gcloud config set project tymlez-platform-328903
+
 gcloud auth configure-docker
 ```

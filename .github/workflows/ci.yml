@@ -14,7 +14,6 @@ env:
   AWS_SDK_LOAD_CONFIG: 'true'
   AWS_REGION: ap-southeast-2
   AWS_DEFAULT_REGION: ap-southeast-2
-  TF_TOKEN: ${{ secrets.TF_TOKEN }}
 
 jobs:
   deploy-dev:
@@ -22,6 +21,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     env:
       ENV: dev
+      CLOUDSDK_CORE_PROJECT: tymlez-platform-328903
 
     steps:
       - name: Get GIT_SHA and GIT_TAG
@@ -44,11 +44,18 @@ jobs:
         with:
           node-version: '14.x'
 
-      # Paul Debug
-      # - name: npm install
-      #   run: |
-      #     npm install
+      - name: npm install
+        run: |
+          # Paul Debug
+          gcloud --version
+          gcloud container clusters list
+          npm install
 
+      - name: Check
+        run: |
+          npm run lint
+
+#          Paul Debug
       # - name: Deploy
       #   run: |
       #     npm run deploy
