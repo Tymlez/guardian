@@ -20,18 +20,21 @@ export const loadEnv = async (): Promise<void> => {
     env: process.env.ENV,
   });
 
+  console.log('Updating ./ui-service/.env.docker');
   await updateTemplate({
     templateFile: './ui-service/.env.docker.template',
     GUARDIAN_OPERATOR_ID,
     GUARDIAN_OPERATOR_KEY,
   });
 
+  console.log('Updating ./ui-service/.env');
   await updateTemplate({
     templateFile: './ui-service/.env.template',
     GUARDIAN_OPERATOR_ID,
     GUARDIAN_OPERATOR_KEY,
   });
 
+  console.log('Updating ./guardian-service/config.json');
   await writeFile(
     './guardian-service/config.json',
     JSON.stringify(
