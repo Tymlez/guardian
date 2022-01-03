@@ -23,3 +23,5 @@ interfaces/node_modules/
 www-data/
 ui-service/.vs/
 /test_results/
+/node_modules/
+tools/**/*.tgz
