@@ -13,6 +13,7 @@ import {
 } from 'interfaces';
 import { MongoRepository } from 'typeorm';
 import { VCHelper } from 'vc-modules';
+import { File, Web3Storage } from 'web3.storage';
 
 /**
  * Connect to the message broker methods of working with VC, VP and DID Documents
@@ -30,6 +31,9 @@ export const documentsAPI = async function (
     vpDocumentRepository: MongoRepository<VpDocument>,
     vc: VCHelper
 ): Promise<void> {
+
+    //add to config
+    const web3storageToken = process.env.WEB3_STORAGE_TOKEN;
     const getDIDOperation = function (operation: DidMethodOperation) {
         switch (operation) {
             case DidMethodOperation.CREATE:
@@ -176,7 +180,9 @@ export const documentsAPI = async function (
             verify = false;
         }
         result.signature = verify ? DocumentSignature.VERIFIED : DocumentSignature.INVALID;
-        result = await vcDocumentRepository.save(result);
+        const storage = new Web3Storage({token: web3storageToken});
+        const cid = (await storage.put([new File([JSON.stringify(result)], `${result.document.id}.json`, {type:'application/json'})]));
+        result = await vcDocumentRepository.save({...result, cid});
         res.send(result);
     });
 
@@ -188,9 +194,19 @@ export const documentsAPI = async function (
      * @returns {IVPDocument} - new VP Document
      */
     channel.response(MessageAPI.SET_VP_DOCUMENT, async (msg, res) => {
-        const vpDocumentObject = vpDocumentRepository.create(msg.payload);
+        let vpDocumentObject = vpDocumentRepository.create(msg.payload as IVPDocument);
+
+        if (!vpDocumentObject.cid)
+        {
+            const storage = new Web3Storage({token: web3storageToken});
+            vpDocumentObject.cid = (await storage.put([new File([JSON.stringify(vpDocumentObject)], `${vpDocumentObject.document.id}.json`, {type:'application/json'})]));
+        }    
+        // do we need to store the VP also in the VC table?
+        vpDocumentObject = await vcDocumentRepository.save(vpDocumentObject);
+        
         const result: any = await vpDocumentRepository.save(vpDocumentObject);
         res.send(result);
+
     });
 
     /**
