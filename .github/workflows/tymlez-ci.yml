@@ -40,6 +40,7 @@ jobs:
 
       - name: Check
         run: |
+          npm run build
           npm run lint
 
   # deploy-dev:
