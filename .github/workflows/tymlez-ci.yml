@@ -18,6 +18,7 @@ env:
 jobs:
   check:
     runs-on: ubuntu-latest
+    if: "!contains(github.ref, 'dependabot/')"
 
     steps:
 
@@ -32,6 +33,10 @@ jobs:
       - name: npm install
         run: |
           npm install
+          # Paul Debug
+          lerna exec "ls node_modules/vc-modules || true" --stream
+          lerna exec "ls node_modules/interfaces || true" --stream
+
 
       - name: Check
         run: |
