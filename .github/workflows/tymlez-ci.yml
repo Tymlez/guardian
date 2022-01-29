@@ -70,6 +70,11 @@ jobs:
         run: |
           npm install
 
+      - name: npm bootstrap:always
+        if: steps.npm-cache.outputs.cache-hit == 'true'
+        run: |
+          npx lerna exec npm install --stream --concurrency ${CONCURRENCY:-2}
+
       - name: Check
         run: |
           npm run build
