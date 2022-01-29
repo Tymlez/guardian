@@ -132,7 +132,6 @@ export const makeTrackAndTraceApi = ({
       deviceId: string | undefined;
       deviceInfo: any;
     };
-    policyTag;
 
     assert(username, `username is missing`);
     assert(
