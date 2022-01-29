@@ -1,6 +1,6 @@
 {
   "name": "tymlez-guardian",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "preinstall": "./tools/bin/ensure-node16.sh",
     "install": "lerna clean --no-private --yes && npm run bootstrap",
