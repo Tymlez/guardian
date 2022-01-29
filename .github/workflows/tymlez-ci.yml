@@ -42,7 +42,6 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: |
           npm install
-          (cd message-broker && tsc --version && ls -al node_modules && ls -al node_modules/@types)
 
   check:
     runs-on: ubuntu-latest
@@ -72,11 +71,9 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: |
           npm install
-          (cd message-broker && tsc --version && ls -al node_modules && ls -al node_modules/@types)
 
       - name: Check
         run: |
-          (cd message-broker && tsc --version && ls -al node_modules && ls -al node_modules/@types)
           npm run build
           npm run lint
 
