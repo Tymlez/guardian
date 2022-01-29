@@ -1,6 +1,5 @@
 import axios from 'axios';
 import pLimit from 'p-limit';
-import type { InstallerUserName } from '../../../tymlez-service/src/modules/user';
 import type { IDeviceInfo } from '../getBuildTimeConfig';
 
 export async function addDevices({
@@ -72,7 +71,7 @@ async function addDevice({
 }: {
   GUARDIAN_TYMLEZ_SERVICE_BASE_URL: string;
   GUARDIAN_TYMLEZ_API_KEY: string;
-  username: InstallerUserName;
+  username: string;
   policyTag: string;
   deviceInfo: IDeviceInfo;
 }) {
