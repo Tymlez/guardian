@@ -35,7 +35,7 @@ jobs:
           path: |
             node_modules
             */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package-lock.json') }}
 
       - name: npm install
         if: steps.npm-cache.outputs.cache-hit != 'true'
@@ -57,23 +57,24 @@ jobs:
         with:
           node-version: '16.x'
 
-      # - name: restore npm
-      #   id: npm-cache
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: |
-      #       node_modules
-      #       */*/node_modules
-      #     key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+      - name: restore npm
+        id: npm-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package-lock.json') }}
 
       - name: npm install
-        # if: steps.npm-cache.outputs.cache-hit != 'true'
+        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: |
           npm install
           (cd message-broker && tsc --version && ls -al node_modules/@types)
 
       - name: Check
         run: |
+          (cd message-broker && tsc --version && ls -al node_modules/@types)
           npm run build
           npm run lint
 
