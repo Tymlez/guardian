@@ -1,5 +1,6 @@
 import axios from 'axios';
-import type { IPolicyPackage } from './IPolicyPackage';
+import type { IPolicyPackage } from '../../../tymlez-service/src/entity/policy-package';
+import type { UserName } from '../../../tymlez-service/src/modules/user';
 
 export async function registerNewInstallers({
   policyPackages,
@@ -35,7 +36,7 @@ async function registerNewInstaller({
 }: {
   GUARDIAN_TYMLEZ_SERVICE_BASE_URL: string;
   GUARDIAN_TYMLEZ_API_KEY: string;
-  username: string;
+  username: UserName;
   policyTag: string;
   installerInfo: any;
 }) {
