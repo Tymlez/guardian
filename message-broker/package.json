@@ -6,7 +6,8 @@
     "dev": "tsc -w",
     "start": "node dist/index.js",
     "debug": "nodemon dist/index.js",
-    "build": "tsc",
+    "//paul debug": "remove tsc debug commands",
+    "build": "tsc --version && tsc --showConfig && tsc --listFiles && tsc",
     "watch": "npx -y concurrently 'npm:dev' 'npm:debug'"
   },
   "author": "Envision Blockchain Solutions <info@envisionblockchain.com>",

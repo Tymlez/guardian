@@ -56,24 +56,24 @@ jobs:
         with:
           node-version: '16.x'
 
-      - name: restore npm
-        id: npm-cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/package.json', '**/package-lock.json') }}
+      # - name: restore npm
+      #   id: npm-cache
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       node_modules
+      #       */*/node_modules
+      #     key: ${{ runner.os }}-${{ hashFiles('**/package.json', '**/package-lock.json') }}
 
       - name: npm install
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+        # if: steps.npm-cache.outputs.cache-hit != 'true'
         run: |
           npm install
 
-      - name: npm bootstrap:always
-        if: steps.npm-cache.outputs.cache-hit == 'true'
-        run: |
-          npx lerna exec npm install --stream --concurrency ${CONCURRENCY:-2}
+      # - name: npm bootstrap:always
+      #   if: steps.npm-cache.outputs.cache-hit == 'true'
+      #   run: |
+      #     npx lerna exec npm install --stream --concurrency ${CONCURRENCY:-2}
 
       - name: Check
         run: |
