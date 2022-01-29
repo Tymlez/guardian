@@ -31,6 +31,7 @@ export class Token {
         }
 
         this.tokenUrl = 'https://testnet.dragonglass.me/hedera/tokens/' + this.tokenId.split('-')[0];
-        this.url = btoa(this.tokenId);
+        // this.url = btoa(this.tokenId);
+        this.url = Buffer.from(this.tokenId, 'binary').toString('base64')
     }
 }
