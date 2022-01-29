@@ -136,6 +136,7 @@ jobs:
       #   env:
       #     AWS_ACCESS_KEY_ID: ${{ secrets[format('{0}_{1}_AWS_ACCESS_KEY_ID', matrix.job, env.ENV)] }}
       #     AWS_SECRET_ACCESS_KEY: ${{ secrets[format('{0}_{1}_AWS_SECRET_ACCESS_KEY', matrix.job, env.ENV)] }}
+      #     # Paul Debug: get CLOUDSDK_CORE_PROJECT from SSM
       #     CLOUDSDK_CORE_PROJECT: tymlez-platform-328903
 
 
