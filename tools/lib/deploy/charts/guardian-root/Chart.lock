@@ -5,14 +5,5 @@ dependencies:
 - name: guardian-message-broker
   repository: file://../guardian-message-broker
   version: 0.1.0
-- name: guardian-service
-  repository: file://../guardian-service
-  version: 0.1.0
-- name: guardian-ui-service
-  repository: file://../guardian-ui-service
-  version: 0.1.0
-- name: guardian-tymlez-service
-  repository: file://../guardian-tymlez-service
-  version: 0.1.0
-digest: sha256:877536e0edb14ba3efcc1307b097bb2d0c2d5b151c1c36f3c65a86dd444bf4c8
-generated: "2022-01-06T17:58:03.68994+11:00"
+digest: sha256:7617a0dea53595f4cd2c6e9753d9e1ffdf2e98671a7e341d0b86f4e02f7f9adf
+generated: "2022-01-31T10:53:42.432775+11:00"

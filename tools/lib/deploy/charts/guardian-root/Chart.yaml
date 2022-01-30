@@ -32,14 +32,15 @@ dependencies:
     version: '0.1.0'
     repository: 'file://../guardian-message-broker'
 
-  - name: guardian-service
-    version: '0.1.0'
-    repository: 'file://../guardian-service'
+  # Paul Debug
+  # - name: guardian-service
+  #   version: '0.1.0'
+  #   repository: 'file://../guardian-service'
 
-  - name: guardian-ui-service
-    version: '0.1.0'
-    repository: 'file://../guardian-ui-service'
+  # - name: guardian-ui-service
+  #   version: '0.1.0'
+  #   repository: 'file://../guardian-ui-service'
 
-  - name: guardian-tymlez-service
-    version: '0.1.0'
-    repository: 'file://../guardian-tymlez-service'
+  # - name: guardian-tymlez-service
+  #   version: '0.1.0'
+  #   repository: 'file://../guardian-tymlez-service'
