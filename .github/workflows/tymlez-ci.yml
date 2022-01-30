@@ -106,25 +106,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: Use Node.js
-      #   uses: actions/setup-node@v2
-      #   with:
-      #     node-version: '16.x'
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
 
-      # - name: restore npm
-      #   id: npm-cache
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: |
-      #       node_modules
-      #       */node_modules
-      #       */*/node_modules
-      #     key: ${{ runner.os }}-lerna-${{ hashFiles('**/package-lock.json') }}
+      - name: restore npm
+        id: npm-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package-lock.json') }}
 
-      # - name: npm install
-      #   if: steps.npm-cache.outputs.cache-hit != 'true'
-      #   run: |
-      #     npm install
+      - name: npm install
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: |
+          npm install --ignore-scripts
 
       - name: Deploy (${{ matrix.job }})
         run: |
@@ -140,19 +140,11 @@ jobs:
           echo GKE_CLUSTER=$GKE_CLUSTER
 
           gcloud auth login --cred-file "$PWD/gcp-ci-credentials.json"
-          gcloud auth list
-          gcloud config get-value account
-          gcloud config get-value project
           gcloud config set project $GCP_PROJECT_ID
-          gcloud config get-value project
-
-          gcloud container clusters list
-          # Paul Debug: Call this in `deployToGke.ts`
           gcloud container clusters get-credentials $GKE_CLUSTER --region $GCP_REGION
-          kubectl get all
           helm list
 
-          # Paul Debug: uncomment
+          # Paul Debug
           # npm run deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('{0}_{1}_AWS_ACCESS_KEY_ID', matrix.job, env.ENV)] }}
