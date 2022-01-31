@@ -144,6 +144,8 @@ jobs:
           gcloud container clusters get-credentials $GKE_CLUSTER --region $GCP_REGION
           helm list
 
+          gcloud auth configure-docker
+
           npm run deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('{0}_{1}_AWS_ACCESS_KEY_ID', matrix.job, env.ENV)] }}
