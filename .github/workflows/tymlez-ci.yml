@@ -146,7 +146,9 @@ jobs:
 
           gcloud auth login --cred-file "$PWD/gcp-ci-credentials.json"
           gcloud config set project $GCP_PROJECT_ID
-          gcloud auth configure-docker
+
+          
+          # gcloud auth configure-docker
 
           npm run deploy
         env:
