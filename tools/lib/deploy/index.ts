@@ -34,11 +34,12 @@ export async function deploy() {
 
   await exec(['docker-compose', 'build'].join(' '));
 
-  // Paul Debug
-  // await pushImages({
-  //   gcpProjectId: GCP_PROJECT_ID,
-  //   imageTag,
-  // });
+  await exec(['gcloud', 'auth', 'configure-docker'].join(' '));
+
+  await pushImages({
+    gcpProjectId: GCP_PROJECT_ID,
+    imageTag,
+  });
 
   // await deployToGke({
   //   gkeCluster: GKE_CLUSTER,
