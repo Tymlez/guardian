@@ -154,8 +154,8 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('{0}_{1}_AWS_ACCESS_KEY_ID', matrix.job, env.ENV)] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('{0}_{1}_AWS_SECRET_ACCESS_KEY', matrix.job, env.ENV)] }}
-          LD_LIBRARY_PATH: "/usr/local/lib"
-          CLOUDSDK_PYTHON: python3
+          LD_LIBRARY_PATH: /usr/local/lib
+          CLOUDSDK_PYTHON: /usr/bin/python3
 
 
 
