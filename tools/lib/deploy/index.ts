@@ -34,20 +34,19 @@ export async function deploy() {
 
   await exec(['docker-compose', 'build'].join(' '));
 
-  // Paul Debug
-  // await exec(['gcloud', 'auth', 'configure-docker'].join(' '));
+  await exec(['gcloud', 'auth', 'configure-docker'].join(' '));
 
-  // await pushImages({
-  //   gcpProjectId: GCP_PROJECT_ID,
-  //   imageTag,
-  // });
+  await pushImages({
+    gcpProjectId: GCP_PROJECT_ID,
+    imageTag,
+  });
 
-  // await deployToGke({
-  //   gkeCluster: GKE_CLUSTER,
-  //   region: GCP_REGION,
-  //   imageTag,
-  //   gcpProjectId: GCP_PROJECT_ID,
-  //   clientName: CLIENT_NAME,
-  //   env: ENV,
-  // });
+  await deployToGke({
+    gkeCluster: GKE_CLUSTER,
+    region: GCP_REGION,
+    imageTag,
+    gcpProjectId: GCP_PROJECT_ID,
+    clientName: CLIENT_NAME,
+    env: ENV,
+  });
 }
