@@ -53,8 +53,7 @@ export async function deployToGke({
       'upgrade',
       '--install',
       '--debug',
-      // Pual Debug
-      `tymlez-guardian-paul-${process.env.ENV}`,
+      `tymlez-guardian-${process.env.ENV}`,
       '.',
 
       `--set-string guardian-message-broker.image.repository="asia.gcr.io/${gcpProjectId}/guardian-message-broker"`,

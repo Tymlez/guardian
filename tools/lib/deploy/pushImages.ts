@@ -15,30 +15,29 @@ export async function pushImages({
     imageTag,
   });
 
-  // Paul Debug
-  // await pushImage({
-  //   gcpProjectId,
-  //   imageName: 'guardian-service',
-  //   imageTag,
-  // });
+  await pushImage({
+    gcpProjectId,
+    imageName: 'guardian-service',
+    imageTag,
+  });
 
-  // await pushImage({
-  //   gcpProjectId,
-  //   imageName: 'guardian-ui-service',
-  //   imageTag,
-  // });
+  await pushImage({
+    gcpProjectId,
+    imageName: 'guardian-ui-service',
+    imageTag,
+  });
 
-  // await pushImage({
-  //   gcpProjectId,
-  //   imageName: 'guardian-mrv-sender',
-  //   imageTag,
-  // });
+  await pushImage({
+    gcpProjectId,
+    imageName: 'guardian-mrv-sender',
+    imageTag,
+  });
 
-  // await pushImage({
-  //   gcpProjectId,
-  //   imageName: 'guardian-tymlez-service',
-  //   imageTag,
-  // });
+  await pushImage({
+    gcpProjectId,
+    imageName: 'guardian-tymlez-service',
+    imageTag,
+  });
 }
 
 async function pushImage({

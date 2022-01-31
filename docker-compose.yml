@@ -14,45 +14,44 @@ services:
       - 3003:3003
     expose:
       - 7500
-  # Paul Debug
-  # ui-service:
-  #   build:
-  #     context: .
-  #     dockerfile: ./ui-service/Dockerfile
-  #   image: guardian-ui-service
-  #   ports:
-  #     - 3002:3002
-  #   depends_on:
-  #     - mongo
-  #     - message-broker
-  #     - guardian-service
-  # guardian-service:
-  #   build:
-  #     context: .
-  #     dockerfile: ./guardian-service/Dockerfile
-  #   image: guardian-service
-  #   ports:
-  #     - 3001:3001
-  #   depends_on:
-  #     - mongo
-  #     - message-broker
-  # mrv-sender:
-  #   build:
-  #     context: .
-  #     dockerfile: ./mrv-sender/Dockerfile
-  #   image: guardian-mrv-sender
-  #   ports:
-  #     - 3005:3005
-  # tymlez-service:
-  #   build:
-  #     context: .
-  #     dockerfile: ./tymlez-service/Dockerfile
-  #   image: guardian-tymlez-service
-  #   ports:
-  #     - 3010:3010
-  #   depends_on:
-  #     - mongo
-  #     - message-broker
+  ui-service:
+    build:
+      context: .
+      dockerfile: ./ui-service/Dockerfile
+    image: guardian-ui-service
+    ports:
+      - 3002:3002
+    depends_on:
+      - mongo
+      - message-broker
+      - guardian-service
+  guardian-service:
+    build:
+      context: .
+      dockerfile: ./guardian-service/Dockerfile
+    image: guardian-service
+    ports:
+      - 3001:3001
+    depends_on:
+      - mongo
+      - message-broker
+  mrv-sender:
+    build:
+      context: .
+      dockerfile: ./mrv-sender/Dockerfile
+    image: guardian-mrv-sender
+    ports:
+      - 3005:3005
+  tymlez-service:
+    build:
+      context: .
+      dockerfile: ./tymlez-service/Dockerfile
+    image: guardian-tymlez-service
+    ports:
+      - 3010:3010
+    depends_on:
+      - mongo
+      - message-broker
 volumes:
   mongo:
   # volume-guardian-service:
