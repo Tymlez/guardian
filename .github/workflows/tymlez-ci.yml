@@ -127,7 +127,7 @@ jobs:
           npm install
 
       - name: Setup gcloud
-      - uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v0
 
       - name: Deploy (${{ matrix.job }})
         run: |
