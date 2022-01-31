@@ -128,9 +128,10 @@ jobs:
 
       - name: Deploy (${{ matrix.job }})
         run: |
-          # Refer to https://stackoverflow.com/questions/65295958/docker-compose-not-working-with-gcloud-cannot-find-openssl
-          # docker-compose Not Working With gcloud: Cannot Find OpenSSL
-          export LD_LIBRARY_PATH=/usr/local/lib
+          # Paul Debug
+          # # Refer to https://stackoverflow.com/questions/65295958/docker-compose-not-working-with-gcloud-cannot-find-openssl
+          # # docker-compose Not Working With gcloud: Cannot Find OpenSSL
+          # export LD_LIBRARY_PATH=/usr/local/lib
 
           aws sts get-caller-identity
 
@@ -147,7 +148,8 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets[format('{0}_{1}_AWS_ACCESS_KEY_ID', matrix.job, env.ENV)] }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets[format('{0}_{1}_AWS_SECRET_ACCESS_KEY', matrix.job, env.ENV)] }}
-
+          LD_LIBRARY_PATH: "/usr/local/lib"
+          CLOUDSDK_PYTHON: python3
 
 
 
