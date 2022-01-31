@@ -54,9 +54,7 @@ async function getServiceInfo({
   serviceName: string;
 }) {
   try {
-    const { data: serviceInfo } = (await axios.get(`${baseUrl}/info`)) as {
-      data: Object;
-    };
+    const { data: serviceInfo } = await axios.get(`${baseUrl}/info`);
     return serviceInfo;
   } catch (ex) {
     console.warn(`Failed to get info from ${serviceName} ${baseUrl}`);
