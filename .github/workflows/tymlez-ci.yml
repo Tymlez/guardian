@@ -16,66 +16,65 @@ env:
   AWS_DEFAULT_REGION: ap-southeast-2
 
 jobs:
-# Paul Debug
-  # install:
-  #   runs-on: ubuntu-latest
-  #   if: "!contains(github.ref, 'dependabot/')"
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
+  install:
+    runs-on: ubuntu-latest
+    if: "!contains(github.ref, 'dependabot/')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-  #     - name: Use Node.js
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: '16.x'
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
 
-  #     - name: restore npm
-  #       id: npm-cache
-  #       uses: actions/cache@v2
-  #       with:
-  #         path: |
-  #           node_modules
-  #           */node_modules
-  #           */*/node_modules
-  #         key: ${{ runner.os }}-lerna-${{ hashFiles('**/package-lock.json') }}
+      - name: restore npm
+        id: npm-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package-lock.json') }}
 
-  #     - name: npm install
-  #       if: steps.npm-cache.outputs.cache-hit != 'true'
-  #       run: |
-  #         npm install
+      - name: npm install
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: |
+          npm install
 
-  # check:
-  #   runs-on: ubuntu-latest
-  #   needs: install
-  #   if: "!contains(github.ref, 'dependabot/')"
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
+  check:
+    runs-on: ubuntu-latest
+    needs: install
+    if: "!contains(github.ref, 'dependabot/')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-  #     - name: Use Node.js
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: '16.x'
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
 
-  #     - name: restore npm
-  #       id: npm-cache
-  #       uses: actions/cache@v2
-  #       with:
-  #         path: |
-  #           node_modules
-  #           */node_modules
-  #           */*/node_modules
-  #         key: ${{ runner.os }}-lerna-${{ hashFiles('**/package-lock.json') }}
+      - name: restore npm
+        id: npm-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package-lock.json') }}
 
-  #     - name: npm install
-  #       if: steps.npm-cache.outputs.cache-hit != 'true'
-  #       run: |
-  #         npm install
+      - name: npm install
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: |
+          npm install
 
-  #     - name: Check
-  #       run: |
-  #         npm run build
-  #         npm run lint
+      - name: Check
+        run: |
+          npm run build
+          npm run lint
 
   deploy-dev:
     strategy:
@@ -83,9 +82,8 @@ jobs:
       matrix:
         job: [cohort]
     runs-on: ubuntu-latest
-    # Paul Debug
-    # if: github.ref == 'refs/heads/main'
-    # needs: check
+    if: github.ref == 'refs/heads/main'
+    needs: check
     env:
       ENV: 'dev'
       CLIENT_NAME: '${{ matrix.job }}'
