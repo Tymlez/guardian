@@ -127,8 +127,9 @@ jobs:
           npm install
 
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '298.0.0'
       - run: gcloud info
-
       - name: Deploy (${{ matrix.job }})
         run: |
           # Paul Debug
