@@ -127,8 +127,8 @@ jobs:
           npm install
 
       # Paul Debug
-      # - uses: satackey/action-docker-layer-caching@v0.0.11
-      #   continue-on-error: true
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
 
       - name: Deploy (${{ matrix.job }})
         run: |
