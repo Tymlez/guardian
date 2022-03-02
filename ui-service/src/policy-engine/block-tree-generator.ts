@@ -89,7 +89,7 @@ export class BlockTreeGenerator {
         const newPolicyEntity = policyRepository.create([{
             name: 'test policy',
             status: 'DRAFT',
-            config: ConfigPolicyTest,
+            config: ConfigPolicyTest as Object,
             policyPoles: ['INSTALLER'],
             owner: ra.did,
             policyTag: 'TestPolicy'
