@@ -86,14 +86,14 @@ export class BlockTreeGenerator {
         const existing = await policyRepository.find();
 
         await policyRepository.remove(existing);
-        const newPolicyEntity = policyRepository.create([{
+        const newPolicyEntity = policyRepository.create({
             name: 'test policy',
             status: 'DRAFT',
-            config: ConfigPolicyTest,
+            config: ConfigPolicyTest as Object,
             policyPoles: ['INSTALLER'],
             owner: ra.did,
             policyTag: 'TestPolicy'
-        }]);
+        });
         await policyRepository.save(newPolicyEntity);
     }
 
