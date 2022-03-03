@@ -223,9 +223,13 @@ export const makeTrackAndTraceApi = ({
         deviceId: string | undefined;
       };
 
-      // Note: ignored the MRV record '62130093492a440015975d6f' because it was created by a bug with a timestamp in the future
+      // Note: ignored the MRV because it was created by a bug with a timestamp in the future '2022-08-29T23:35:00.000Z'
       const mrv = await processedMrvRepository.findOne({
-        where: { policyTag, deviceId, id: { $ne: '62130093492a440015975d6f' } },
+        where: {
+          policyTag,
+          deviceId,
+          timestamp: { $ne: '2022-08-29T23:35:00.000Z' },
+        },
         order: { timestamp: 'DESC' },
       });
 
