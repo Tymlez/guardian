@@ -225,12 +225,10 @@ export const makeTrackAndTraceApi = ({
       };
 
       // Note: delete records instroduced  by a bug with a timestamp in the future
-      await processedMrvRepository.delete({
-        where: {
+      await processedMrvRepository.deleteMany({
           policyTag,
           deviceId,
           timestamp: { $gte: new Date().toISOString() },
-        }
       });
 
       const mrv = await processedMrvRepository.findOne({
