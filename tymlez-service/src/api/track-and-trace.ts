@@ -20,6 +20,7 @@ import type { ProcessedMrv } from '@entity/processed-mrv';
 import { mrvSettingSchema } from '../modules/track-and-trace/mrvSettingSchema';
 import type { IMrvSetting } from '../modules/track-and-trace/IMrvSetting';
 import type { IIsoDate } from '@entity/IIsoDate';
+import { ObjectID } from 'typeorm';
 
 export const makeTrackAndTraceApi = ({
   vcDocumentLoader,
@@ -223,12 +224,12 @@ export const makeTrackAndTraceApi = ({
         deviceId: string | undefined;
       };
 
-      // Note: ignored the MRV record '62130093492a440015975d6f' because it was created by a bug with a timestamp in the future
+      // Note: ignored the MRV because it was created by a bug with a timestamp in the future '2022-08-29T23:35:00.000Z'
       const mrv = await processedMrvRepository.findOne({
         where: {
           policyTag,
           deviceId,
-          _id: { $ne: '62130093492a440015975d6f' },
+          _id: { $ne: new ObjectID('62130093492a440015975d6f') },
         },
         order: { timestamp: 'DESC' },
       });
