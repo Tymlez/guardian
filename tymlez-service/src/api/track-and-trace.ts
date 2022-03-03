@@ -20,6 +20,7 @@ import type { ProcessedMrv } from '@entity/processed-mrv';
 import { mrvSettingSchema } from '../modules/track-and-trace/mrvSettingSchema';
 import type { IMrvSetting } from '../modules/track-and-trace/IMrvSetting';
 import type { IIsoDate } from '@entity/IIsoDate';
+import { ObjectID } from 'typeorm';
 
 export const makeTrackAndTraceApi = ({
   vcDocumentLoader,
@@ -228,7 +229,7 @@ export const makeTrackAndTraceApi = ({
         where: {
           policyTag,
           deviceId,
-          timestamp: { $ne: '2022-08-29T23:35:00.000Z' },
+          _id: { $ne: new ObjectID('62130093492a440015975d6f') },
         },
         order: { timestamp: 'DESC' },
       });
