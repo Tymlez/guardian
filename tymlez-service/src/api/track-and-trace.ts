@@ -224,12 +224,17 @@ export const makeTrackAndTraceApi = ({
         deviceId: string | undefined;
       };
 
-      // Note: ignored the MRV because it was created by a bug with a timestamp in the future '2022-08-29T23:35:00.000Z'
+      // Note: delete records instroduced  by a bug with a timestamp in the future
+      await processedMrvRepository.deleteMany({
+          policyTag,
+          deviceId,
+          timestamp: { $gte: new Date().toISOString() },
+      });
+
       const mrv = await processedMrvRepository.findOne({
         where: {
           policyTag,
-          deviceId,
-          key: { $ne: 'TymlezCET-DD54108399431-2022-08-29T23:35:00.000Z' },
+          deviceId
         },
         order: { timestamp: 'DESC' },
       });
