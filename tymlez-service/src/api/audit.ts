@@ -42,7 +42,10 @@ export const makeAuditApi = ({
             filter,
           )
         ).payload;
-        vp.data = extractAndFormatVp(vp, device.deviceType);
+        
+        if (vp) {
+          vp.data = extractAndFormatVp(vp, device.deviceType);
+        }
         res.status(200).json(vp);
         return;
       }
