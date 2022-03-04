@@ -74,8 +74,13 @@ export class StateContainer {
      * @param data
      */
     public static async ReceiveExternalData(data: any): Promise<void> {
+        console.log('ReceiveExternalData()', data)
         for (let block of StateContainer.ExternalDataBlocks.values()) {
             const policy = await getMongoRepository(Policy).findOne({policyTag: data.policyTag});
+            console.log('policy tag', data.policyTag)
+            console.log('policy found', policy)
+            console.log('policy id', policy.id.toString())
+            console.log('block policy id', (block as any).policyId)
             if (policy.id.toString() === (block as any).policyId) {
                 await (block as any).receiveData(data);
             }
