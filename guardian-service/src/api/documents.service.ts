@@ -153,17 +153,22 @@ export const documentsAPI = async function (
      */
     channel.response(MessageAPI.SET_VC_DOCUMENT, async (msg, res) => {
         let result: IVCDocument
+
+        console.log('SET_VC_DOCUMENT', msg.payload);
         if (msg.payload.hash && msg.payload.operation) {
             const hash = msg.payload.hash;
             const operation = msg.payload.operation;
             result = await vcDocumentRepository.findOne({ where: { hash: { $eq: hash } } });
+            console.log('hash and operation', hash, operation)
             if (result) {
+                console.log('Found existing:', hash)
                 result.status = getVCOperation(operation);
             } else {
+                console.log('Not found existing ', hash)
                 res.send(null);
                 return;
             }
-        } else {
+        } else {            
             result = vcDocumentRepository.create(msg.payload as VcDocument);
         }
         let verify: boolean;
