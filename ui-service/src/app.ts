@@ -75,6 +75,9 @@ Promise.all([
     }));
 
     new Guardians().setChannel(channel);
+ 
+    console.log('registering MRV receiver');
+ 
     new Guardians().registerMRVReceiver(async (data) => {        
         console.log('mrv received', data);
         await StateContainer.ReceiveExternalData(data);

@@ -35,6 +35,7 @@ Promise.all([
 
     app.post('/mrv', async (req: Request, res: Response) => {
         try {
+            console.log("Message broker receiving a mrv request");
             console.log(req.body);
 
             await channel.request('ui-service', 'mrv-data', req.body, 'json');

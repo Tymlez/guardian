@@ -319,6 +319,7 @@ export class Guardians {
      */
     public registerMRVReceiver(cb: (data: any) => Promise<void>): void {
         this.channel.response('mrv-data', async (msg, res) => {
+            console.log('ui-service receive mrv-data');
             await cb(msg.payload);
             res.send();
         });
