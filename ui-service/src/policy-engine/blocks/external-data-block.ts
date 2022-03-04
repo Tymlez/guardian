@@ -18,12 +18,18 @@ export class ExternalDataBlock {
 
     async receiveData(data) {
         let verify: boolean;
+        console.log('ExternalDataBlock.receiveData', data)
         try {
             verify = await this.vcHelper.verifySchema(data.document);
+            console.log('verifying schema:', verify)
             if(verify) {
                 verify = await this.vcHelper.verifyVC(data.document);
+                console.log('verifying VC:', verify)
             }
         } catch (error) {
+            
+            console.error(error)
+            console.log(data)
             verify = false;
         }
         const signature = verify ? DocumentSignature.VERIFIED : DocumentSignature.INVALID;
