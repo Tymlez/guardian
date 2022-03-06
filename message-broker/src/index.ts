@@ -25,13 +25,10 @@ console.log('Starting message-broker', {
 Promise.all([
     server.start()
 ]).then(async () => {
-
-
-
     const app = express();
     app.use(express.json());
 
-    const channel = await FastMQ.Client.connect('mrv-data', 7500, '127.0.0.1');
+    const channel = await FastMQ.Client.connect('mrv-data', 7500, process.env.MQ_ADDRESS);
 
     app.post('/mrv', async (req: Request, res: Response) => {
         try {
