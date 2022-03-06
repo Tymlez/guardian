@@ -1,7 +1,7 @@
 import FastMQ from 'fastmq'
 import express, { Request, Response } from 'express'
 
-const server = FastMQ.Server.create('master', 7500, '0.0.0.0');
+const server = FastMQ.Server.create('master', 7500, '127.0.0.1');
 
 server.onError(err => {
     console.error('MBError: ', err);
@@ -28,7 +28,7 @@ Promise.all([
     const app = express();
     app.use(express.json());
 
-    const channel = await FastMQ.Client.connect('mrv-data', 7500, process.env.MQ_ADDRESS);
+    const channel = await FastMQ.Client.connect('mrv-data', 7500, '127.0.0.1');
 
     app.post('/mrv', async (req: Request, res: Response) => {
         try {
