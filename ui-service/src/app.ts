@@ -73,12 +73,10 @@ Promise.all([
         limit: '4096kb',
         type: 'binary/octet-stream'
     }));
-
-    new Guardians().setChannel(channel);
- 
+    const guardianInstance = new Guardians();
+    guardianInstance.setChannel(channel);
     console.log('registering MRV receiver');
- 
-    new Guardians().registerMRVReceiver(async (data) => {        
+    guardianInstance.registerMRVReceiver(async (data) => {        
         console.log('mrv received', data);
         await StateContainer.ReceiveExternalData(data);
     });
