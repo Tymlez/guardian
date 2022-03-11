@@ -50,8 +50,9 @@ export const makeAuditApi = ({
         if (vp) {
           vp.data = extractAndFormatVp(vp, device.deviceType);
           res.status(200).json(vp);
+        } else {
+          res.status(200).json({});
         }
-        res.status(200).json({});
         return;
       }
 
