@@ -33,6 +33,8 @@ export const makeAuditApi = ({
 
       let filter: IFilter | null = null;
 
+      console.log('/get-vp-documents/:deviceId')
+      
       if (device) {
         filter = { issuer: device.config.did, page, pageSize, period };
         const vp = (
@@ -42,11 +44,14 @@ export const makeAuditApi = ({
             filter,
           )
         ).payload;
+
+        console.log('got vp: ', vp)
         
         if (vp) {
           vp.data = extractAndFormatVp(vp, device.deviceType);
+          res.status(200).json(vp);
         }
-        res.status(200).json(vp);
+        res.status(200).json({});
         return;
       }
 
