@@ -30,6 +30,8 @@ console.log('Starting guardian-service', {
     DB_DATABASE: process.env.DB_DATABASE,
     BUILD_VERSION: process.env.BUILD_VERSION,
     DEPLOY_VERSION: process.env.DEPLOY_VERSION,
+    SERVICE_CHANNEL: process.env.SERVICE_CHANNEL,
+    MQ_ADDRESS: process.env.MQ_ADDRESS
 });
 
 Promise.all([
