@@ -85,6 +85,10 @@ export async function createPolicyPackages({
     policyPackages.map((policyPackage) =>
       limit(async () => {
         console.log('Importing policy', policyPackage.policy.name);
+        // fs.writeFileSync(
+        //   'policy.json',
+        //   JSON.stringify({ package: policyPackage, publish: true }, null, 4),
+        // );
         const { data: importedPackage } = await axios.post(
           `${GUARDIAN_TYMLEZ_SERVICE_BASE_URL}/policy/import-package`,
           { package: policyPackage, publish: true },

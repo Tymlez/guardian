@@ -1,12 +1,12 @@
 import axios from 'axios';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 
 export async function getAllPoliciesFromUiService(
   uiServiceBaseUrl: string,
-  rootAuthority: IUser,
+  rootAuthority: ILoggedUser,
 ) {
   return (
-    await axios.get(`${uiServiceBaseUrl}/api/get-policy-list`, {
+    await axios.get(`${uiServiceBaseUrl}/api/v1/policies`, {
       headers: {
         authorization: `Bearer ${rootAuthority.accessToken}`,
       },
@@ -16,7 +16,7 @@ export async function getAllPoliciesFromUiService(
 
 export interface IPolicy {
   id: string;
-  status: string;
+  status?: string;
   name: string;
   policyTag: string;
   config?: {

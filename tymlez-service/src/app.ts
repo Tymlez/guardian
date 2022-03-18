@@ -21,18 +21,31 @@ import { makeUserApi } from '@api/user';
 import axios from 'axios';
 import { PolicyPackage } from '@entity/policy-package';
 import { ProcessedMrv } from '@entity/processed-mrv';
+import { useIpfsApi } from '@api/ipfs';
 
 axios.interceptors.request.use((request) => {
   if (request.url?.includes('login')) {
-    console.log('Axios: Starting Request', request.url);
+    console.log('Axios: Starting Request %s', request.method, request.url);
   } else {
     console.log(
       'Axios: Starting Request',
-      JSON.stringify({ url: request.url, data: request.data }, null, 2),
+      JSON.stringify(
+        { url: `${request.method} -> ${request.url}`, data: request.data },
+        null,
+        2,
+      ),
     );
   }
   return request;
 });
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.log(error);
+    return Promise.reject(error);
+  },
+);
 
 const {
   SERVICE_CHANNEL,
@@ -184,6 +197,13 @@ Promise.all([
   app.use(
     '/user/',
     makeUserApi({
+      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+    }),
+  );
+
+  app.use(
+    '/ipfs/',
+    useIpfsApi({
       uiServiceBaseUrl: UI_SERVICE_BASE_URL,
     }),
   );

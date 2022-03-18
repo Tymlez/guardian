@@ -1,5 +1,6 @@
 export * from './loginToUiService';
 export * from './getUserProfileFromUiService';
-export * from './IUser';
+export * from './ILoggedUser';
 export * from './initInstaller';
 export * from './initRootAuthority';
+export * from './updateProfile';

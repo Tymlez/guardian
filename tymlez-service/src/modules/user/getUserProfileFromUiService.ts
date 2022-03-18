@@ -1,16 +1,16 @@
 import axios from 'axios';
-import type { IUserProfile } from 'interfaces';
-import type { IUser } from '../user';
+import type { IUser } from 'interfaces';
+import type { ILoggedUser } from '../user';
 
 export async function getUserProfileFromUiService({
   uiServiceBaseUrl,
   user,
 }: {
   uiServiceBaseUrl: string;
-  user: IUser;
-}): Promise<IUserProfile | undefined> {
+  user: ILoggedUser;
+}): Promise<IUser | undefined> {
   return (
-    await axios.get(`${uiServiceBaseUrl}/api/profile/user-state`, {
+    await axios.get(`${uiServiceBaseUrl}/api/v1/profile`, {
       headers: {
         authorization: `Bearer ${user.accessToken}`,
       },

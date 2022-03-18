@@ -1,6 +1,6 @@
 import type { IUIServiceDeviceConfig } from '@entity/device-config';
 import axios from 'axios';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 import type { IUIServiceDevice } from './IUIServiceDevice';
 
 export async function getDeviceConfigFromUiService({
@@ -12,7 +12,7 @@ export async function getDeviceConfigFromUiService({
   uiServiceBaseUrl: string;
   policyId: string;
   device: IUIServiceDevice;
-  installer: IUser;
+  installer: ILoggedUser;
 }): Promise<IUIServiceDeviceConfig> {
   const deviceConfig = (
     await axios.post(

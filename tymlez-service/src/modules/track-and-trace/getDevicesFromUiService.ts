@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 import type { IUIServiceDevice } from './IUIServiceDevice';
 
 export async function getDevicesFromUiService({
@@ -9,7 +9,7 @@ export async function getDevicesFromUiService({
 }: {
   uiServiceBaseUrl: string;
   policyId: string;
-  installer: IUser;
+  installer: ILoggedUser;
 }): Promise<IUIServiceDevice[]> {
   const {
     data: { data: devices },

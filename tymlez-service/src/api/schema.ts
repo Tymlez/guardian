@@ -24,7 +24,7 @@ export const makeSchemaApi = ({
     });
 
     const { data: allSchemas } = (await axios.post(
-      `${uiServiceBaseUrl}/api/schema/import`,
+      `${uiServiceBaseUrl}/api/v1/schema/import`,
       { schemes: [inputSchema] },
       {
         headers: {

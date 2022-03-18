@@ -1,5 +1,6 @@
 import axios from 'axios';
-import type { IUser } from '../user';
+import type { ITokenInfo } from 'interfaces';
+import type { ILoggedUser } from '../user';
 
 export async function getUserKycFromUiService({
   tokenId,
@@ -10,11 +11,11 @@ export async function getUserKycFromUiService({
   uiServiceBaseUrl: string;
   tokenId: string;
   username: string;
-  rootAuthority: IUser;
-}): Promise<IUserKycFromUiService> {
+  rootAuthority: ILoggedUser;
+}): Promise<ITokenInfo> {
   return (
     await axios.get(
-      `${uiServiceBaseUrl}/api/tokens/associate-users?tokenId=${tokenId}&username=${username}`,
+      `${uiServiceBaseUrl}/api/v1/tokens/${tokenId}/${username}/info`,
       {
         headers: {
           authorization: `Bearer ${rootAuthority.accessToken}`,
@@ -22,12 +23,4 @@ export async function getUserKycFromUiService({
       },
     )
   ).data;
-}
-
-interface IUserKycFromUiService {
-  associated: boolean;
-  balance: string;
-  hBarBalance: string;
-  frozen: boolean;
-  kyc: boolean;
 }

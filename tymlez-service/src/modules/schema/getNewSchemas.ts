@@ -1,6 +1,6 @@
 import { differenceBy } from 'lodash';
 import { getAllSchemasFromUiService } from './getAllSchemasFromUiService';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 import type { ISchema } from 'interfaces';
 
 export async function getNewSchemas({
@@ -9,7 +9,7 @@ export async function getNewSchemas({
   uiServiceBaseUrl,
 }: {
   uiServiceBaseUrl: string;
-  rootAuthority: IUser;
+  rootAuthority: ILoggedUser;
   preImportSchemas: ISchema[];
 }) {
   const postImportSchemas = await getAllSchemasFromUiService({

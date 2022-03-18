@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 
 export async function publishSchemasToUiService({
   schemaIds,
@@ -8,12 +8,12 @@ export async function publishSchemasToUiService({
 }: {
   uiServiceBaseUrl: string;
   schemaIds: string[];
-  rootAuthority: IUser;
+  rootAuthority: ILoggedUser;
 }) {
   for (let schemaId of schemaIds) {
-    await axios.post(
-      `${uiServiceBaseUrl}/api/schema/publish`,
-      { id: schemaId },
+    await axios.put(
+      `${uiServiceBaseUrl}/api/v1/schemas/${schemaId}/publish`,
+      {},
       {
         headers: {
           authorization: `Bearer ${rootAuthority.accessToken}`,

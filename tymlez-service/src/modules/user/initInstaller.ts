@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { IUserProfile, UserState } from 'interfaces';
-import type { IUser } from './IUser';
+import type { ILoggedUser } from './ILoggedUser';
 import { getUserProfileFromUiService } from './getUserProfileFromUiService';
 import { loginToUiService, UserName } from './loginToUiService';
 import { getRandomKeyFromUiService } from '../key';
+import { updateProfile } from './updateProfile';
 
 export async function initInstaller({
   uiServiceBaseUrl,
@@ -17,9 +17,7 @@ export async function initInstaller({
     username,
   });
 
-  if (user.state < UserState.HEDERA_CONFIRMED) {
-    await initInstallerHederaProfile({ uiServiceBaseUrl, user });
-  }
+  await initInstallerHederaProfile({ uiServiceBaseUrl, user });
 
   await associateInstallerWithTokens({ uiServiceBaseUrl, user });
 
@@ -31,34 +29,32 @@ async function initInstallerHederaProfile({
   user,
 }: {
   uiServiceBaseUrl: string;
-  user: IUser;
+  user: ILoggedUser;
 }) {
   const randomKey = await getRandomKeyFromUiService({
     uiServiceBaseUrl,
     user,
   });
-
-  await axios.post(
-    `${uiServiceBaseUrl}/api/profile/set-hedera-profile`,
-    {
+  await updateProfile({
+    uiServiceBaseUrl,
+    user,
+    profile: {
       hederaAccountId: randomKey.id,
       hederaAccountKey: randomKey.key,
     },
-    {
-      headers: {
-        authorization: `Bearer ${user.accessToken}`,
-      },
-    },
-  );
+  });
 
-  let userProfile: IUserProfile | undefined;
+  let userProfile = await getUserProfileFromUiService({
+    uiServiceBaseUrl,
+    user,
+  });
 
-  while (!userProfile || userProfile.state < UserState.HEDERA_CONFIRMED) {
+  while (!userProfile || !userProfile.confirmed) {
     console.log('Waiting for user to be initialized', userProfile);
 
     userProfile = await getUserProfileFromUiService({ uiServiceBaseUrl, user });
 
-    if (userProfile && userProfile.state >= UserState.HEDERA_CONFIRMED) {
+    if (userProfile && userProfile.confirmed) {
       break;
     }
 
@@ -71,10 +67,10 @@ async function associateInstallerWithTokens({
   user,
 }: {
   uiServiceBaseUrl: string;
-  user: IUser;
+  user: ILoggedUser;
 }) {
   const { data: userTokens } = (await axios.get(
-    `${uiServiceBaseUrl}/api/tokens/user-tokens`,
+    `${uiServiceBaseUrl}/api/v1/tokens`,
     {
       headers: {
         authorization: `Bearer ${user.accessToken}`,
@@ -86,8 +82,8 @@ async function associateInstallerWithTokens({
     userTokens
       .filter((token) => !token.associated)
       .map(async (token) => {
-        await axios.post(
-          `${uiServiceBaseUrl}/api/tokens/associate`,
+        await axios.put(
+          `${uiServiceBaseUrl}/api/v1/tokens/${token.tokenId}/associate`,
           {
             tokenId: token.tokenId,
             associated: true,

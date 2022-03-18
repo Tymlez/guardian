@@ -1,6 +1,6 @@
 import assert from 'assert';
 import axios from 'axios';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 import type { PolicyPackage } from '@entity/policy-package';
 
 export async function registerInstallerInUiService({
@@ -14,7 +14,7 @@ export async function registerInstallerInUiService({
   uiServiceBaseUrl: string;
   policyId: string;
   installerInfo: any;
-  installer: IUser;
+  installer: ILoggedUser;
 }) {
   const installerSchema = policyPackage.schemas.find(
     (schema) => schema.inputName === 'TymlezInstaller',

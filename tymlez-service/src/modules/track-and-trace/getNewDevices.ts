@@ -1,5 +1,5 @@
 import { differenceBy } from 'lodash';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 import { getDevicesFromUiService } from './getDevicesFromUiService';
 import type { IUIServiceDevice } from './IUIServiceDevice';
 
@@ -11,7 +11,7 @@ export async function getNewDevices({
 }: {
   uiServiceBaseUrl: string;
   policyId: string;
-  installer: IUser;
+  installer: ILoggedUser;
   preAddDevices: IUIServiceDevice[];
 }) {
   const postAddDevices = await getDevicesFromUiService({

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import axios from 'axios';
-import type { IUser } from './IUser';
+import type { ILoggedUser } from './ILoggedUser';
 
 export async function loginToUiService({
   uiServiceBaseUrl,
@@ -11,11 +11,11 @@ export async function loginToUiService({
 }) {
   const loginDetail = LOGIN_DETAILS[username];
   assert(loginDetail, `Cannot find login detail for ${username}`);
-
+  console.log('username', username);
   const { data: user } = (await axios.post(
-    `${uiServiceBaseUrl}/api/account/login`,
+    `${uiServiceBaseUrl}/api/v1/accounts/login`,
     { username, password: loginDetail.password },
-  )) as { data: IUser | undefined };
+  )) as { data: ILoggedUser | undefined };
 
   assert(user, `Failed to login as ${username}`);
 

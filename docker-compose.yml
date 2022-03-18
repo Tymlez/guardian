@@ -35,6 +35,17 @@ services:
     depends_on:
       - mongo
       - message-broker
+  ipfs-client:
+    build:
+      context: .
+      dockerfile: ./ipfs-client/Dockerfile
+    ports:
+      - 5001:5001
+      - 5002:5002
+      - 4001:4001
+      - 4002:4002
+    depends_on:
+      - message-broker
   mrv-sender:
     build:
       context: .
@@ -57,4 +68,4 @@ volumes:
   # volume-guardian-service:
   # volume-ui-service:
   # volume-mrv-sender:
-#  volume-message-broker:
+  # volume-message-broker:

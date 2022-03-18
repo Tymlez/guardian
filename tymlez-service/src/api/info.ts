@@ -29,7 +29,7 @@ export const makeInfoApi = ({
       OPERATOR_ID: process.env.OPERATOR_ID,
 
       uiServiceInfo: await getServiceInfo({
-        baseUrl: `${uiServiceBaseUrl}/api`,
+        baseUrl: `${uiServiceBaseUrl}/api/v1`,
         serviceName: 'UI Service',
       }),
       guardianServiceInfo: await getServiceInfo({

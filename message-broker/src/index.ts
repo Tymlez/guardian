@@ -1,13 +1,13 @@
 import FastMQ from 'fastmq'
 import express, { Request, Response } from 'express'
 
-const server = FastMQ.Server.create('master', 7500, '0.0.0.0');
+const mqServer = FastMQ.Server.create('master', 7500, '0.0.0.0');
 
-server.onError(err => {
+mqServer.onError(err => {
     console.error('MBError: ', err);
 });
 
-server.onSocketError(err => {
+mqServer.onSocketError(err => {
     console.error('SocketError: ', err);
 });
 
@@ -22,8 +22,8 @@ console.log('Starting message-broker', {
 
 
 // start server
-Promise.all([
-    server.start()
+export default Promise.all([
+    mqServer.start()
 ]).then(async () => {
     const app = express();
     app.use(express.json());

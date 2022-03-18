@@ -1,18 +1,20 @@
 import axios from 'axios';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 
 export async function publishPolicyToUiService({
   policyId,
   rootAuthority,
   uiServiceBaseUrl,
+  policyVersion,
 }: {
   policyId: string;
   uiServiceBaseUrl: string;
-  rootAuthority: IUser;
+  rootAuthority: ILoggedUser;
+  policyVersion: string;
 }) {
-  await axios.post(
-    `${uiServiceBaseUrl}/policy/publish/${policyId}`,
-    {},
+  await axios.put(
+    `${uiServiceBaseUrl}/api/v1/policies/${policyId}/publish`,
+    { policyVersion },
     {
       headers: {
         authorization: `Bearer ${rootAuthority.accessToken}`,

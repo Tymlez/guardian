@@ -1,0 +1,20 @@
+# Introduction
+
+Starting with the [Wikipedia definition](https://en.wikipedia.org/wiki/Workflow\_engine), a Policy Workflow Engine (PWE) is  a software application that manages business processes based on business rules and business data which are defined within the context of a specific policy. A PWE, therefore, manages and monitors the state of required policy actions and the required information flow in a policy grouped into a policy workflow, and determines which are the next policy actions based on the state of a policy workflow. The policy actions may be anything from saving an application form in a document management system to sending a reminder e-mail to users or escalating overdue items to management. Policy Workflow Blocks enable different business logic to exist within the Guardian’s PWE.
+
+### Available Policy Workflows Blocks
+
+|             Block             |                                                  Definition                                                 |                               Documentation Link                               |
+| :---------------------------: | :---------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------: |
+|    Container Workflow Block   |                              A block which contains and organizes other blocks.                             |      [container-workflow-block.md](container-workflow-block.md "mention")      |
+|      Roles Workflow Block     |                                A block which determines a role for the user.                                |          [roles-workflow-block.md](roles-workflow-block.md "mention")          |
+|      Step Workflow Block      | Similar to the InterfaceContainerBlock, with the difference that it can only render a single child element. |           [step-workflow-block.md](step-workflow-block.md "mention")           |
+|     Request Workflow Block    |       A type of the block which creates a form from the schema, and sends the document to the server.       |        [request-workflow-block.md](request-workflow-block.md "mention")        |
+|      Send Workflow Block      |                        A type of the block which can save a new or updated document.                        |           [send-workflow-block.md](send-workflow-block.md "mention")           |
+|   Information Workflow Block  |                       A block type which can display a notification or a progress bar.                      |    [information-workflow-block.md](information-workflow-block.md "mention")    |
+|    Documents Workflow Block   |                         A block type which outputs information from the DB as grid.                         |      [documents-workflow-block.md](documents-workflow-block.md "mention")      |
+|     Action Workflow Block     |                                      A block to create custom actions.                                      |         [action-workflow-block.md](action-workflow-block.md "mention")         |
+|  External Data Workflow Block |               Receives data from the external source and passes them over the the next block.               |  [external-data-workflow-block.md](external-data-workflow-block.md "mention")  |
+|   Token Mint Workflow Block   |                   receives the VC from the previous block and mints based on the rule(s).                   |     [token-mint-workflow-block.md](token-mint-workflow-block.md "mention")     |
+|   Token Wipe Workflow Block   |                                        Type of workflow logic block.                                        |     [token-wipe-workflow-block.md](token-wipe-workflow-block.md "mention")     |
+| Aggregate Data Workflow Block |                                        Type of workflow logic block.                                        | [aggregate-data-workflow-block.md](aggregate-data-workflow-block.md "mention") |

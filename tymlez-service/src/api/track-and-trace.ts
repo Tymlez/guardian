@@ -21,7 +21,6 @@ import { mrvSettingSchema } from '../modules/track-and-trace/mrvSettingSchema';
 import type { IMrvSetting } from '../modules/track-and-trace/IMrvSetting';
 import type { IIsoDate } from '@entity/IIsoDate';
 
-
 export const makeTrackAndTraceApi = ({
   vcDocumentLoader,
   vcHelper,
@@ -224,11 +223,10 @@ export const makeTrackAndTraceApi = ({
         deviceId: string | undefined;
       };
 
-
       const mrv = await processedMrvRepository.findOne({
         where: {
           policyTag,
-          deviceId
+          deviceId,
         },
         order: { timestamp: 'DESC' },
       });
@@ -286,7 +284,6 @@ export const makeTrackAndTraceApi = ({
         did,
         key,
         policyId,
-        type,
         schema,
         policyTag,
       } = deviceConfig.config;
@@ -304,7 +301,7 @@ export const makeTrackAndTraceApi = ({
         vcSubject.policyId = policyId;
         vcSubject.accountId = hederaAccountId;
 
-        vc = await vcHelper.createVC(did, key, type, vcSubject);
+        vc = await vcHelper.createVC(did, key, vcSubject, schema);
         document = vc.toJsonTree();
 
         console.log('created vc');

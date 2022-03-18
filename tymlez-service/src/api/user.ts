@@ -36,9 +36,9 @@ export const makeUserApi = ({
       username: 'RootAuthority',
     });
 
-    await initRootAuthority(rootAuthority, uiServiceBaseUrl);
+    const outcome = await initRootAuthority(rootAuthority, uiServiceBaseUrl);
 
-    res.status(200).json(rootAuthority);
+    res.status(200).json({ ...rootAuthority, outcome });
   });
 
   return userApi;

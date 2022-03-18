@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 import assert from 'assert';
 import type { PolicyPackage } from '@entity/policy-package';
 
@@ -14,7 +14,7 @@ export async function addDeviceToUiService({
   uiServiceBaseUrl: string;
   policyId: string;
   deviceInfo: any;
-  installer: IUser;
+  installer: ILoggedUser;
 }): Promise<void> {
   const inverterSchema = policyPackage.schemas.find(
     (schema) => schema.inputName === 'TymlezDevice',

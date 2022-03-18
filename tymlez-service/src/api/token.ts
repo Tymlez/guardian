@@ -19,7 +19,7 @@ export const makeTokenApi = ({
     });
 
     const { data: tokens } = (await axios.get(
-      `${uiServiceBaseUrl}/api/tokens`,
+      `${uiServiceBaseUrl}/api/v1/tokens`,
       {
         headers: {
           authorization: `Bearer ${rootAuthority.accessToken}`,
@@ -41,7 +41,7 @@ export const makeTokenApi = ({
     });
 
     const { data: allTokens } = (await axios.post(
-      `${uiServiceBaseUrl}/api/tokens/create`,
+      `${uiServiceBaseUrl}/api/v1/tokens`,
       inputToken,
       {
         headers: {
@@ -86,11 +86,15 @@ export const makeTokenApi = ({
       return;
     }
 
-    await axios.post(`${uiServiceBaseUrl}/api/tokens/user-kyc`, userKycInput, {
-      headers: {
-        authorization: `Bearer ${rootAuthority.accessToken}`,
+    await axios.put(
+      `${uiServiceBaseUrl}/api/v1/tokens/${userKycInput.tokenId}/${userKycInput.username}/grantKyc`,
+      userKycInput,
+      {
+        headers: {
+          authorization: `Bearer ${rootAuthority.accessToken}`,
+        },
       },
-    });
+    );
 
     res.status(200).json(userKycInput);
   });
