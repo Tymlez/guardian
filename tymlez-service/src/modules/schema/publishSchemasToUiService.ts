@@ -5,15 +5,17 @@ export async function publishSchemasToUiService({
   schemaIds,
   rootAuthority,
   uiServiceBaseUrl,
+  version = '1.0.0',
 }: {
   uiServiceBaseUrl: string;
   schemaIds: string[];
   rootAuthority: ILoggedUser;
+  version: string;
 }) {
-  for (let schemaId of schemaIds) {
+  for await (let schemaId of schemaIds) {
     await axios.put(
       `${uiServiceBaseUrl}/api/v1/schemas/${schemaId}/publish`,
-      {},
+      { version },
       {
         headers: {
           authorization: `Bearer ${rootAuthority.accessToken}`,

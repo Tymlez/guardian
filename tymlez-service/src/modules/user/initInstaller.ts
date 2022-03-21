@@ -62,6 +62,28 @@ async function initInstallerHederaProfile({
   }
 }
 
+async function associateUserToken({
+  uiServiceBaseUrl,
+  user,
+  token,
+}: {
+  uiServiceBaseUrl: string;
+  user: ILoggedUser;
+  token: IUserTokenResponse;
+}) {
+  await axios.put(
+    `${uiServiceBaseUrl}/api/v1/tokens/${token.tokenId}/associate`,
+    {
+      tokenId: token.tokenId,
+      associated: true,
+    },
+    {
+      headers: {
+        authorization: `Bearer ${user.accessToken}`,
+      },
+    },
+  );
+}
 async function associateInstallerWithTokens({
   uiServiceBaseUrl,
   user,
@@ -69,31 +91,20 @@ async function associateInstallerWithTokens({
   uiServiceBaseUrl: string;
   user: ILoggedUser;
 }) {
-  const { data: userTokens } = (await axios.get(
+  const { data: userTokens } = await axios.get<IUserTokenResponse[]>(
     `${uiServiceBaseUrl}/api/v1/tokens`,
     {
       headers: {
         authorization: `Bearer ${user.accessToken}`,
       },
     },
-  )) as { data: IUserTokenResponse[] };
+  );
 
   await Promise.all(
     userTokens
       .filter((token) => !token.associated)
       .map(async (token) => {
-        await axios.put(
-          `${uiServiceBaseUrl}/api/v1/tokens/${token.tokenId}/associate`,
-          {
-            tokenId: token.tokenId,
-            associated: true,
-          },
-          {
-            headers: {
-              authorization: `Bearer ${user.accessToken}`,
-            },
-          },
-        );
+        return associateUserToken({ uiServiceBaseUrl, user, token });
       }),
   );
 }

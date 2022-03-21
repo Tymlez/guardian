@@ -49,15 +49,15 @@ export async function init() {
     GUARDIAN_TYMLEZ_API_KEY,
   });
 
-  if (CLIENT_NAME) {
-    return;
-  }
-
   await registerNewInstallers({
     policyPackages,
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
     GUARDIAN_TYMLEZ_API_KEY,
   });
+
+  if (CLIENT_NAME) {
+    return;
+  }
 
   assert(DEVICE_INFOS && DEVICE_INFOS.length > 0, `DEVICE_INFOS is missing`);
   await addDevices({

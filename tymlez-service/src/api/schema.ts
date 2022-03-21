@@ -2,7 +2,10 @@ import assert from 'assert';
 import axios from 'axios';
 import { Request, Response, Router } from 'express';
 import type { ISchema } from 'interfaces';
-import { publishSchemasToUiService } from '../modules/schema';
+import {
+  getAllSchemasFromUiService,
+  publishSchemasToUiService,
+} from '../modules/schema';
 import { loginToUiService } from '../modules/user';
 
 export const makeSchemaApi = ({
@@ -23,17 +26,17 @@ export const makeSchemaApi = ({
       username: 'RootAuthority',
     });
 
-    const { data: allSchemas } = (await axios.post(
-      `${uiServiceBaseUrl}/api/v1/schema/import`,
-      { schemes: [inputSchema] },
-      {
-        headers: {
-          authorization: `Bearer ${rootAuthority.accessToken}`,
-          'content-type': 'application/json',
-        },
+    await axios.post(`${uiServiceBaseUrl}/api/v1/schemas`, inputSchema, {
+      headers: {
+        authorization: `Bearer ${rootAuthority.accessToken}`,
+        'content-type': 'application/json',
       },
-    )) as { data: ISchema[] };
+    });
 
+    const allSchemas = await getAllSchemasFromUiService({
+      uiServiceBaseUrl,
+      rootAuthority,
+    });
     const importedSchema = allSchemas.find(
       (schema) => schema.uuid === inputSchema.uuid,
     );
@@ -45,6 +48,7 @@ export const makeSchemaApi = ({
         uiServiceBaseUrl,
         rootAuthority,
         schemaIds: [importedSchema.id],
+        version: '1.0.0',
       });
     } else {
       console.log(`Schema: ${importedSchema.uuid} already published`);

@@ -21,9 +21,9 @@ export async function registerInstallerInUiService({
   );
 
   assert(installerSchema, `Cannot find TymlezInstaller schema`);
-
+  // TODO: what is this?
   await axios.post(
-    `${uiServiceBaseUrl}/policy/block/tag2/${policyId}/add_new_installer_request`,
+    `${uiServiceBaseUrl}/api/v1/policies/${policyId}/blocks/add_new_installer_request`,
     {
       type: installerSchema.uuid,
       '@context': ['https://localhost/schema'],

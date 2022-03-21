@@ -5,6 +5,7 @@ import {
   initRootAuthority,
   InstallerUserName,
   loginToUiService,
+  registeredUsers,
 } from '../modules/user';
 
 export const makeUserApi = ({
@@ -31,6 +32,7 @@ export const makeUserApi = ({
   );
 
   userApi.post('/init-root-authority', async (req: Request, res: Response) => {
+    await registeredUsers({ uiServiceBaseUrl });
     const rootAuthority = await loginToUiService({
       uiServiceBaseUrl,
       username: 'RootAuthority',

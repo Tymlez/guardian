@@ -68,7 +68,7 @@ export const makeTrackAndTraceApi = ({
       assert(policyPackage, `Cannot find ${policyTag} package`);
 
       const { data: installerBlock } = await axios.get(
-        `${uiServiceBaseUrl}/policy/block/tag2/${policyPackage.policy.id}/init_installer_steps`,
+        `${uiServiceBaseUrl}/api/v1/policies/${policyPackage.policy.id}/tag/init_installer_steps`,
         {
           headers: {
             Authorization: `Api-Key ${installer.accessToken}`,

@@ -12,6 +12,7 @@ import {
   getAllPoliciesFromUiService,
   IPolicy,
   publishPolicyToUiService,
+  // publishPolicyToUiService,
 } from '../modules/policy';
 import type { MongoRepository } from 'typeorm';
 import type { PolicyPackage } from '@entity/policy-package';
@@ -51,10 +52,10 @@ export const makePolicyApi = ({
       username: 'RootAuthority',
     });
 
-    const preImportSchemas = await getAllSchemasFromUiService({
-      uiServiceBaseUrl,
-      rootAuthority,
-    });
+    // const preImportSchemas = await getAllSchemasFromUiService({
+    //   uiServiceBaseUrl,
+    //   rootAuthority,
+    // });
 
     const importedPolicy = await importPolicyPackage({
       rootAuthority,
@@ -65,25 +66,33 @@ export const makePolicyApi = ({
     const newSchemas = await getNewSchemas({
       uiServiceBaseUrl,
       rootAuthority,
-      preImportSchemas,
+      preImportSchemas: inputPackage.schemas.map((x) => x.name),
     });
-
+    const unpublishedSchema = newSchemas.filter(
+      (schema) => schema.status !== 'PUBLISHED',
+    );
     console.log(
       `Publishing schemas`,
-      newSchemas.map((schema) => ({
+      unpublishedSchema.map((schema) => ({
         id: schema.id,
         uuid: schema.uuid,
         name: schema.name,
+        status: schema.status,
       })),
     );
     await publishSchemasToUiService({
       uiServiceBaseUrl,
       rootAuthority,
-      schemaIds: newSchemas.map((schema) => schema.id),
+      schemaIds: unpublishedSchema.map((schema) => schema.id),
+      version: '1.0.0',
     });
 
-    if (publish && importedPolicy.status !== 'PUBLISHED') {
-      console.log(`Publishing policy`, {
+    if (
+      publish &&
+      !['PUBLISH', 'PUBLISHED'].includes(importedPolicy.status as string)
+    ) {
+      console.log(`Publishing policy`, importedPolicy, {
+        importedPolicy,
         id: importedPolicy.id,
         name: importedPolicy.name,
         policyTag: importedPolicy.policyTag,
@@ -98,7 +107,6 @@ export const makePolicyApi = ({
         policyVersion: '1.0.0',
       });
     }
-    // TODO: what is logic to link between schema and policy
     // const newPolicyPackage = policyPackageRepository.create({
     //   policy: {
     //     ...importedPolicy,
@@ -136,23 +144,23 @@ export const makePolicyApi = ({
   return policyApi;
 };
 
-async function publishSchema(
-  uiServiceBaseUrl: string,
-  rootAuthority: ILoggedUser,
-  schema: Schema,
-) {
-  const { data } = await axios.put<Schema[]>(
-    `${uiServiceBaseUrl}/api/v1/schemas/${schema.id}/publish`,
-    { version: '1.0.0' },
-    {
-      headers: {
-        authorization: `Bearer ${rootAuthority.accessToken}`,
-      },
-    },
-  );
+// async function publishSchema(
+//   uiServiceBaseUrl: string,
+//   rootAuthority: ILoggedUser,
+//   schema: Schema,
+// ) {
+//   const { data } = await axios.put<Schema[]>(
+//     `${uiServiceBaseUrl}/api/v1/schemas/${schema.id}/publish`,
+//     { version: '1.0.0' },
+//     {
+//       headers: {
+//         authorization: `Bearer ${rootAuthority.accessToken}`,
+//       },
+//     },
+//   );
 
-  return data;
-}
+//   return data;
+// }
 
 async function importSchema(
   uiServiceBaseUrl: string,
@@ -186,7 +194,8 @@ async function createPolicy(
     (x) => x.policyTag === policy.policyTag,
   );
   if (!findPolicies) {
-    const { data } = await axios.post<IPolicy>(
+    console.log('create policy %s', policy.name);
+    const { data } = await axios.post<IPolicy[]>(
       `${uiServiceBaseUrl}/api/v1/policies`,
       policy,
       {
@@ -195,7 +204,8 @@ async function createPolicy(
         },
       },
     );
-    return data;
+    console.log('created policies result', data);
+    return data.find((p) => p.policyTag === policy.policyTag);
   }
   return findPolicies;
 }
@@ -235,23 +245,6 @@ async function importPolicyPackage({
       .filter((schema) => !existingSchemas.find((x) => x.name === schema.name))
       .map((schema) =>
         importSchema(uiServiceBaseUrl, rootAuthority, schema as Schema),
-      ),
-  );
-
-  existingSchemas = await getAllSchemasFromUiService({
-    rootAuthority,
-    uiServiceBaseUrl,
-  });
-
-  await Promise.all(
-    existingSchemas
-      .filter(
-        (schema) =>
-          schema.status !== 'PUBLISHED' &&
-          packageImportData.schemas.some((s) => s.name === schema.name),
-      )
-      .map((schema) =>
-        publishSchema(uiServiceBaseUrl, rootAuthority, schema as Schema),
       ),
   );
 
