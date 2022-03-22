@@ -25,7 +25,7 @@ export async function createTokens({
     pendingTokens.map((token) => token.tokenSymbol),
   );
 
-  for (const token of pendingTokens) {
+  for await (const token of pendingTokens) {
     await axios.post(
       `${GUARDIAN_TYMLEZ_SERVICE_BASE_URL}/tokens/create`,
       token,
@@ -35,6 +35,7 @@ export async function createTokens({
         },
       },
     );
+    console.log('Token created', token.tokenSymbol);
   }
 
   return (

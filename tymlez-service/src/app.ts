@@ -18,7 +18,7 @@ import { makeSchemaApi } from '@api/schema';
 import { makeTokenApi } from '@api/token';
 import { makePolicyApi } from '@api/policy';
 import { makeUserApi } from '@api/user';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { PolicyPackage } from '@entity/policy-package';
 import { ProcessedMrv } from '@entity/processed-mrv';
 import { useIpfsApi } from '@api/ipfs';
@@ -41,8 +41,13 @@ axios.interceptors.request.use((request) => {
 
 axios.interceptors.response.use(
   (response) => response,
-  (error) => {
-    console.log(error);
+  (error: AxiosError) => {
+    console.error(
+      'Request error %s',
+      error.request.url,
+      error.response?.data,
+      error.response?.statusText,
+    );
     return Promise.reject(error);
   },
 );

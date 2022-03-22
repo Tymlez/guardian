@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getRandomKeyFromUiService } from '../key';
+import { getRandomKeyFromUiServiceWithRetry } from '../key';
 import type { ILoggedUser } from './ILoggedUser';
 import { getUserProfileFromUiService } from './getUserProfileFromUiService';
 import type { IUser } from 'interfaces';
@@ -33,7 +33,7 @@ async function initRootConfig({
   uiServiceBaseUrl: string;
   rootAuthority: ILoggedUser;
 }) {
-  const randomKey = await getRandomKeyFromUiService({
+  const randomKey = await getRandomKeyFromUiServiceWithRetry({
     uiServiceBaseUrl,
     user: rootAuthority,
   });

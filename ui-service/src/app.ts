@@ -90,7 +90,7 @@ Promise.all([
     for (let policy of await getMongoRepository(Policy).find(
         {where: {status: {$eq: 'PUBLISH'}}}
     )) {
-        await policyGenerator.generate(policy.id.toString());
+       const generatedModel = await policyGenerator.generate(policy.id.toString());
     }
     ////////////////////////////////////////
 

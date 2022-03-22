@@ -11,7 +11,6 @@ export async function loginToUiService({
 }) {
   const loginDetail = LOGIN_DETAILS[username];
   assert(loginDetail, `Cannot find login detail for ${username}`);
-  console.log('username', username);
   const { data: user } = (await axios.post(
     `${uiServiceBaseUrl}/api/v1/accounts/login`,
     { username, password: loginDetail.password },

@@ -11,10 +11,19 @@ export async function getDevicesFromUiService({
   policyId: string;
   installer: ILoggedUser;
 }): Promise<IUIServiceDevice[]> {
+  const { data: sensorGridId } = await axios.get(
+    `${uiServiceBaseUrl}/api/v1/policies/${policyId}/tag/sensors_grid`,
+    {
+      headers: {
+        Authorization: `Api-Key ${installer.accessToken}`,
+      },
+    },
+  );
+
   const {
     data: { data: devices },
   } = await axios.get(
-    `${uiServiceBaseUrl}/policy/block/tag2/${policyId}/sensors_grid`,
+    `${uiServiceBaseUrl}/api/v1/policies/${policyId}/blocks/${sensorGridId.id}`,
     {
       headers: {
         authorization: `Bearer ${installer.accessToken}`,

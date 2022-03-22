@@ -107,22 +107,22 @@ export const makePolicyApi = ({
         policyVersion: '1.0.0',
       });
     }
-    // const newPolicyPackage = policyPackageRepository.create({
-    //   policy: {
-    //     ...importedPolicy,
-    //     inputPolicyTag: inputPackage.policy.policyTag,
-    //   },
-    //   schemas: newSchemas.map((schema) => ({
-    //     ...schema,
-    //     inputName: inputPackage.schemas.find((inputSchema) =>
-    //       schema.name?.startsWith(inputSchema.name),
-    //     )!.name,
-    //   })),
-    // });
+    const newPolicyPackage = policyPackageRepository.create({
+      policy: {
+        ...importedPolicy,
+        inputPolicyTag: inputPackage.policy.policyTag,
+      },
+      schemas: newSchemas.map((schema) => ({
+        ...schema,
+        inputName: inputPackage.schemas.find((inputSchema) =>
+          schema.name?.startsWith(inputSchema.name),
+        )!.name,
+      })),
+    });
 
-    // await policyPackageRepository.save(newPolicyPackage);
+    await policyPackageRepository.save(newPolicyPackage);
 
-    res.status(200).json(importedPolicy);
+    res.status(200).json(newPolicyPackage);
   });
 
   policyApi.get('/list', async (req: Request, res: Response) => {

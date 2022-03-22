@@ -3,7 +3,12 @@ import axios from 'axios';
 import { Request, Response, Router } from 'express';
 import type { IToken } from 'interfaces';
 import { loginToUiService } from '../modules/user';
-import { getUserKycFromUiService } from '../modules/token';
+import {
+  createTokenWithRetry,
+  getUserKycFromUiService,
+  getTokesnWithRetry,
+} from '../modules/token';
+import promiseRetry from 'promise-retry';
 
 export const makeTokenApi = ({
   uiServiceBaseUrl,
@@ -13,19 +18,12 @@ export const makeTokenApi = ({
   const tokenApi = Router();
 
   tokenApi.get('/', async (req: Request, res: Response) => {
-    const rootAuthority = await loginToUiService({
+    const user = await loginToUiService({
       uiServiceBaseUrl,
       username: 'RootAuthority',
     });
 
-    const { data: tokens } = (await axios.get(
-      `${uiServiceBaseUrl}/api/v1/tokens`,
-      {
-        headers: {
-          authorization: `Bearer ${rootAuthority.accessToken}`,
-        },
-      },
-    )) as { data: IToken[] };
+    const tokens = await getTokesnWithRetry({ uiServiceBaseUrl, user });
 
     res.status(200).json(tokens);
   });
@@ -40,21 +38,11 @@ export const makeTokenApi = ({
       username: 'RootAuthority',
     });
 
-    const { data: allTokens } = (await axios.post(
-      `${uiServiceBaseUrl}/api/v1/tokens`,
+    const createdToken = await createTokenWithRetry({
+      rootAuthority,
+      uiServiceBaseUrl,
       inputToken,
-      {
-        headers: {
-          authorization: `Bearer ${rootAuthority.accessToken}`,
-        },
-      },
-    )) as { data: IToken[] };
-
-    const createdToken = allTokens.find(
-      (token) => token.tokenSymbol === inputToken.tokenSymbol,
-    );
-
-    assert(createdToken, `Failed to create token ${inputToken.tokenSymbol}`);
+    });
 
     res.status(200).json(createdToken);
   });
@@ -85,17 +73,23 @@ export const makeTokenApi = ({
       res.status(200).json({});
       return;
     }
-
-    await axios.put(
-      `${uiServiceBaseUrl}/api/v1/tokens/${userKycInput.tokenId}/${userKycInput.username}/grantKyc`,
-      userKycInput,
-      {
-        headers: {
-          authorization: `Bearer ${rootAuthority.accessToken}`,
+    const fn = async () => {
+      await axios.put(
+        `${uiServiceBaseUrl}/api/v1/tokens/${userKycInput.tokenId}/${userKycInput.username}/grantKyc`,
+        userKycInput,
+        {
+          headers: {
+            authorization: `Bearer ${rootAuthority.accessToken}`,
+          },
         },
+      );
+    };
+    await promiseRetry(
+      async (retry) => {
+        fn().catch(retry);
       },
+      { retries: 3 },
     );
-
     res.status(200).json(userKycInput);
   });
 

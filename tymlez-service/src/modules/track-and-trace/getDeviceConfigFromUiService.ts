@@ -14,9 +14,18 @@ export async function getDeviceConfigFromUiService({
   device: IUIServiceDevice;
   installer: ILoggedUser;
 }): Promise<IUIServiceDeviceConfig> {
+  const { data: downloadButton } = await axios.get(
+    `${uiServiceBaseUrl}/api/v1/policies/${policyId}/tag/download_config_btn`,
+    {
+      headers: {
+        Authorization: `Api-Key ${installer.accessToken}`,
+      },
+    },
+  );
+
   const deviceConfig = (
     await axios.post(
-      `${uiServiceBaseUrl}/policy/block/tag2/${policyId}/download_config_btn`,
+      `${uiServiceBaseUrl}/api/v1/policies/${policyId}/blocks/${downloadButton.id}`,
       {
         owner: device.owner,
         document: device.document,

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { ILoggedUser } from '../user';
+import promiseRetry from 'promise-retry';
 
 export async function getRandomKeyFromUiService({
   uiServiceBaseUrl,
@@ -15,4 +16,22 @@ export async function getRandomKeyFromUiService({
       },
     })
   ).data;
+}
+
+export async function getRandomKeyFromUiServiceWithRetry(
+  {
+    uiServiceBaseUrl,
+    user,
+  }: {
+    uiServiceBaseUrl: string;
+    user: ILoggedUser;
+  },
+  retries = 3,
+) {
+  return promiseRetry(
+    () => {
+      return getRandomKeyFromUiService({ uiServiceBaseUrl, user });
+    },
+    { retries },
+  );
 }

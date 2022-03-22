@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { ITokenResponse } from './ITokenResponse';
 
-export async function grantTokenKvcToInstallers({
+export async function grantTokenKycToInstallers({
   GUARDIAN_TYMLEZ_API_KEY,
   GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
   installers,

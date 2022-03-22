@@ -2,8 +2,9 @@ import axios from 'axios';
 import type { ILoggedUser } from './ILoggedUser';
 import { getUserProfileFromUiService } from './getUserProfileFromUiService';
 import { loginToUiService, UserName } from './loginToUiService';
-import { getRandomKeyFromUiService } from '../key';
+import { getRandomKeyFromUiServiceWithRetry } from '../key';
 import { updateProfile } from './updateProfile';
+import pLimit from 'p-limit';
 
 export async function initInstaller({
   uiServiceBaseUrl,
@@ -16,7 +17,13 @@ export async function initInstaller({
     uiServiceBaseUrl,
     username,
   });
-
+  const profile = await getUserProfileFromUiService({ uiServiceBaseUrl, user });
+  if (profile?.confirmed) {
+    return {
+      message: `User '${username}' is already initialized.`,
+      profile,
+    };
+  }
   await initInstallerHederaProfile({ uiServiceBaseUrl, user });
 
   await associateInstallerWithTokens({ uiServiceBaseUrl, user });
@@ -31,7 +38,7 @@ async function initInstallerHederaProfile({
   uiServiceBaseUrl: string;
   user: ILoggedUser;
 }) {
-  const randomKey = await getRandomKeyFromUiService({
+  const randomKey = await getRandomKeyFromUiServiceWithRetry({
     uiServiceBaseUrl,
     user,
   });
@@ -56,6 +63,10 @@ async function initInstallerHederaProfile({
 
     if (userProfile && userProfile.confirmed) {
       break;
+    }
+    if (userProfile && userProfile.failed) {
+      console.log('failed to setup installer account, retrying.....');
+      await initInstallerHederaProfile({ uiServiceBaseUrl, user });
     }
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -99,13 +110,16 @@ async function associateInstallerWithTokens({
       },
     },
   );
-
+  const limit = pLimit(1);
   await Promise.all(
     userTokens
       .filter((token) => !token.associated)
-      .map(async (token) => {
-        return associateUserToken({ uiServiceBaseUrl, user, token });
-      }),
+      .map((token) =>
+        limit(
+          async () =>
+            await associateUserToken({ uiServiceBaseUrl, user, token }),
+        ),
+      ),
   );
 }
 

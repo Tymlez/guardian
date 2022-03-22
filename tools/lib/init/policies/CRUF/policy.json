@@ -6,10 +6,7 @@
   "topicDescription": "Tymlez Policy to track Carbon Reduction Forecast",
   "config": {
     "defaultActive": true,
-    "permissions": [
-      "ROOT_AUTHORITY",
-      "INSTALLER"
-    ],
+    "permissions": ["ROOT_AUTHORITY", "INSTALLER", "USER"],
     "blockType": "interfaceContainerBlock",
     "uiMetaData": {
       "type": "blank"
@@ -18,9 +15,7 @@
       {
         "defaultActive": true,
         "tag": "init_installer_steps",
-        "permissions": [
-          "INSTALLER"
-        ],
+        "permissions": ["INSTALLER", "USER"],
         "blockType": "interfaceStepBlock",
         "uiMetaData": {
           "type": "blank"
@@ -29,9 +24,7 @@
           {
             "tag": "add_new_installer_request",
             "defaultActive": true,
-            "permissions": [
-              "INSTALLER"
-            ],
+            "permissions": ["INSTALLER", "USER"],
             "blockType": "requestVcDocument",
             "schema": "#91bf250b-d809-40b2-b492-97240a746bbb&1.0.0",
             "idType": "OWNER",
@@ -39,9 +32,7 @@
               "type": "page",
               "title": "New Installer",
               "description": "Description",
-              "privateFields": [
-                "policyId"
-              ]
+              "privateFields": ["policyId"]
             },
             "id": "7511d80c-b938-412e-a0eb-4b9e737d6b5d"
           },
@@ -65,9 +56,7 @@
           {
             "tag": "installer_header",
             "defaultActive": true,
-            "permissions": [
-              "INSTALLER"
-            ],
+            "permissions": ["INSTALLER", "USER"],
             "blockType": "interfaceContainerBlock",
             "uiMetaData": {
               "type": "tabs"
@@ -76,9 +65,7 @@
               {
                 "tag": "sensors_page",
                 "defaultActive": true,
-                "permissions": [
-                  "INSTALLER"
-                ],
+                "permissions": ["INSTALLER", "USER"],
                 "blockType": "interfaceContainerBlock",
                 "uiMetaData": {
                   "type": "blank",
@@ -88,13 +75,9 @@
                   {
                     "tag": "sensors_grid",
                     "defaultActive": true,
-                    "permissions": [
-                      "INSTALLER"
-                    ],
+                    "permissions": ["INSTALLER", "USER"],
                     "blockType": "interfaceDocumentsSource",
-                    "dependencies": [
-                      "SendVCtoGuardian"
-                    ],
+                    "dependencies": ["SendVCtoGuardian"],
                     "onlyOwnDocuments": true,
                     "dataType": "vc-documents",
                     "filters": {
@@ -142,9 +125,7 @@
                   {
                     "tag": "download_config_btn",
                     "blockType": "interfaceAction",
-                    "permissions": [
-                      "INSTALLER"
-                    ],
+                    "permissions": ["INSTALLER", "USER"],
                     "type": "download",
                     "schema": "#7aeb0cec-d277-456e-a943-21d742d63816&1.0.0",
                     "stopPropagation": true,
@@ -158,9 +139,7 @@
                   {
                     "defaultActive": true,
                     "tag": "create_new_sensor_steps",
-                    "permissions": [
-                      "INSTALLER"
-                    ],
+                    "permissions": ["INSTALLER", "USER"],
                     "blockType": "interfaceStepBlock",
                     "uiMetaData": {
                       "type": "blank"
@@ -169,18 +148,14 @@
                       {
                         "tag": "add_sensor_bnt",
                         "defaultActive": true,
-                        "permissions": [
-                          "INSTALLER"
-                        ],
+                        "permissions": ["INSTALLER", "USER"],
                         "blockType": "requestVcDocument",
                         "schema": "#b578cb95-8530-46cc-9dc4-f31980744bf7&1.0.0",
                         "idType": "DID",
                         "uiMetaData": {
                           "type": "dialog",
                           "description": "Description",
-                          "privateFields": [
-                            "policyId"
-                          ],
+                          "privateFields": ["policyId"],
                           "content": "New Sensors",
                           "uiClass": "btn",
                           "dialogContent": "New Sensors",
@@ -216,9 +191,7 @@
               {
                 "tag": "mrv_page",
                 "defaultActive": true,
-                "permissions": [
-                  "INSTALLER"
-                ],
+                "permissions": ["INSTALLER", "USER"],
                 "blockType": "interfaceContainerBlock",
                 "uiMetaData": {
                   "type": "blank",
@@ -228,13 +201,9 @@
                   {
                     "tag": "mrv_grid",
                     "defaultActive": true,
-                    "permissions": [
-                      "INSTALLER"
-                    ],
+                    "permissions": ["INSTALLER", "USER"],
                     "blockType": "interfaceDocumentsSource",
-                    "dependencies": [
-                      "SendVCtoGuardian"
-                    ],
+                    "dependencies": ["SendVCtoGuardian"],
                     "onlyOwnDocuments": true,
                     "dataType": "vc-documents",
                     "filters": {
@@ -281,10 +250,7 @@
       {
         "tag": "mint_events",
         "defaultActive": true,
-        "permissions": [
-          "ROOT_AUTHORITY",
-          "INSTALLER"
-        ],
+        "permissions": ["ROOT_AUTHORITY", "INSTALLER", "USER"],
         "blockType": "interfaceContainerBlock",
         "uiMetaData": {
           "type": "blank"
@@ -331,7 +297,7 @@
   },
   "status": "PUBLISH",
   "owner": "did:hedera:testnet:AGuispD3wvsHwxii5KktNVuQXNjaGPLmNek4D9Nv9MGS;hedera:testnet:fid=0.0.28523277",
-  "policyRoles": ["ROOT_AUTHORITY", "INSTALLER" ],
+  "policyRoles": ["ROOT_AUTHORITY", "INSTALLER", "USER"],
   "topicId": "0.0.28523540",
   "policyTag": "TymlezCRUF"
 }

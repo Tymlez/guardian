@@ -67,7 +67,7 @@ export const makeTrackAndTraceApi = ({
       });
       assert(policyPackage, `Cannot find ${policyTag} package`);
 
-      const { data: installerBlock } = await axios.get(
+      const { data: installerBlockId } = await axios.get(
         `${uiServiceBaseUrl}/api/v1/policies/${policyPackage.policy.id}/tag/init_installer_steps`,
         {
           headers: {
@@ -76,6 +76,18 @@ export const makeTrackAndTraceApi = ({
         },
       );
 
+      const { data: installerBlock } = await axios.get(
+        `${uiServiceBaseUrl}/api/v1/policies/${policyPackage.policy.id}/blocks/${installerBlockId.id}`,
+        {
+          headers: {
+            Authorization: `Api-Key ${installer.accessToken}`,
+          },
+          validateStatus: (status) => {
+            return [404, 200, 201].includes(status);
+          },
+        },
+      );
+      console.log(installerBlock);
       assert(
         installerBlock.blockType === 'interfaceStepBlock',
         `installerBlock.blockType is ${installerBlock.blockType}, expect interfaceStepBlock`,
