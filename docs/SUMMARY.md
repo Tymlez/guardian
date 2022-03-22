@@ -8,19 +8,22 @@
   * [Prerequisites](getting-started/getting-started/prerequisites.md)
   * [Installation](getting-started/getting-started/installation.md)
 * [Demo Usage Guide](getting-started/demo-usage-guide.md)
+* [API Versioning & Deprecation Policy](getting-started/api-versioning-and-deprecation-policy.md)
+* [Policy Versioning & Deprecation Policy](getting-started/policy-versioning-and-deprecation-policy.md)
+* [Demo Using APIs](getting-started/demo-using-apis.md)
 * [Contributing](getting-started/contributing/README.md)
   * [Contribute a New Policy](getting-started/contributing/contribute-a-new-policy.md)
-* [Reference Implementation](getting-started/reference-implementation.md)
-* [Built With](getting-started/built-with.md)
+* [Frameworks/Libraries](getting-started/built-with.md)
 * [Change Log](getting-started/change-log.md)
 * [Roadmap](getting-started/roadmap.md)
 * [License](getting-started/license.md)
 * [Contact](getting-started/contact.md)
 * [Security](getting-started/security.md)
+* [Reference Implementation](getting-started/reference-implementation.md)
 
 ## User Guide Glossary
 
-* [Guardian Glossary](<README (1).md>)
+* [Guardian Glossary](user-guide-glossary/guardian-glossary.md)
 * [Policy Glossary](user-guide-glossary/policy-glossary.md)
 
 ## Available Schema Types
@@ -30,18 +33,23 @@
 ## Available Policy Workflow Blocks
 
 * [Introduction](available-policy-workflow-blocks/introduction.md)
-* [Container Workflow Block](available-policy-workflow-blocks/container-workflow-block.md)
-* [Roles Workflow Block](available-policy-workflow-blocks/roles-workflow-block.md)
-* [Step Workflow Block](available-policy-workflow-blocks/step-workflow-block.md)
-* [Request Workflow Block](available-policy-workflow-blocks/request-workflow-block.md)
-* [Send Workflow Block](available-policy-workflow-blocks/send-workflow-block.md)
-* [Information Workflow Block](available-policy-workflow-blocks/information-workflow-block.md)
-* [Documents Workflow Block](available-policy-workflow-blocks/documents-workflow-block.md)
-* [Action Workflow Block](available-policy-workflow-blocks/action-workflow-block.md)
-* [External Data Workflow Block](available-policy-workflow-blocks/external-data-workflow-block.md)
-* [Token Mint Workflow Block](available-policy-workflow-blocks/token-mint-workflow-block.md)
-* [Token Wipe Workflow Block](available-policy-workflow-blocks/token-wipe-workflow-block.md)
-* [Aggregate Data Workflow Block](available-policy-workflow-blocks/aggregate-data-workflow-block.md)
+* [InterfaceContainerBlock](available-policy-workflow-blocks/container-workflow-block.md)
+* [PolicyRolesBlock](available-policy-workflow-blocks/roles-workflow-block.md)
+* [InterfaceStepBlock](available-policy-workflow-blocks/step-workflow-block.md)
+* [requestVCDocumentBlock](available-policy-workflow-blocks/request-workflow-block.md)
+* [sendToGuardianBlock](available-policy-workflow-blocks/send-workflow-block.md)
+* [InformationBlock](available-policy-workflow-blocks/information-workflow-block.md)
+* [InterfaceDocumentsSourceBlock](available-policy-workflow-blocks/interfacedocumentssourceblock.md)
+* [DocumentsSourceAddOnBlock](available-policy-workflow-blocks/documentssourceaddonblock.md)
+* [filtersAddOnBlock](available-policy-workflow-blocks/filtersaddonblock.md)
+* [InterfaceActionBlock](available-policy-workflow-blocks/action-workflow-block.md)
+* [externalDataBlock](available-policy-workflow-blocks/external-data-workflow-block.md)
+* [mintDocumentBlock](available-policy-workflow-blocks/token-mint-workflow-block.md)
+* [retirementDocumentBlock](available-policy-workflow-blocks/retirementdocumentblock.md)
+* [wipeDocumentBlock](available-policy-workflow-blocks/token-wipe-workflow-block.md)
+* [calculateContainerBlock & calculateMathAddOnBlock](available-policy-workflow-blocks/calculatecontainerblock-and-calculatemathaddonblock.md)
+* [aggregateDocumentBlock](available-policy-workflow-blocks/aggregate-data-workflow-block.md)
+* [reportBlock & reportItemBlock](available-policy-workflow-blocks/reportblock-and-reportitemblock.md)
 
 ## Policy Workflow Creation using the Guardian User Interface
 
@@ -135,3 +143,13 @@
 
 * [Requesting](trustchains-apis/requesting.md)
 * [Building and returning](trustchains-apis/building-and-returning.md)
+
+## Settings APIs
+
+* [Displaying Current Settings](settings-apis/displaying-current-settings.md)
+* [Adding Settings](settings-apis/adding-settings.md)
+
+## Logs APIs
+
+* [Returning Logs](logs-apis/returning-logs.md)
+* [Returning Log Attributes](logs-apis/returning-log-attributes.md)

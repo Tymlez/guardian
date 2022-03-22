@@ -17,9 +17,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
-    "lint": "tsc --noEmit --incremental false && tslint --project .",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "npm run dev"
+    "lint": "tslint --project .",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "version": "1.0.5"
 }

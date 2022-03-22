@@ -4,9 +4,10 @@
 
 This folder contains sample files that are referenced in the Demo Usage Guide
 
-1. Sample Schema (`iRec_Application_Details.zip`)
+1. Sample Schema for iRec Policy (`iRec_Application_Details.zip`)
 2. Sample Policy Workflow configuration file (`irec-policy-config.txt`)
-3. Demo Usage Guide
+3. Sample of Verra REDD Policy (`Verra REDD.zip`)
+4. Sample Schema design template for Verra REDD Policy (`REDD APD Schema Design Template.xlsx`)
 
 1.The Guardian reference implementation comes with two predefined users:
 
@@ -37,7 +38,7 @@ There is a new feature as of version 1.0.2 which allows for the _Importing of Po
 * `1644847093.979895804` (Inverter)
 * `1644847107.415192828` (MRV)
 
-Those Hedera message IDs correspond respectively to the iRec Application Details, Inverter, and MRV Schemas.
+Those Hedera message IDs correspond respectively to the iRec Application Details, Inverter and MRV Schemas.
 
 Again this step is not needed if you import the entire policy (see step 6 and the discussion above).
 
@@ -48,10 +49,11 @@ Again this step is not needed if you import the entire policy (see step 6 and th
 6\. This could be one of the most interesting parts of the reference implementation. Now we will be creating the Policy. We have two ways to "create policies." The first way is to import an existing policy. This is the easiest way to get started. When you import a policy, as noted above, all schemas and tokens that are required in the policy are automatically populated. To do this, you can use the sample policy that we have already uploaded to IPFS. Click on the **import** button and enter the following Hedera message ID:
 
 * `1644847114.111298000` (iRec Policy)
+* `1647950909.262020677`(Verra REDD Policy)
 
 ![](https://user-images.githubusercontent.com/40637665/153242444-c16f357f-d12c-4b92-a9f9-b50788c47b2c.png)
 
-Once you have done that, you can move onto steop 8. If you'd like to build a policy from scratch, please continue reading below.
+Once you have done that, you can move onto step 8. If you'd like to build a policy from scratch, please continue reading below.
 
 Click **Create Policy** and fill the required information in the dialog box. Please note that you will need to create new **Tag** and **Version** numbers for each policy. identical Tags and Versions will cause an error. Once the Policy is complete, we have just _**created our first Policy Workflow and Policy Action Execution instance!**_
 
@@ -138,7 +140,7 @@ Press the **green triangle** to begin generating the data. Navigate back to the 
 
 17\. The last step is to log out of the Installer account and log into the Auditor account.
 
-[![image](https://user-images.githubusercontent.com/40637665/148989347-49bfb6fb-6753-4167-aeac-1dd6602cb1a4.png)](https://user-images.githubusercontent.com/40637665/148989347-49bfb6fb-6753-4167-aeac-1dd6602cb1a4.png)
+![](https://user-images.githubusercontent.com/40637665/148989347-49bfb6fb-6753-4167-aeac-1dd6602cb1a4.png)
 
 There are two tabs in this view: **Audit** and **Trust Chain**. Clicking into the Audit tab offers high-level public information from our reference implementation such as the Verifiable Presentation ID, the Hash of the Verifiable Presentation, the DID of the sensor, the date information the Verifiable Presentation was created, the type of activity, and the ability to view the Verifiable Presentation.
 
@@ -149,7 +151,5 @@ There are two tabs in this view: **Audit** and **Trust Chain**. Clicking into th
 ![](https://user-images.githubusercontent.com/40637665/137972170-7970a07e-7a76-410b-90a7-22a9f3586103.png)
 
 The **Trust Chain** view displays important elements that can be publicly discovered. Elements include token information, Policy information, and all of the important information regarding the Verifiable Credentials that make up the Verifiable Presentation. You'll notice "Cards" on the bottom of the screen. Those cards are Verifiable Credentials displayed in chronological order. For example, you will see when the Root Authority was created, when the policy was created, when the Installer submitted documentation, etc. Feel free to explore!
-
-\\
 
 ![](https://user-images.githubusercontent.com/40637665/137972740-a40ed2cb-2502-4da5-a9f2-3047c30e6773.png)

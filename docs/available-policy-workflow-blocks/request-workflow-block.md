@@ -1,10 +1,10 @@
-# Request Workflow Block
+# requestVCDocumentBlock
 
 ### Properties
 
 | Block Property   | Definition                                                                                                                                                   | Example Input                                                                                                                |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Type             | A type of the block which creates a form from the schema, and sends the document to the server.                                                              | **request**VCDocumentBlock (Can't be changed).                                                                               |
+| Type             | A type of the block which creates a form from the schema, and sends the document to the server.                                                              | **requestVCDocument**Block (Can't be changed).                                                                               |
 | Tag              | Unique name for the logic block.                                                                                                                             | add\_new\_installer\_request.                                                                                                |
 | Permissions      | Which entity has rights to interact at this part of the workflow.                                                                                            | Root Authority.                                                                                                              |
 | Default Active   | Shows whether this block is active at this time and whether it needs to be shown.                                                                            | Checked or unchecked.                                                                                                        |
@@ -25,3 +25,42 @@
 | Dialogue Description | Provides a description inside the Dialogue box. Needs the dialogue box to be selected from the "Type."                                                                        |
 | Dialogue Class       | Need to fill out.                                                                                                                                                             |
 | Fields               | Need to fill out.                                                                                                                                                             |
+
+### API Parameters
+
+{% swagger method="get" path="" baseUrl="blockType: 'requestVcDocument'" summary="" %}
+{% swagger-description %}
+
+{% endswagger-description %}
+
+{% swagger-parameter in="path" name="id" type="String" required="true" %}
+Block ID
+{% endswagger-parameter %}
+
+{% swagger-parameter in="path" name="blocktype" type="String" required="true" %}
+Type of Block
+{% endswagger-parameter %}
+
+{% swagger-parameter in="path" name="schema" type="Object" required="true" %}
+Schema Description
+{% endswagger-parameter %}
+
+{% swagger-parameter in="path" name="uiMetaData" required="true" %}
+{}
+{% endswagger-parameter %}
+{% endswagger %}
+
+{% swagger method="post" path="" baseUrl="blockType: 'requestVcDocument'" summary="" %}
+{% swagger-description %}
+
+{% endswagger-description %}
+
+{% swagger-parameter in="path" name="document" type="VC" required="true" %}
+VC Document
+{% endswagger-parameter %}
+
+{% swagger-parameter in="path" name="ref" type="String" %}
+ID of linked VC
+{% endswagger-parameter %}
+{% endswagger %}
+

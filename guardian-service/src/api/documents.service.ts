@@ -15,6 +15,7 @@ import {
 } from 'interfaces';
 import { MongoRepository } from 'typeorm';
 import { VCHelper } from 'vc-modules';
+import {VcHelper} from '@helpers/vcHelper';
 
 /**
  * Connect to the message broker methods of working with VC, VP and DID Documents
@@ -30,8 +31,8 @@ export const documentsAPI = async function (
     didDocumentRepository: MongoRepository<DidDocument>,
     vcDocumentRepository: MongoRepository<VcDocument>,
     vpDocumentRepository: MongoRepository<VpDocument>,
-    vc: VCHelper
 ): Promise<void> {
+    const vc = new VcHelper();
     const getDIDOperation = function (operation: DidMethodOperation | DidDocumentStatus) {
         switch (operation) {
             case DidMethodOperation.CREATE:
@@ -96,39 +97,44 @@ export const documentsAPI = async function (
      * @returns {IVCDocument[]} - VC Documents
      */
     channel.response(MessageAPI.GET_VC_DOCUMENTS, async (msg, res) => {
-        if (msg.payload) {
-            const reqObj: any = { where: {} };
-            const { owner, assign, issuer, id, hash, policyId, schema, ...otherArgs } = msg.payload;
-            if (owner) {
-                reqObj.where['owner'] = { $eq: owner }
+        try{
+            if (msg.payload) {
+                const reqObj: any = { where: {} };
+                const { owner, assign, issuer, id, hash, policyId, schema, ...otherArgs } = msg.payload;
+                if (owner) {
+                    reqObj.where['owner'] = { $eq: owner }
+                }
+                if (assign) {
+                    reqObj.where['assign'] = { $eq: assign }
+                }
+                if (issuer) {
+                    reqObj.where['document.issuer'] = { $eq: issuer }
+                }
+                if (id) {
+                    reqObj.where['document.id'] = { $eq: id }
+                }
+                if (hash) {
+                    reqObj.where['hash'] = { $eq: hash }
+                }
+                if (policyId) {
+                    reqObj.where['policyId'] = { $eq: policyId }
+                }
+                if (schema) {
+                    reqObj.where['schema'] = { $eq: schema }
+                }
+                if (typeof reqObj.where !== 'object') {
+                    reqObj.where = {};
+                }
+                Object.assign(reqObj.where, otherArgs);
+                const vcDocuments: IVCDocument[] = await vcDocumentRepository.find(reqObj);
+                res.send(new MessageResponse(vcDocuments));
+            } else {
+                const vcDocuments: IVCDocument[] = await vcDocumentRepository.find();
+                res.send(new MessageResponse(vcDocuments));
             }
-            if (assign) {
-                reqObj.where['assign'] = { $eq: assign }
-            }
-            if (issuer) {
-                reqObj.where['document.issuer'] = { $eq: issuer }
-            }
-            if (id) {
-                reqObj.where['document.id'] = { $eq: id }
-            }
-            if (hash) {
-                reqObj.where['hash'] = { $in: hash }
-            }
-            if (policyId) {
-                reqObj.where['policyId'] = { $eq: policyId }
-            }
-            if (schema) {
-                reqObj.where['schema'] = { $eq: schema }
-            }
-            if (typeof reqObj.where !== 'object') {
-                reqObj.where = {};
-            }
-            Object.assign(reqObj.where, otherArgs);
-            const vcDocuments: IVCDocument[] = await vcDocumentRepository.find(reqObj);
-            res.send(new MessageResponse(vcDocuments));
-        } else {
-            const vcDocuments: IVCDocument[] = await vcDocumentRepository.find();
-            res.send(new MessageResponse(vcDocuments));
+        }
+        catch (e){
+            res.send(new MessageError(e.message));
         }
     });
 
@@ -172,7 +178,6 @@ export const documentsAPI = async function (
     channel.response(MessageAPI.SET_VC_DOCUMENT, async (msg, res) => {
         let result: IVCDocument;
 
-        console.log('SET_VC_DOCUMENT', msg.payload);
         const hash = msg.payload.hash;
         if (hash) {
             result = await vcDocumentRepository.findOne({ where: { hash: { $eq: hash } } });
@@ -254,63 +259,4 @@ export const documentsAPI = async function (
             res.send(new MessageResponse(documents));
         }
     });
-
-    /**
-     * Return VP Documents using filters
-     * 
-     * @param {Object} [payload] - filters
-     * 
-     * @returns {IVPDocument[]} - VP Documents
-     */
-    channel.response(MessageAPI.FIND_VP_DOCUMENTS, async (msg, res) => {
-        try {
-            console.log('FIND_VP_DOCUMENTS', msg.payload);
-            const pageSize = Number(msg.payload.pageSize);
-            const currentPage = Number(msg.payload.page) === 0 ? 1 : Number(msg.payload.page);
-            const skip = pageSize * (currentPage - 1);
-            const reqObj: any = { where: {}, take: pageSize, skip };
-            if (msg.payload.type) {
-                reqObj.where['type'] = { $eq: msg.payload.type }
-            }
-            if (msg.payload.owner) {
-                reqObj.where['owner'] = { $eq: msg.payload.owner }
-            }
-            if (msg.payload.issuer) {
-                reqObj.where['document.verifiableCredential.issuer'] = msg.payload.issuer
-            }
-            if (msg.payload.id) {
-                reqObj.where['document.id'] = { $eq: msg.payload.id }
-            }
-            if (msg.payload.hash) {
-                reqObj.where['hash'] = { $in: msg.payload.hash }
-            }
-            if (msg.payload.policyId) {
-                reqObj.where['policyId'] = { $eq: msg.payload.policyId }
-            }
-
-            if (msg.payload.period === '24h') {
-                const startDate = new Date();
-                startDate.setHours(startDate.getHours() - 24);
-                reqObj.where['createDate'] = { $gt: startDate }
-            }
-            console.log('getvpdocuments reqObj', reqObj);
-            const documents: [IVPDocument[], number] = await vpDocumentRepository.findAndCount(reqObj);
-            const lastPage = Math.ceil(documents[1] / pageSize);
-            const response  = {
-                perPage: pageSize,
-                totalRecords: documents[1],
-                lastPage,
-                currentPage,
-                hasNextPage: lastPage > currentPage,
-                hasPrevPage: currentPage > 1,
-                data: documents[0]
-            };
-            console.log('documents', documents);
-            res.send(response);
-        } catch (error) {
-            console.error(error);
-            res.send({});
-        }
-    });
 }
-
