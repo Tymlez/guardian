@@ -1,20 +1,21 @@
-import axios from 'axios';
-import type { IUser } from '../user';
+import { ILoggedUser, loginToUiService } from '../user';
 import assert from 'assert';
 import type { PolicyPackage } from '@entity/policy-package';
+import { getAllSchemasFromUiService } from '../schema';
+import { sendBlockDataWithRetry } from '../policy';
 
 export async function addDeviceToUiService({
   policyPackage,
   installer,
   deviceInfo,
   policyId,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
   policyPackage: PolicyPackage;
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   policyId: string;
   deviceInfo: any;
-  installer: IUser;
+  installer: ILoggedUser;
 }): Promise<void> {
   const inverterSchema = policyPackage.schemas.find(
     (schema) => schema.inputName === 'TymlezDevice',
@@ -29,17 +30,32 @@ export async function addDeviceToUiService({
     policyId,
   });
 
-  await axios.post(
-    `${uiServiceBaseUrl}/policy/block/tag2/${policyId}/add_sensor_bnt`,
-    {
-      type: inverterSchema.uuid,
-      '@context': ['https://localhost/schema'],
+  const rootAuthority = await loginToUiService({
+    guardianApiGatewayUrl,
+    username: 'RootAuthority',
+  });
+
+  const allSchemas = await getAllSchemasFromUiService({
+    guardianApiGatewayUrl,
+    rootAuthority,
+  });
+  const actualDeviceSchema = allSchemas.find(
+    (schema) => schema.name === 'TymlezDevice',
+  );
+
+  const updateDeviceData = {
+    document: {
+      type: actualDeviceSchema?.iri?.replace('#', ''),
+      '@context': [actualDeviceSchema?.contextURL],
       ...deviceInfo,
     },
-    {
-      headers: {
-        authorization: `Bearer ${installer.accessToken}`,
-      },
-    },
-  );
+  };
+
+  await sendBlockDataWithRetry({
+    guardianApiGatewayUrl,
+    policyId: policyPackage.policy.id,
+    blockTag: 'add_sensor_bnt',
+    user: installer,
+    data: updateDeviceData,
+  });
 }

@@ -1,27 +1,21 @@
-import { differenceBy } from 'lodash';
 import { getAllSchemasFromUiService } from './getAllSchemasFromUiService';
-import type { IUser } from '../user';
-import type { ISchema } from 'interfaces';
+import type { ILoggedUser } from '../user';
 
 export async function getNewSchemas({
   preImportSchemas,
   rootAuthority,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
-  rootAuthority: IUser;
-  preImportSchemas: ISchema[];
+  guardianApiGatewayUrl: string;
+  rootAuthority: ILoggedUser;
+  preImportSchemas: string[];
 }) {
   const postImportSchemas = await getAllSchemasFromUiService({
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
     rootAuthority,
   });
 
-  const newSchemas = differenceBy(
-    postImportSchemas,
-    preImportSchemas,
-    (obj) => obj.uuid,
+  return postImportSchemas.filter((schema) =>
+    preImportSchemas.includes(schema.name as string),
   );
-
-  return newSchemas;
 }

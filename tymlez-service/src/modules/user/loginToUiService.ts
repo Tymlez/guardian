@@ -1,21 +1,20 @@
 import assert from 'assert';
 import axios from 'axios';
-import type { IUser } from './IUser';
+import type { ILoggedUser } from './ILoggedUser';
 
 export async function loginToUiService({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   username,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   username: UserName;
 }) {
   const loginDetail = LOGIN_DETAILS[username];
   assert(loginDetail, `Cannot find login detail for ${username}`);
-
   const { data: user } = (await axios.post(
-    `${uiServiceBaseUrl}/api/account/login`,
+    `${guardianApiGatewayUrl}/api/v1/accounts/login`,
     { username, password: loginDetail.password },
-  )) as { data: IUser | undefined };
+  )) as { data: ILoggedUser | undefined };
 
   assert(user, `Failed to login as ${username}`);
 

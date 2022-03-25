@@ -18,21 +18,39 @@ import { makeSchemaApi } from '@api/schema';
 import { makeTokenApi } from '@api/token';
 import { makePolicyApi } from '@api/policy';
 import { makeUserApi } from '@api/user';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { PolicyPackage } from '@entity/policy-package';
 import { ProcessedMrv } from '@entity/processed-mrv';
+import { useIpfsApi } from '@api/ipfs';
 
 axios.interceptors.request.use((request) => {
   if (request.url?.includes('login')) {
-    console.log('Axios: Starting Request', request.url);
+    console.log('Axios: Starting Request %s', request.method, request.url);
   } else {
     console.log(
       'Axios: Starting Request',
-      JSON.stringify({ url: request.url, data: request.data }, null, 2),
+      JSON.stringify(
+        { url: `${request.method} -> ${request.url}`, data: request.data },
+        null,
+        2,
+      ),
     );
   }
   return request;
 });
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    console.error(
+      'Request error %s',
+      error.request.url,
+      error.response?.data,
+      error.response?.statusText,
+    );
+    return Promise.reject(new Error('Request error'));
+  },
+);
 
 const {
   SERVICE_CHANNEL,
@@ -41,7 +59,7 @@ const {
   DB_HOST,
   DB_DATABASE,
   GUARDIAN_TYMLEZ_API_KEY,
-  UI_SERVICE_BASE_URL,
+  GUARDIAN_API_GW_URL,
   GUARDIAN_SERVICE_BASE_URL,
   MESSAGE_BROKER_BASE_URL,
   OPERATOR_ID,
@@ -58,7 +76,7 @@ console.log('Starting tymlez-service', {
   DB_DATABASE,
   OPERATOR_ID,
   MRV_RECEIVER_URL,
-  UI_SERVICE_BASE_URL,
+  GUARDIAN_API_GW_URL,
   GUARDIAN_SERVICE_BASE_URL,
   MESSAGE_BROKER_BASE_URL,
   SERVICE_CHANNEL,
@@ -70,7 +88,7 @@ assert(DB_DATABASE, `DB_DATABASE is missing`);
 assert(SERVICE_CHANNEL, `SERVICE_CHANNEL is missing`);
 assert(MQ_ADDRESS, `MQ_ADDRESS is missing`);
 assert(MRV_RECEIVER_URL, `MRV_RECEIVER_URL is missing`);
-assert(UI_SERVICE_BASE_URL, `UI_SERVICE_BASE_URL is missing`);
+assert(GUARDIAN_API_GW_URL, `GUARDIAN_API_GW_URL is missing`);
 assert(GUARDIAN_SERVICE_BASE_URL, `GUARDIAN_SERVICE_BASE_URL is missing`);
 assert(MESSAGE_BROKER_BASE_URL, `MESSAGE_BROKER_BASE_URL is missing`);
 assert(GUARDIAN_TYMLEZ_API_KEY, `GUARDIAN_TYMLEZ_API_KEY is missing`);
@@ -135,7 +153,7 @@ Promise.all([
   app.use(
     '/info',
     makeInfoApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
       guardianServiceBaseUrl: GUARDIAN_SERVICE_BASE_URL,
       messageBrokerBaseUrl: MESSAGE_BROKER_BASE_URL,
     }),
@@ -159,32 +177,39 @@ Promise.all([
       policyPackageRepository,
       processedMrvRepository,
       mrvReceiverUrl: MRV_RECEIVER_URL,
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
   app.use(
     '/schema/',
     makeSchemaApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
   app.use(
     '/tokens/',
     makeTokenApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
   app.use(
     '/policy/',
     makePolicyApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
       policyPackageRepository,
     }),
   );
   app.use(
     '/user/',
     makeUserApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
+    }),
+  );
+
+  app.use(
+    '/ipfs/',
+    useIpfsApi({
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
 

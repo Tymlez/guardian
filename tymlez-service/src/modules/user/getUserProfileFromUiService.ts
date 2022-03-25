@@ -1,19 +1,22 @@
 import axios from 'axios';
-import type { IUserProfile } from 'interfaces';
-import type { IUser } from '../user';
+import type { IUser } from 'interfaces';
+import type { ILoggedUser } from '../user';
 
 export async function getUserProfileFromUiService({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   user,
 }: {
-  uiServiceBaseUrl: string;
-  user: IUser;
-}): Promise<IUserProfile | undefined> {
+  guardianApiGatewayUrl: string;
+  user: ILoggedUser;
+}): Promise<IUser | undefined> {
   return (
-    await axios.get(`${uiServiceBaseUrl}/api/profile/user-state`, {
-      headers: {
-        authorization: `Bearer ${user.accessToken}`,
+    await axios.get(
+      `${guardianApiGatewayUrl}/api/v1/profiles/${user.username}`,
+      {
+        headers: {
+          authorization: `Bearer ${user.accessToken}`,
+        },
       },
-    })
+    )
   ).data;
 }

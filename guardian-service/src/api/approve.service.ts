@@ -1,5 +1,5 @@
 import {ApprovalDocument} from '@entity/approval-document';
-import {IApprovalDocument, MessageAPI} from 'interfaces';
+import {IApprovalDocument, MessageAPI, MessageResponse} from 'interfaces';
 import {MongoRepository} from 'typeorm';
 
 /**
@@ -26,20 +26,34 @@ export const approveAPI = async function (
     channel.response(MessageAPI.GET_APPROVE_DOCUMENTS, async (msg, res) => {
         if (msg.payload.id) {
             const document = await approvalDocumentRepository.findOne(msg.payload.id);
-            res.send([document]);
+            res.send(new MessageResponse([document]));
         } else {
-            const reqObj: any = {where: {}};
-            if (msg.payload.owner) {
-                reqObj.where['owner'] = {$eq: msg.payload.owner}
+            const reqObj: any = { where: {} };
+            const { owner, approver, id, hash, policyId, schema, issuer, ...otherArgs } = msg.payload;
+            if (owner) {
+                reqObj.where['owner'] = { $eq: owner }
             }
-            if (msg.payload.approver) {
-                reqObj.where['approver'] = {$eq: msg.payload.approver}
+            if (issuer) {
+                reqObj.where['document.issuer'] = { $eq: issuer }
             }
-            if (msg.payload.policyId) {
-                reqObj.where['policyId'] = {$eq: msg.payload.policyId}
+            if (id) {
+                reqObj.where['document.id'] = { $eq: id }
             }
+            if (hash) {
+                reqObj.where['hash'] = { $eq: hash }
+            }
+            if (policyId) {
+                reqObj.where['policyId'] = { $eq: policyId }
+            }
+            if (schema) {
+                reqObj.where['schema'] = { $eq: schema }
+            }
+            if (typeof reqObj.where !== 'object') {
+                reqObj.where = {};
+            }
+            Object.assign(reqObj.where, otherArgs);
             const documents: IApprovalDocument[] = await approvalDocumentRepository.find(reqObj);
-            res.send(documents);
+            res.send(new MessageResponse(documents));
         }
     });
 
@@ -62,7 +76,7 @@ export const approveAPI = async function (
             const documentObject = approvalDocumentRepository.create(msg.payload);
             result = await approvalDocumentRepository.save(documentObject)
         }
-        res.send(result);
+        res.send(new MessageResponse(result));
     })
 
     /**
@@ -77,6 +91,6 @@ export const approveAPI = async function (
         const id = documentObject.id;
         delete documentObject.id;
         const result = await approvalDocumentRepository.update(id, documentObject);
-        res.send(result);
+        res.send(new MessageResponse(result));
     })
 }

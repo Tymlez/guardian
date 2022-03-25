@@ -1,38 +1,60 @@
 import assert from 'assert';
-import axios from 'axios';
-import type { IUser } from '../user';
+import { ILoggedUser, loginToUiService } from '../user';
 import type { PolicyPackage } from '@entity/policy-package';
+import { getAllSchemasFromUiService } from '../schema';
+import { sendBlockDataWithRetry } from '../policy';
 
 export async function registerInstallerInUiService({
   installer,
   installerInfo,
   policyId,
   policyPackage,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
   policyPackage: PolicyPackage;
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   policyId: string;
   installerInfo: any;
-  installer: IUser;
+  installer: ILoggedUser;
 }) {
   const installerSchema = policyPackage.schemas.find(
     (schema) => schema.inputName === 'TymlezInstaller',
   );
 
+  const rootAuthority = await loginToUiService({
+    guardianApiGatewayUrl,
+    username: 'RootAuthority',
+  });
+
+  const allSchemas = await getAllSchemasFromUiService({
+    guardianApiGatewayUrl,
+    rootAuthority,
+  });
+  const actualInstallerSchema = allSchemas.find(
+    (schema) => schema.name === 'TymlezInstaller',
+  );
+
+  await sendBlockDataWithRetry({
+    guardianApiGatewayUrl,
+    policyId,
+    blockTag: 'choose_role_user_role',
+    data: { role: 'INSTALLER' },
+    user: installer,
+  });
+
   assert(installerSchema, `Cannot find TymlezInstaller schema`);
 
-  await axios.post(
-    `${uiServiceBaseUrl}/policy/block/tag2/${policyId}/add_new_installer_request`,
-    {
-      type: installerSchema.uuid,
-      '@context': ['https://localhost/schema'],
-      ...installerInfo,
-    },
-    {
-      headers: {
-        Authorization: `Api-Key ${installer.accessToken}`,
+  await sendBlockDataWithRetry({
+    guardianApiGatewayUrl,
+    policyId,
+    blockTag: 'add_new_installer_request',
+    data: {
+      document: {
+        type: actualInstallerSchema?.iri?.replace('#', ''),
+        '@context': [actualInstallerSchema?.contextURL],
+        ...installerInfo,
       },
     },
-  );
+    user: installer,
+  });
 }

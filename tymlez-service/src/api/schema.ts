@@ -2,13 +2,16 @@ import assert from 'assert';
 import axios from 'axios';
 import { Request, Response, Router } from 'express';
 import type { ISchema } from 'interfaces';
-import { publishSchemasToUiService } from '../modules/schema';
+import {
+  getAllSchemasFromUiService,
+  publishSchemasToUiService,
+} from '../modules/schema';
 import { loginToUiService } from '../modules/user';
 
 export const makeSchemaApi = ({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
 }) => {
   const schemaApi = Router();
 
@@ -19,21 +22,21 @@ export const makeSchemaApi = ({
     assert(inputSchema.uuid, `schema.uuid is missing`);
 
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
-    const { data: allSchemas } = (await axios.post(
-      `${uiServiceBaseUrl}/api/schema/import`,
-      { schemes: [inputSchema] },
-      {
-        headers: {
-          authorization: `Bearer ${rootAuthority.accessToken}`,
-          'content-type': 'application/json',
-        },
+    await axios.post(`${guardianApiGatewayUrl}/api/v1/schemas`, inputSchema, {
+      headers: {
+        authorization: `Bearer ${rootAuthority.accessToken}`,
+        'content-type': 'application/json',
       },
-    )) as { data: ISchema[] };
+    });
 
+    const allSchemas = await getAllSchemasFromUiService({
+      guardianApiGatewayUrl,
+      rootAuthority,
+    });
     const importedSchema = allSchemas.find(
       (schema) => schema.uuid === inputSchema.uuid,
     );
@@ -42,9 +45,10 @@ export const makeSchemaApi = ({
 
     if (publish && importedSchema.status !== 'PUBLISHED') {
       await publishSchemasToUiService({
-        uiServiceBaseUrl,
+        guardianApiGatewayUrl,
         rootAuthority,
         schemaIds: [importedSchema.id],
+        version: '1.0.0',
       });
     } else {
       console.log(`Schema: ${importedSchema.uuid} already published`);

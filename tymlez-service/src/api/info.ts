@@ -2,11 +2,11 @@ import axios from 'axios';
 import { Request, Response, Router } from 'express';
 
 export const makeInfoApi = ({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   guardianServiceBaseUrl,
   messageBrokerBaseUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   guardianServiceBaseUrl: string;
   messageBrokerBaseUrl: string;
 }) => {
@@ -29,7 +29,7 @@ export const makeInfoApi = ({
       OPERATOR_ID: process.env.OPERATOR_ID,
 
       uiServiceInfo: await getServiceInfo({
-        baseUrl: `${uiServiceBaseUrl}/api`,
+        baseUrl: `${guardianApiGatewayUrl}/api/v1`,
         serviceName: 'UI Service',
       }),
       guardianServiceInfo: await getServiceInfo({

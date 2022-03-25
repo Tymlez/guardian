@@ -1,20 +1,22 @@
 import axios from 'axios';
-import type { IUser } from '../user';
-
+import type { ITokenInfo } from 'interfaces';
+import promiseRetry from 'promise-retry';
+import type { ILoggedUser } from '../user';
+interface IGetUserKyc {
+  guardianApiGatewayUrl: string;
+  tokenId: string;
+  username: string;
+  rootAuthority: ILoggedUser;
+}
 export async function getUserKycFromUiService({
   tokenId,
   username,
   rootAuthority,
-  uiServiceBaseUrl,
-}: {
-  uiServiceBaseUrl: string;
-  tokenId: string;
-  username: string;
-  rootAuthority: IUser;
-}): Promise<IUserKycFromUiService> {
+  guardianApiGatewayUrl,
+}: IGetUserKyc): Promise<ITokenInfo> {
   return (
     await axios.get(
-      `${uiServiceBaseUrl}/api/tokens/associate-users?tokenId=${tokenId}&username=${username}`,
+      `${guardianApiGatewayUrl}/api/v1/tokens/${tokenId}/${username}/info`,
       {
         headers: {
           authorization: `Bearer ${rootAuthority.accessToken}`,
@@ -23,11 +25,14 @@ export async function getUserKycFromUiService({
     )
   ).data;
 }
-
-interface IUserKycFromUiService {
-  associated: boolean;
-  balance: string;
-  hBarBalance: string;
-  frozen: boolean;
-  kyc: boolean;
+export async function getUserKycFromUiServiceWithRetry(
+  params: IGetUserKyc,
+  retries = 3,
+) {
+  return promiseRetry(
+    (retry) => {
+      return getUserKycFromUiService(params).catch(retry);
+    },
+    { retries },
+  );
 }

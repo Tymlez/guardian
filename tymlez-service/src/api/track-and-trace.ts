@@ -12,15 +12,13 @@ import type { PolicyPackage } from '@entity/policy-package';
 import {
   addDeviceToUiService,
   getDeviceConfigFromUiService,
-  getDevicesFromUiService,
-  getNewDevices,
+  waitForDeviceAdded,
   registerInstallerInUiService,
 } from '../modules/track-and-trace';
 import type { ProcessedMrv } from '@entity/processed-mrv';
 import { mrvSettingSchema } from '../modules/track-and-trace/mrvSettingSchema';
 import type { IMrvSetting } from '../modules/track-and-trace/IMrvSetting';
 import type { IIsoDate } from '@entity/IIsoDate';
-
 
 export const makeTrackAndTraceApi = ({
   vcDocumentLoader,
@@ -29,7 +27,7 @@ export const makeTrackAndTraceApi = ({
   policyPackageRepository,
   processedMrvRepository,
   mrvReceiverUrl,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
   vcDocumentLoader: VCDocumentLoader;
   vcHelper: VCHelper;
@@ -37,7 +35,7 @@ export const makeTrackAndTraceApi = ({
   policyPackageRepository: MongoRepository<PolicyPackage>;
   processedMrvRepository: MongoRepository<ProcessedMrv>;
   mrvReceiverUrl: string;
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
 }) => {
   const trackAndTraceApi = Router();
 
@@ -59,7 +57,7 @@ export const makeTrackAndTraceApi = ({
       assert(installerInfo, `installerInfo is missing`);
 
       const installer = await loginToUiService({
-        uiServiceBaseUrl,
+        guardianApiGatewayUrl,
         username,
       });
 
@@ -68,8 +66,8 @@ export const makeTrackAndTraceApi = ({
       });
       assert(policyPackage, `Cannot find ${policyTag} package`);
 
-      const { data: installerBlock } = await axios.get(
-        `${uiServiceBaseUrl}/policy/block/tag2/${policyPackage.policy.id}/init_installer_steps`,
+      const { data: installerBlockId } = await axios.get(
+        `${guardianApiGatewayUrl}/api/v1/policies/${policyPackage.policy.id}/tag/init_installer_steps`,
         {
           headers: {
             Authorization: `Api-Key ${installer.accessToken}`,
@@ -77,14 +75,27 @@ export const makeTrackAndTraceApi = ({
         },
       );
 
+      const { data: installerBlock } = await axios.get(
+        `${guardianApiGatewayUrl}/api/v1/policies/${policyPackage.policy.id}/blocks/${installerBlockId.id}`,
+        {
+          headers: {
+            Authorization: `Api-Key ${installer.accessToken}`,
+          },
+          validateStatus: (status) => {
+            return [404, 200, 201].includes(status);
+          },
+        },
+      );
+      console.log('installerBlock', installerBlock);
       assert(
         installerBlock.blockType === 'interfaceStepBlock',
         `installerBlock.blockType is ${installerBlock.blockType}, expect interfaceStepBlock`,
       );
 
       if (
+        installerBlock.blocks[installerBlock.index] &&
         installerBlock.blocks[installerBlock.index].blockType !==
-        'requestVcDocument'
+          'requestVcDocumentBlock'
       ) {
         console.log(
           `Skip because installer '${JSON.stringify(
@@ -98,7 +109,7 @@ export const makeTrackAndTraceApi = ({
 
       await registerInstallerInUiService({
         policyPackage,
-        uiServiceBaseUrl,
+        guardianApiGatewayUrl,
         policyId: policyPackage.policy.id,
         installerInfo,
         installer,
@@ -159,7 +170,7 @@ export const makeTrackAndTraceApi = ({
     }
 
     const installer = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username,
     });
 
@@ -168,42 +179,35 @@ export const makeTrackAndTraceApi = ({
     });
     assert(policyPackage, `Cannot find ${policyTag} package`);
 
-    const preAddDevices = await getDevicesFromUiService({
-      uiServiceBaseUrl,
-      policyId: policyPackage.policy.id,
-      installer,
-    });
-
     await addDeviceToUiService({
       policyPackage,
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       policyId: policyPackage.policy.id,
       deviceInfo,
       installer,
     });
 
-    const newDevices = await getNewDevices({
-      uiServiceBaseUrl,
+    const addedDevice = await waitForDeviceAdded({
+      guardianApiGatewayUrl,
       policyId: policyPackage.policy.id,
       installer,
-      preAddDevices,
+      deviceId: deviceInfo.deviceId,
     });
 
     assert(
-      newDevices.length === 1,
-      `Number of new devices is ${newDevices.length}, expect 1`,
+      addedDevice,
+      `Number of new devices is not detected, expect found 1 device`,
     );
 
     console.log(
       `Getting device config for ${deviceId} with policy ${policyTag}`,
     );
     const deviceConfig = await getDeviceConfigFromUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       policyId: policyPackage.policy.id,
-      device: newDevices[0],
+      device: addedDevice,
       installer,
     });
-
     const newDeviceConfig = deviceConfigRepository.create({
       key: deviceConfigKey,
       deviceId,
@@ -211,6 +215,11 @@ export const makeTrackAndTraceApi = ({
       policyTag,
       config: deviceConfig,
     } as DeviceConfig);
+
+    console.log('add device to db', JSON.stringify(newDeviceConfig, null, 4));
+    newDeviceConfig.config.schema = JSON.stringify(
+      newDeviceConfig.config.schema,
+    );
     await deviceConfigRepository.save(newDeviceConfig);
 
     res.status(200).json(deviceConfig);
@@ -224,11 +233,10 @@ export const makeTrackAndTraceApi = ({
         deviceId: string | undefined;
       };
 
-
       const mrv = await processedMrvRepository.findOne({
         where: {
           policyTag,
-          deviceId
+          deviceId,
         },
         order: { timestamp: 'DESC' },
       });
@@ -286,7 +294,6 @@ export const makeTrackAndTraceApi = ({
         did,
         key,
         policyId,
-        type,
         schema,
         policyTag,
       } = deviceConfig.config;
@@ -304,7 +311,7 @@ export const makeTrackAndTraceApi = ({
         vcSubject.policyId = policyId;
         vcSubject.accountId = hederaAccountId;
 
-        vc = await vcHelper.createVC(did, key, type, vcSubject);
+        vc = await vcHelper.createVC(did, key, vcSubject, schema);
         document = vc.toJsonTree();
 
         console.log('created vc');

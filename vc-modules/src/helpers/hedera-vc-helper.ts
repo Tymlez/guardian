@@ -2,7 +2,9 @@ import { PrivateKey } from '@hashgraph/sdk';
 import {
     TimestampUtils,
     HcsDidRootKey
-} from 'did-sdk-js';
+} from '@hashgraph/did-sdk-js';
+import { check, CheckResult } from '@transmute/jsonld-schema';
+
 import { VcSubject } from '../vc/vc-subject';
 import { HcsVcDocument } from '../vc/vc-document';
 import { VCJS } from '../vc/vcjs';
@@ -10,27 +12,39 @@ import { DocumentLoader } from '../document-loader/document-loader';
 import { DocumentLoaderFunction } from '../document-loader/document-loader-function';
 import { Utils } from './utils';
 import { HcsVpDocument } from '../vc/vp-document';
-import { check } from '@transmute/jsonld-schema';
-import { SchemaLoader } from '../document-loader/schema-loader';
+import { SchemaLoader, SchemaLoaderFunction } from '../document-loader/schema-loader';
+
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+
+interface ISubject {
+    id?: string;
+    type?: string;
+    '@context'?: string | string[];
+    [x: string]: any;
+}
+
 /**
  * Methods for creating and verifying VC and VP documents
  */
 export class VCHelper {
     private documentLoaders: DocumentLoader[];
+    private schemaLoaders: SchemaLoader[];
     private schemaContext: string[];
     private loader: DocumentLoaderFunction;
-    private schemaLoader: (type: string) => Promise<any>;
+    private schemaLoader: SchemaLoaderFunction;
 
     constructor() {
         this.schemaContext = [];
         this.documentLoaders = [];
+        this.schemaLoaders = [];
     }
 
     /**
      * Add Schema context
-     * 
+     *
      * @param {string} context - context
-     * 
+     *
      */
     public addContext(context: string): void {
         this.schemaContext.push(context);
@@ -38,9 +52,9 @@ export class VCHelper {
 
     /**
      * Add DID or Schema document loader
-     * 
+     *
      * @param {DocumentLoader} documentLoader - Document Loader
-     * 
+     *
      */
     public addDocumentLoader(documentLoader: DocumentLoader): void {
         this.documentLoaders.push(documentLoader);
@@ -49,9 +63,6 @@ export class VCHelper {
     /**
      * Build Document Loader
      * Builded loader is used to sign and verify documents
-     * 
-     * @param {DocumentLoader} documentLoader - Document Loader
-     * 
      */
     public buildDocumentLoader(): void {
         this.loader = DocumentLoader.build(this.documentLoaders);
@@ -59,24 +70,28 @@ export class VCHelper {
 
     /**
      * Add Schema loader
-     * 
+     *
      * @param {DocumentLoader} documentLoader - Document Loader
-     * 
+     *
      */
     public addSchemaLoader(schemaLoader: SchemaLoader): void {
-        if(schemaLoader) {
-            this.schemaLoader = schemaLoader.get.bind(schemaLoader);
-        } else {
-            this.schemaLoader = null;
-        }
+        this.schemaLoaders.push(schemaLoader);
+    }
+
+    /**
+     * Build Schema Loader
+     * Builded loader is used to sign and verify documents
+     */
+    public buildSchemaLoader(): void {
+        this.schemaLoader = SchemaLoader.build(this.schemaLoaders);
     }
 
     /**
      * Create Suite by DID
-     * 
+     *
      * @param {string} did - DID
      * @param {PrivateKey | string} privateKey - Private Key
-     * 
+     *
      * @returns {any} - Root Id, DID, Private Key
      */
     private async getSuite(did: string, key: string | PrivateKey): Promise<any> {
@@ -89,11 +104,11 @@ export class VCHelper {
 
     /**
      * Create Credential Object (VC without a signature)
-     * 
+     *
      * @param {string} did - DID
      * @param {string} schema - schema id
      * @param {any} data - Object
-     * 
+     *
      * @returns {any} - VC Document
      */
     public async createCredential(
@@ -119,11 +134,11 @@ export class VCHelper {
 
     /**
      * Sign Credential Object
-     * 
+     *
      * @param {string} did - DID
      * @param {PrivateKey | string} privateKey - Private Key
      * @param {any} credential - Credential Object
-     * 
+     *
      * @returns {HcsVcDocument<VcSubject>} - VC Document
      */
     public async issueCredential(
@@ -145,19 +160,19 @@ export class VCHelper {
 
     /**
      * Create VC Document
-     * 
+     *
      * @param {string} did - DID
      * @param {PrivateKey | string} privateKey - Private Key
-     * @param {string} schema - schema id
      * @param {any} data - Credential Object
-     * 
+     * @param {string} schema - schema id
+     *
      * @returns {HcsVcDocument<VcSubject>} - VC Document
      */
     public async createVC(
         did: string,
         key: string | PrivateKey,
-        schema: string,
-        data: any
+        subject: ISubject,
+        schema?: string
     ): Promise<HcsVcDocument<VcSubject>> {
         const document = await this.getSuite(did, key);
         const id = Utils.randomUUID();
@@ -166,7 +181,7 @@ export class VCHelper {
         const privateKey = document.privateKey;
         const suite = await VCJS.createSuite(didRootId, didId, privateKey);
 
-        const vcSubject = new VcSubject(schema, data);
+        const vcSubject = new VcSubject(schema, subject);
         for (let i = 0; i < this.schemaContext.length; i++) {
             const element = this.schemaContext[i];
             vcSubject.addContext(element);
@@ -175,23 +190,20 @@ export class VCHelper {
         let vc = new HcsVcDocument<VcSubject>();
         vc.setId(id);
         vc.setIssuanceDate(TimestampUtils.now());
-        // vc.addType(vcSubject.getType());
         vc.addCredentialSubject(vcSubject);
         vc.setIssuer(didId);
-
         vc = await VCJS.issue(vc, suite, this.loader);
-
         return vc;
     }
 
     /**
      * Create VP Document
-     * 
+     *
      * @param {string} did - DID
      * @param {PrivateKey | string} privateKey - Private Key
      * @param {HcsVcDocument<VcSubject>[]} vcs - VC Documents
      * @param {string} [uuid] - new uuid
-     * 
+     *
      * @returns {HcsVpDocument} - VP Document
      */
     public async createVP(
@@ -216,12 +228,12 @@ export class VCHelper {
 
     /**
      * Verify VC Document
-     * 
+     *
      * @param {HcsVcDocument<VcSubject>} vcDocument - VC Document
-     * 
+     *
      * @returns {boolean} - is verified
      */
-    public async verifyVC(vcDocument: HcsVcDocument<VcSubject> | any) {
+    public async verifyVC(vcDocument: HcsVcDocument<VcSubject> | any): Promise<boolean> {
         let vc: any;
         if (vcDocument && typeof vcDocument.toJsonTree === 'function') {
             vc = vcDocument.toJsonTree();
@@ -234,12 +246,12 @@ export class VCHelper {
 
     /**
      * Verify Schema
-     * 
+     *
      * @param {HcsVcDocument<VcSubject>} vcDocument - VC Document
-     * 
-     * @returns {boolean} - is verified
+     *
+     * @returns {CheckResult} - is verified
      */
-    public async verifySchema(vcDocument: HcsVcDocument<VcSubject> | any) {
+    public async verifySchema(vcDocument: HcsVcDocument<VcSubject> | any): Promise<CheckResult> {
         let vc: any;
         if (vcDocument && typeof vcDocument.toJsonTree === 'function') {
             vc = vcDocument.toJsonTree();
@@ -258,21 +270,72 @@ export class VCHelper {
             throw new Error('Schema Loader not found');
         }
 
-        const schema = await this.schemaLoader(subject.type);
+        const schema = await this.schemaLoader(subject["@context"], subject.type, "vc");
 
         if (!schema) {
             throw new Error('Schema not found');
         }
 
-        try {
-            const res = await check({
-                input: vc,
-                schema: schema,
-                documentLoader: this.loader as any,
-            });
-            return res.ok;
-        } catch (error) {
-            return false;
+        const ajv = new Ajv();
+        addFormats(ajv);
+
+        this.prepareSchema(schema);
+
+        const validate = ajv.compile(schema);
+        const valid = validate(vc);
+
+        return new CheckResult(valid, 'JSON_SCHEMA_VALIDATION_ERROR', validate.errors as any);
+    }
+
+    /**
+     * Verify Subject
+     *
+     * @param {any} subject - subject
+     *
+     * @returns {CheckResult} - is verified
+     */
+    public async verifySubject(subject: any): Promise<CheckResult> {
+        if (!this.schemaLoader) {
+            throw new Error('Schema Loader not found');
+        }
+
+        const schema = await this.schemaLoader(subject["@context"], subject.type, "subject");
+
+        if (!schema) {
+            throw new Error('Schema not found');
+        }
+
+        const ajv = new Ajv();
+        addFormats(ajv);
+
+        this.prepareSchema(schema);
+
+        const validate = ajv.compile(schema);
+        const valid = validate(subject);
+        
+        return new CheckResult(valid, 'JSON_SCHEMA_VALIDATION_ERROR', validate.errors as any);
+    }
+
+
+    /**
+     * Delete system fields from schema defs
+     * 
+     * @param schema Schema
+     */
+    private prepareSchema(schema: any) {
+        const defsObj = schema.$defs;
+        if (!defsObj) {
+            return;
+        }
+
+        const defsKeys = Object.keys(defsObj);
+        for (let i = 0; i < defsKeys.length; i++) {
+            const nestedSchema = defsObj[defsKeys[i]];
+            const required = nestedSchema.required;
+            if (!required || required.length === 0) {
+                continue;
+            }
+            nestedSchema.required = required.filter(field => !nestedSchema.properties[field] || !nestedSchema.properties[field].readOnly);
         }
     }
 }

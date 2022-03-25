@@ -1,18 +1,39 @@
 import axios from 'axios';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
+import promiseRetry from 'promise-retry';
 
 export async function getRandomKeyFromUiService({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   user,
 }: {
-  uiServiceBaseUrl: string;
-  user: IUser;
+  guardianApiGatewayUrl: string;
+  user: ILoggedUser;
 }) {
   return (
-    await axios.get(`${uiServiceBaseUrl}/api/profile/random-key`, {
+    await axios.get(`${guardianApiGatewayUrl}/api/v1/demo/randomKey`, {
       headers: {
         authorization: `Bearer ${user.accessToken}`,
       },
     })
   ).data;
+}
+
+export async function getRandomKeyFromUiServiceWithRetry(
+  {
+    guardianApiGatewayUrl,
+    user,
+  }: {
+    guardianApiGatewayUrl: string;
+    user: ILoggedUser;
+  },
+  retries = 3,
+) {
+  return promiseRetry(
+    (retry) => {
+      return getRandomKeyFromUiService({ guardianApiGatewayUrl, user }).catch(
+        retry,
+      );
+    },
+    { retries },
+  );
 }

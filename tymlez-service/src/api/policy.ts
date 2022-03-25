@@ -7,20 +7,22 @@ import {
   publishSchemasToUiService,
 } from '../modules/schema';
 import { v4 as uuidv4 } from 'uuid';
-import { loginToUiService, IUser } from '../modules/user';
+import { loginToUiService, ILoggedUser } from '../modules/user';
 import {
   getAllPoliciesFromUiService,
   IPolicy,
   publishPolicyToUiService,
+  // publishPolicyToUiService,
 } from '../modules/policy';
 import type { MongoRepository } from 'typeorm';
 import type { PolicyPackage } from '@entity/policy-package';
+import type { Schema } from 'interfaces';
 
 export const makePolicyApi = ({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   policyPackageRepository,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   policyPackageRepository: MongoRepository<PolicyPackage>;
 }) => {
   const policyApi = Router();
@@ -46,43 +48,51 @@ export const makePolicyApi = ({
     }
 
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
-    const preImportSchemas = await getAllSchemasFromUiService({
-      uiServiceBaseUrl,
-      rootAuthority,
-    });
+    // const preImportSchemas = await getAllSchemasFromUiService({
+    //   guardianApiGatewayUrl,
+    //   rootAuthority,
+    // });
 
     const importedPolicy = await importPolicyPackage({
       rootAuthority,
       inputPackage,
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
     });
 
     const newSchemas = await getNewSchemas({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       rootAuthority,
-      preImportSchemas,
+      preImportSchemas: inputPackage.schemas.map((x) => x.name),
     });
-
+    const unpublishedSchema = newSchemas.filter(
+      (schema) => schema.status !== 'PUBLISHED',
+    );
     console.log(
       `Publishing schemas`,
-      newSchemas.map((schema) => ({
+      unpublishedSchema.map((schema) => ({
         id: schema.id,
         uuid: schema.uuid,
         name: schema.name,
+        status: schema.status,
       })),
     );
     await publishSchemasToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       rootAuthority,
-      schemaIds: newSchemas.map((schema) => schema.id),
+      schemaIds: unpublishedSchema.map((schema) => schema.id),
+      version: '1.0.0',
     });
 
-    if (publish && importedPolicy.status !== 'PUBLISHED') {
-      console.log(`Publishing policy`, {
+    if (
+      publish &&
+      !['PUBLISH', 'PUBLISHED'].includes(importedPolicy.status as string)
+    ) {
+      console.log(`Publishing policy`, importedPolicy, {
+        importedPolicy,
         id: importedPolicy.id,
         name: importedPolicy.name,
         policyTag: importedPolicy.policyTag,
@@ -92,11 +102,11 @@ export const makePolicyApi = ({
       });
       await publishPolicyToUiService({
         policyId: importedPolicy.id,
-        uiServiceBaseUrl,
+        guardianApiGatewayUrl,
         rootAuthority,
+        policyVersion: '1.0.0',
       });
     }
-
     const newPolicyPackage = policyPackageRepository.create({
       policy: {
         ...importedPolicy,
@@ -105,7 +115,7 @@ export const makePolicyApi = ({
       schemas: newSchemas.map((schema) => ({
         ...schema,
         inputName: inputPackage.schemas.find((inputSchema) =>
-          schema.name.startsWith(inputSchema.name),
+          schema.name?.startsWith(inputSchema.name),
         )!.name,
       })),
     });
@@ -117,14 +127,14 @@ export const makePolicyApi = ({
 
   policyApi.get('/list', async (req: Request, res: Response) => {
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
     assert(rootAuthority.did, `rootAuthority.did is missing`);
 
     const allPolicies = await getAllPoliciesFromUiService(
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       rootAuthority,
     );
 
@@ -134,14 +144,80 @@ export const makePolicyApi = ({
   return policyApi;
 };
 
+// async function publishSchema(
+//   guardianApiGatewayUrl: string,
+//   rootAuthority: ILoggedUser,
+//   schema: Schema,
+// ) {
+//   const { data } = await axios.put<Schema[]>(
+//     `${guardianApiGatewayUrl}/api/v1/schemas/${schema.id}/publish`,
+//     { version: '1.0.0' },
+//     {
+//       headers: {
+//         authorization: `Bearer ${rootAuthority.accessToken}`,
+//       },
+//     },
+//   );
+
+//   return data;
+// }
+
+async function importSchema(
+  guardianApiGatewayUrl: string,
+  rootAuthority: ILoggedUser,
+  schema: Schema,
+) {
+  const { data } = await axios.post<Schema>(
+    `${guardianApiGatewayUrl}/api/v1/schemas`,
+    schema,
+    {
+      headers: {
+        authorization: `Bearer ${rootAuthority.accessToken}`,
+      },
+    },
+  );
+
+  return data;
+}
+
+async function createPolicy(
+  guardianApiGatewayUrl: string,
+  rootAuthority: ILoggedUser,
+  policy: IPolicy,
+) {
+  const allPolicies = await getAllPoliciesFromUiService(
+    guardianApiGatewayUrl,
+    rootAuthority,
+  );
+
+  const findPolicies = allPolicies.find(
+    (x) => x.policyTag === policy.policyTag,
+  );
+  if (!findPolicies) {
+    console.log('create policy %s', policy.name);
+    const { data } = await axios.post<IPolicy[]>(
+      `${guardianApiGatewayUrl}/api/v1/policies`,
+      policy,
+      {
+        headers: {
+          authorization: `Bearer ${rootAuthority.accessToken}`,
+        },
+      },
+    );
+    console.log('created policies result', data);
+    return data.find((p) => p.policyTag === policy.policyTag);
+  }
+  return findPolicies;
+}
+
 async function importPolicyPackage({
   inputPackage,
   rootAuthority,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  rootAuthority: IUser;
+  rootAuthority: ILoggedUser;
   inputPackage: IImportPolicyPackage;
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
 }) {
   assert(rootAuthority.did, `rootAuthority.did is missing`);
 
@@ -160,21 +236,22 @@ async function importPolicyPackage({
       topicId: undefined,
     },
   };
+  let existingSchemas = await getAllSchemasFromUiService({
+    rootAuthority,
+    guardianApiGatewayUrl,
+  });
+  await Promise.all(
+    packageImportData.schemas
+      .filter((schema) => !existingSchemas.find((x) => x.name === schema.name))
+      .map((schema) =>
+        importSchema(guardianApiGatewayUrl, rootAuthority, schema as Schema),
+      ),
+  );
 
-  const { data: allPolicies } = (await axios.post(
-    `${uiServiceBaseUrl}/api/package/import`,
-    packageImportData,
-    {
-      headers: {
-        authorization: `Bearer ${rootAuthority.accessToken}`,
-      },
-    },
-  )) as {
-    data: IPolicy[];
-  };
-
-  const importedPolicy = allPolicies.find(
-    (policy) => policy.config?.id === newPolicyConfigId,
+  const importedPolicy = await createPolicy(
+    guardianApiGatewayUrl,
+    rootAuthority,
+    packageImportData.policy,
   );
 
   assert(

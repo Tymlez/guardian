@@ -1,5 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import './variables.scss';
+@import '~codemirror/lib/codemirror';
+@import '~codemirror/theme/material';
+@import '~codemirror/addon/fold/foldgutter.css';
+@import '~codemirror/addon/lint/lint.css';
 
 html,
 body {
@@ -45,7 +49,7 @@ body {
     top: -6px;
 }
 
-.installer-profile .list {
+.user-profile .list {
     margin: 20px auto !important;
 }
 
@@ -131,7 +135,7 @@ button.mat-button {
 
 *::-webkit-scrollbar {
     width: 8px;
-    height: 0;
+    height: 8px;
 }
 
 *::-webkit-scrollbar-track {
@@ -139,7 +143,7 @@ button.mat-button {
 }
 
 *::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.0);
+    background: rgba(0,0,0,0.3);
     border-radius: 10px;
     box-shadow: rgba(255,255,255,0.3) 0 0 0 1px;
 }

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { UserRole, ISession } from 'interfaces';
+import { UserRole } from 'interfaces';
 import { AuthStateService } from 'src/app/services/auth-state.service';
 import { Subscription } from 'rxjs';
 
@@ -22,8 +22,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         login: ['', Validators.required],
         password: ['', Validators.required],
     });
-
-    users: ISession[] = [];
 
     private _subscriptions: Subscription[] = [];
 
@@ -61,6 +59,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.auth.login(login, password).subscribe((result) => {
             console.log(result);
             this.auth.setAccessToken(result.accessToken);
+            this.auth.setUsername(login);
             this.authState.updateState(true);
             if (result.role == UserRole.ROOT_AUTHORITY) {
                 this.router.navigate(['/config']);
@@ -79,5 +78,4 @@ export class LoginComponent implements OnInit, OnDestroy {
             password: password,
         })
     }
-
 }

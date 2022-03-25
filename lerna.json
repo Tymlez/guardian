@@ -1,12 +1,17 @@
 {
   "packages": [
+    "api-docs",
     "message-broker",
     "frontend",
-    "ui-service",
+    "api-gateway",
+    "auth-service",
+    "ipfs-client",
     "guardian-service",
     "vc-modules",
     "interfaces",
     "mrv-sender",
+    "logger-helper",
+    "logger-service",
     "tymlez-service"
   ],
   "version": "0.0.0"

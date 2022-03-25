@@ -22,7 +22,6 @@ console.log('Starting mrv-sender', {
     const vcHelper = new VCHelper();
     const defaultDocumentLoader = new DefaultDocumentLoader();
     const vcDocumentLoader = new VCDocumentLoader('https://localhost/schema', '');
-    vcHelper.addContext('https://localhost/schema');
     vcHelper.addDocumentLoader(defaultDocumentLoader);
     vcHelper.addDocumentLoader(vcDocumentLoader);
     vcHelper.buildDocumentLoader();
@@ -39,11 +38,13 @@ console.log('Starting mrv-sender', {
             key,
             policyId,
             type,
+            context,
             schema,
             policyTag
         } = config;
 
         vcDocumentLoader.setDocument(schema);
+        vcDocumentLoader.setContext(context);
 
         const hederaHelper = HederaHelper
             .setOperator(hederaAccountId, hederaAccountKey)
@@ -52,7 +53,9 @@ console.log('Starting mrv-sender', {
         let document, vc;
         try {
             const date = (new Date()).toISOString();
-            const vcSubject: any = {};
+            const vcSubject: any = {
+                ...context
+            };
             if (setting) {
                 const keys = Object.keys(setting);
                 for (let i = 0; i < keys.length; i++) {
@@ -69,7 +72,7 @@ console.log('Starting mrv-sender', {
             vcSubject.policyId = policyId;
             vcSubject.accountId = hederaAccountId;
 
-            vc = await vcHelper.createVC(did, key, type, vcSubject);
+            vc = await vcHelper.createVC(did, key, vcSubject);
             document = vc.toJsonTree();
 
             console.log("created vc");

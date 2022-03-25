@@ -1,32 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { BlockNode } from '../../data-source/tree-data-source';
+import { BlockNode } from '../../helpers/tree-data-source/tree-data-source';
 import { SchemaService } from 'src/app/services/schema.service';
-import { Schema, SchemaStatus, Token } from 'interfaces';
+import { Schema, SchemaHelper, SchemaStatus, Token } from 'interfaces';
 import { PolicyEngineService } from 'src/app/services/policy-engine.service';
 import { forkJoin } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { NewPolicyDialog } from '../../new-policy-dialog/new-policy-dialog.component';
 import { TokenService } from 'src/app/services/token.service';
-
-const allPermissions: any = [
-    {
-        value: 'ROOT_AUTHORITY',
-        name: 'Root Authority',
-    },
-    {
-        value: 'INSTALLER',
-        name: 'Installer',
-    },
-    {
-        value: 'AUDITOR',
-        name: 'Auditor',
-    },
-    {
-        value: 'ORIGINATOR',
-        name: 'Originator',
-    },
-];
+import { RegisteredBlocks } from '../../registered-blocks';
+import { PolicyAction, SavePolicyDialog } from '../../save-policy-dialog/save-policy-dialog.component';
+import { SetVersionDialog } from 'src/app/schema-engine/set-version-dialog/set-version-dialog.component';
+import * as yaml from 'js-yaml';
 
 /**
  * The page for editing the policy and blocks.
@@ -51,15 +35,38 @@ export class PolicyConfigurationComponent implements OnInit {
     schemes!: Schema[];
     tokens!: Token[];
     policyId!: string;
+    errors: any[] = [];
+    errorsCount: number = -1;
+    errorsMap: any;
 
-    colGroup1 = false;
+    colGroup1 = true;
     colGroup2 = false;
-
-    permissions!: any[];
+    colGroup3 = true;
 
     indexBlock: number = 0;
 
+    codeMirrorOptions: any = {
+        theme: 'default',
+        mode: 'application/ld+json',
+        styleActiveLine: true,
+        lineNumbers: true,
+        lineWrapping: true,
+        foldGutter: true,
+        gutters: [
+            'CodeMirror-linenumbers',
+            'CodeMirror-foldgutter',
+            'CodeMirror-lint-markers'
+        ],
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        lint: true,
+        readOnly: false,
+        viewportMargin: Infinity
+    };
+    propTab: string = 'Properties';
+
     constructor(
+        public registeredBlocks: RegisteredBlocks,
         private schemaService: SchemaService,
         private tokenService: TokenService,
         private policyEngineService: PolicyEngineService,
@@ -89,13 +96,12 @@ export class PolicyConfigurationComponent implements OnInit {
         forkJoin([
             this.schemaService.getSchemes(),
             this.tokenService.getTokens(),
-            this.policyEngineService.loadPolicy(policyId)
+            this.policyEngineService.policy(policyId)
         ]).subscribe((data: any) => {
             const schemes = data[0] || [];
             const tokens = data[1] || [];
             const policy = data[2];
-            this.schemes = Schema.mapRef(schemes) || [];
-            this.schemes = this.schemes.filter(s=>s.status == SchemaStatus.PUBLISHED);
+            this.schemes = SchemaHelper.map(schemes) || [];
             this.schemes.unshift({
                 type: ""
             } as any);
@@ -115,7 +121,7 @@ export class PolicyConfigurationComponent implements OnInit {
         if (!policy) {
             return;
         }
-        policy.policyPoles = policy.policyPoles || [];
+        policy.policyRoles = policy.policyRoles || [];
         policy.config = policy.config || {
             blockType: 'interfaceContainerBlock',
         };
@@ -123,27 +129,37 @@ export class PolicyConfigurationComponent implements OnInit {
         this.currentView = 'blocks';
         this.readonly = policy.status == 'PUBLISH';
         this.policy = policy;
-        this.permissions = allPermissions;
         this.setBlocks(root);
         this.indexBlock = this.allBlocks.length + 1;
+        this.errors = [];
+        this.errorsCount = -1;
+        this.errorsMap = {};
+        this.codeMirrorOptions.readOnly = this.readonly;
     }
 
     setBlocks(root: BlockNode) {
         this.root = root;
         this.blocks = [root];
         this.currentBlock = root;
-        this.allBlocks = this.all(root, []);
+        this.allBlocks = this.all(root);
         this.allBlocks.forEach((b => {
-            if (!b.id) b.id = this.generateUUIDv4();
-        }))
+            if (!b.id) b.id = this.registeredBlocks.generateUUIDv4();
+        }));
     }
 
-    all(block: BlockNode, allBlocks: BlockNode[]) {
+    all(block: BlockNode) {
+        let allBlocks: BlockNode[] = [];
+        this.children(block, allBlocks);
+        allBlocks = allBlocks.sort((a, b) => (a.tag < b.tag ? -1 : 1));
+        return allBlocks;
+    }
+
+    children(block: BlockNode, allBlocks: BlockNode[]) {
         allBlocks.push(block);
         if (block.children) {
             for (let index = 0; index < block.children.length; index++) {
                 const element = block.children[index];
-                this.all(element, allBlocks);
+                this.children(element, allBlocks);
             }
         }
         return allBlocks;
@@ -154,18 +170,16 @@ export class PolicyConfigurationComponent implements OnInit {
         return false;
     }
 
-    onAdd(type: string) {
+    onAdd(type: any) {
         if (this.currentBlock) {
             this.currentBlock.children = this.currentBlock.children || [];
-            const newBlock: BlockNode = {
-                id: this.generateUUIDv4(),
-                tag: `Block${this.indexBlock}`,
-                blockType: type,
-                children: []
-            };
+            let permissions = undefined;
+            if (this.currentBlock.permissions) {
+                permissions = this.currentBlock.permissions.slice();
+            }
+            const newBlock = this.registeredBlocks.newBlock(type, permissions, this.indexBlock);
             this.currentBlock.children.push(newBlock);
             this.setBlocks(this.blocks[0]);
-            this.currentBlock = newBlock;
             this.indexBlock++;
         }
     }
@@ -179,11 +193,11 @@ export class PolicyConfigurationComponent implements OnInit {
     removeBlock(blocks: BlockNode[], block: BlockNode) {
         for (let index = 0; index < blocks.length; index++) {
             const element = blocks[index];
-            if(element.id == block.id) {
+            if (element.id == block.id) {
                 blocks.splice(index, 1);
                 return blocks;
             }
-            if(element.children) {
+            if (element.children) {
                 element.children = this.removeBlock(element.children, block);
             }
         }
@@ -204,20 +218,13 @@ export class PolicyConfigurationComponent implements OnInit {
         return this.currentBlock == block;
     }
 
-    generateUUIDv4() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
-
     async savePolicy() {
         await this.onView('blocks');
         const root = this.blocks[0];
         if (root) {
             this.loading = true;
             this.policy.config = root;
-            this.policyEngineService.savePolicy(this.policyId, this.policy).subscribe((policy) => {
+            this.policyEngineService.update(this.policyId, this.policy).subscribe((policy) => {
                 this.setPolicy(policy);
                 this.loading = false;
             }, (e) => {
@@ -227,28 +234,97 @@ export class PolicyConfigurationComponent implements OnInit {
         }
     }
 
-    publishPolicy() {
+    setVersion() {
+        const dialogRef = this.dialog.open(SetVersionDialog, {
+            width: '350px',
+            data: {}
+        });
+        dialogRef.afterClosed().subscribe((version) => {
+            if (version) {
+                this.publishPolicy(version);
+            }
+        });
+    }
+
+    private publishPolicy(version: string) {
         this.loading = true;
-        this.policyEngineService.publishPolicy(this.policyId).subscribe((policies: any) => {
-            this.loadPolicy();
+        this.policyEngineService.publish(this.policyId, version).subscribe((data: any) => {
+            const { policies, isValid, errors } = data;
+            if (isValid) {
+                this.loadPolicy();
+            } else {
+                const blocks = errors.blocks;
+                const invalidBlocks = blocks.filter((block: any) => !block.isValid);
+                this.errors = invalidBlocks;
+                this.errorsCount = invalidBlocks.length;
+                this.errorsMap = {};
+                for (let i = 0; i < invalidBlocks.length; i++) {
+                    const element = invalidBlocks[i];
+                    this.errorsMap[element.id] = element.errors;
+                }
+                this.loading = false;
+            }
         }, (e) => {
             console.error(e.error);
             this.loading = false;
         });
     }
 
+    validationPolicy() {
+        this.loading = true;
+        this.policyEngineService.validate({
+            policyRoles: this.policy?.policyRoles,
+            config: this.root
+        }).subscribe((data: any) => {
+            const { policy, results } = data;
+            const root = policy.config;
+            this.setBlocks(root);
+            const blocks = results.blocks;
+            const errors = blocks.filter((block: any) => !block.isValid);
+
+            this.errors = errors;
+            this.errorsCount = errors.length;
+            this.errorsMap = {};
+            for (let i = 0; i < errors.length; i++) {
+                const element = errors[i];
+                this.errorsMap[element.id] = element.errors;
+            }
+            this.blocks = [this.root];
+            this.currentBlock = this.root;
+            this.loading = false;
+        }, (e) => {
+            this.loading = false;
+        });
+    }
+
     saveAsPolicy() {
-        const dialogRef = this.dialog.open(NewPolicyDialog, {
+        const dialogRef = this.dialog.open(SavePolicyDialog, {
             width: '500px',
+            data: {
+                policy: this.policy,
+                action: this.policy.status === 'DRAFT'
+                    ? PolicyAction.CREATE_NEW_POLICY
+                    : null
+            },
+            autoFocus: false
         });
         dialogRef.afterClosed().subscribe(async (result) => {
             if (result) {
                 this.loading = true;
-                const policy = Object.assign({}, this.policy, result);
+                const policy = Object.assign({}, this.policy, result.policy);
                 delete policy.id;
                 delete policy.status;
                 delete policy.owner;
-                this.policyEngineService.createPolicy(policy).subscribe((policies: any) => {
+                delete policy.version;
+
+                if (result.action === PolicyAction.CREATE_NEW_POLICY) {
+                    delete policy.uuid;
+                }
+                else if (result.action === PolicyAction.CREATE_NEW_VERSION) {
+                    policy.previousVersion = this.policy.version;
+                }
+
+                this.policyEngineService.create(policy).subscribe((policies: any) => {
                     const last = policies[policies.length - 1];
                     this.router.navigate(['/policy-configuration'], { queryParams: { policyId: last.id } });
                 }, (e) => {
@@ -262,8 +338,10 @@ export class PolicyConfigurationComponent implements OnInit {
     onColGroup(n: number) {
         if (n == 1) {
             this.colGroup1 = !this.colGroup1;
-        } else {
+        } else if (n == 2) {
             this.colGroup2 = !this.colGroup2;
+        } else {
+            this.colGroup3 = !this.colGroup3;
         }
     }
 
@@ -272,18 +350,21 @@ export class PolicyConfigurationComponent implements OnInit {
             return;
         }
 
+        this.errors = [];
+        this.errorsCount = -1;
+        this.errorsMap = {};
         this.loading = true;
         if (type == 'blocks') {
             let root = null;
             try {
                 if (this.currentView == 'json') {
-                    root = await this.jsonToObject(this.code);
+                    root = this.jsonToObject(this.code);
                 }
                 if (this.currentView == 'yaml') {
-                    root = await this.yamlToObject(this.code);
+                    root = this.yamlToObject(this.code);
                 }
-            } catch (error) {
-                console.error(error)
+            } catch (error: any) {
+                this.errors = [error.message];
                 this.loading = false;
                 return;
             }
@@ -294,104 +375,72 @@ export class PolicyConfigurationComponent implements OnInit {
             let code = "";
             try {
                 if (this.currentView == 'blocks') {
-                    code = await this.objectToJson(this.root);
+                    code = this.objectToJson(this.root);
                 }
                 if (this.currentView == 'yaml') {
-                    code = await this.yamlToJson(this.code);
+                    code = this.yamlToJson(this.code);
                 }
-            } catch (error) {
-                console.error(error)
+            } catch (error: any) {
+                this.errors = [error.message];
                 this.loading = false;
                 return;
             }
             this.code = code;
+            this.codeMirrorOptions.mode = 'application/ld+json';
         }
         if (type == 'yaml') {
             let code = "";
             try {
                 if (this.currentView == 'blocks') {
-                    code = await this.objectToYaml(this.root);
+                    code = this.objectToYaml(this.root);
                 }
                 if (this.currentView == 'json') {
-                    code = await this.jsonToYaml(this.code);
+                    code = this.jsonToYaml(this.code);
                 }
-            } catch (error) {
-                console.error(error)
+            } catch (error: any) {
+                this.errors = [error.message];
                 this.loading = false;
                 return;
             }
             this.code = code;
+            this.codeMirrorOptions.mode = 'text/x-yaml';
         }
         this.currentView = type;
         this.loading = false;
     }
 
-    async objectToJson(root: any): Promise<string> {
+    objectToJson(root: any): string {
         return JSON.stringify(root, null, 2);
     }
 
-    async jsonToObject(json: string): Promise<any> {
+    jsonToObject(json: string): any {
         return JSON.parse(json);
     }
 
-    async objectToYaml(root: any): Promise<string> {
-        return new Promise((resolve, reject) => {
-            this.policyEngineService.toYAML(root).subscribe((data: any) => {
-                resolve(data.yaml);
-            }, (e) => {
-                reject();
-            });
+    objectToYaml(root: any): string {
+        return yaml.dump(root, {
+            indent: 4,
+            lineWidth: -1,
+            noRefs: false,
+            noCompatMode: true
         });
     }
 
-    async yamlToObject(yaml: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.policyEngineService.fromYAML(yaml).subscribe((data: any) => {
-                resolve(data.json);
-            }, (e) => {
-                reject();
-            });
-        });
+    yamlToObject(yamlString: string): any {
+        return yaml.load(yamlString);
     }
 
-    async yamlToJson(yaml: string): Promise<string> {
-        const root = await this.yamlToObject(yaml);
-        return await this.objectToJson(root);
+    yamlToJson(yaml: string): string {
+        const root = this.yamlToObject(yaml);
+        return this.objectToJson(root);
     }
 
-    async jsonToYaml(json: string): Promise<string> {
-        const root = await this.jsonToObject(json);
-        return await this.objectToYaml(root);
-    }
-
-    getIcon(blockType: string) {
-        if (blockType == 'interfaceContainerBlock') {
-            return 'tab';
-        }
-        if (blockType == 'interfaceDocumentsSource') {
-            return 'table_view';
-        }
-        if (blockType == 'informationBlock') {
-            return 'info';
-        }
-        if (blockType == 'requestVcDocument') {
-            return 'dynamic_form';
-        }
-        if (blockType == 'sendToGuardian') {
-            return 'send';
-        }
-        if (blockType == 'interfaceAction') {
-            return 'flash_on';
-        }
-        if (blockType == 'interfaceStepBlock') {
-            return 'vertical_split';
-        }
-        if (blockType == 'mintDocument') {
-            return 'paid';
-        }
-        if (blockType == 'externalDataBlock') {
-            return 'cloud';
-        }
-        return 'code'
+    jsonToYaml(json: string): string {
+        const root = this.jsonToObject(json);
+        return this.objectToYaml(root);
     }
 }
+
+
+
+

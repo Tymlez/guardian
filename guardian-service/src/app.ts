@@ -1,7 +1,5 @@
-import express, { Request, Response } from 'express';
 import FastMQ from 'fastmq'
-import { createConnection } from 'typeorm';
-import { DefaultDocumentLoader, VCHelper } from 'vc-modules';
+import {createConnection, getMongoRepository} from 'typeorm';
 import { approveAPI } from '@api/approve.service';
 import { configAPI, readConfig } from '@api/config.service';
 import { documentsAPI } from '@api/documents.service';
@@ -17,22 +15,17 @@ import { Schema } from '@entity/schema';
 import { Token } from '@entity/token';
 import { VcDocument } from '@entity/vc-document';
 import { VpDocument } from '@entity/vp-document';
-import { DIDDocumentLoader } from './document-loader/did-document-loader';
-import { SchemaDocumentLoader } from './document-loader/vc-document-loader';
-import { SchemaObjectLoader } from './document-loader/schema-loader';
-
-const PORT = process.env.PORT || 3001;
-
-console.log('Starting guardian-service', {
-    now: new Date().toString(),
-    PORT,
-    DB_HOST: process.env.DB_HOST,
-    DB_DATABASE: process.env.DB_DATABASE,
-    BUILD_VERSION: process.env.BUILD_VERSION,
-    DEPLOY_VERSION: process.env.DEPLOY_VERSION,
-    SERVICE_CHANNEL: process.env.SERVICE_CHANNEL,
-    MQ_ADDRESS: process.env.MQ_ADDRESS
-});
+import { IPFS } from '@helpers/ipfs';
+import { demoAPI } from '@api/demo';
+import {VcHelper} from '@helpers/vcHelper';
+import {BlockTreeGenerator} from '@policy-engine/block-tree-generator';
+import {Policy} from '@entity/policy';
+import {Guardians} from '@helpers/guardians';
+import {PolicyComponentsUtils} from '@policy-engine/policy-components-utils';
+import { Wallet } from '@helpers/wallet';
+import { Users } from '@helpers/users';
+import { Settings } from '@entity/settings';
+import { Logger } from 'logger-helper';
 
 Promise.all([
     createConnection({
@@ -49,11 +42,34 @@ Promise.all([
             entitiesDir: 'dist/entity'
         }
     }),
-    FastMQ.Client.connect(process.env.SERVICE_CHANNEL, 7500, process.env.MQ_ADDRESS),
-    readConfig()
+    FastMQ.Client.connect(process.env.SERVICE_CHANNEL, 7500, process.env.MQ_ADDRESS)
 ]).then(async values => {
-    const [db, channel, fileConfig] = values;
-    const app = express();
+    const [db, channel] = values;
+
+    IPFS.setChannel(channel);
+    new Logger().setChannel(channel);
+    new Guardians().setChannel(channel);
+    new Wallet().setChannel(channel);
+    new Users().setChannel(channel);
+
+    const vc = new VcHelper();
+
+    const policyGenerator = new BlockTreeGenerator();
+    policyGenerator.setChannel(channel);
+    for (let policy of await getMongoRepository(Policy).find(
+        {where: {status: {$eq: 'PUBLISH'}}}
+    )) {
+        try {
+            await policyGenerator.generate(policy.id.toString());
+        } catch (e) {
+            new Logger().error(e.toString(), ['GUARDIAN_SERVICE']);
+            console.error(e.message);
+        }
+    }
+    policyGenerator.registerListeners();
+    new Guardians().registerMRVReceiver(async (data) => {
+        await PolicyComponentsUtils.ReceiveExternalData(data);
+    });
 
     const didDocumentRepository = db.getMongoRepository(DidDocument);
     const vcDocumentRepository = db.getMongoRepository(VcDocument);
@@ -62,49 +78,33 @@ Promise.all([
     const tokenRepository = db.getMongoRepository(Token);
     const configRepository = db.getMongoRepository(RootConfig);
     const schemaRepository = db.getMongoRepository(Schema);
-
-    // <-- Document Loader
-    const vcHelper = new VCHelper()
-    const defaultDocumentLoader = new DefaultDocumentLoader();
-    const schemaDocumentLoader = new SchemaDocumentLoader('https://localhost/schema', schemaRepository);
-    const didDocumentLoader = new DIDDocumentLoader(didDocumentRepository);
-    const schemaObjectLoader = new SchemaObjectLoader(schemaRepository);
-
-    vcHelper.addContext('https://localhost/schema');
-    vcHelper.addDocumentLoader(defaultDocumentLoader);
-    vcHelper.addDocumentLoader(schemaDocumentLoader);
-    vcHelper.addDocumentLoader(didDocumentLoader);
-    vcHelper.addSchemaLoader(schemaObjectLoader);
-    vcHelper.buildDocumentLoader();
-    // Document Loader -->
+    const settingsRepository = db.getMongoRepository(Settings);
+    let fileConfig = null;
+    try {
+        fileConfig = await readConfig(settingsRepository);
+    }
+    catch (e){
+        new Logger().error(e.toString(), ['GUARDIAN_SERVICE']);
+        console.log(e);
+    }
 
     await setDefaultSchema(schemaRepository);
-    await configAPI(channel, fileConfig);
-    await schemaAPI(channel, schemaRepository);
+    await configAPI(channel, fileConfig, settingsRepository);
+    await schemaAPI(channel, schemaRepository, configRepository, settingsRepository);
     await tokenAPI(channel, tokenRepository);
-    await loaderAPI(channel, didDocumentLoader, schemaDocumentLoader, schemaObjectLoader);
-    await rootAuthorityAPI(channel, configRepository, didDocumentRepository, vcDocumentRepository);
+    await loaderAPI(channel, didDocumentRepository, schemaRepository);
+    await rootAuthorityAPI(channel, configRepository);
     await documentsAPI(
         channel,
         didDocumentRepository,
         vcDocumentRepository,
         vpDocumentRepository,
-        vcHelper
     );
+    await demoAPI(channel);
 
     await approveAPI(channel, approvalDocumentRepository);
     await trustChainAPI(channel, didDocumentRepository, vcDocumentRepository, vpDocumentRepository);
 
-    app.get('/info', async (req: Request, res: Response) => {
-        res.status(200).json({
-            NAME: 'guardian-service',
-            BUILD_VERSION: process.env.BUILD_VERSION,
-            DEPLOY_VERSION: process.env.DEPLOY_VERSION,
-            OPERATOR_ID: fileConfig.OPERATOR_ID,
-        });
-    });
-
-    app.listen(PORT, () => {
-        console.log('guardian service started', PORT);
-    });
+    new Logger().info('guardian service started', ['GUARDIAN_SERVICE']);
+    console.log('guardian service started');
 });

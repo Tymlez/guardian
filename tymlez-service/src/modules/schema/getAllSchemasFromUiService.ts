@@ -1,19 +1,22 @@
 import axios from 'axios';
 import type { ISchema } from 'interfaces';
-import type { IUser } from '../user';
+import type { ILoggedUser } from '../user';
 
 export async function getAllSchemasFromUiService({
   rootAuthority,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
-  rootAuthority: IUser;
+  guardianApiGatewayUrl: string;
+  rootAuthority: ILoggedUser;
 }) {
-  const { data: schemas } = (await axios.get(`${uiServiceBaseUrl}/api/schema`, {
-    headers: {
-      authorization: `Bearer ${rootAuthority.accessToken}`,
+  const { data: schemas } = (await axios.get(
+    `${guardianApiGatewayUrl}/api/v1/schemas`,
+    {
+      headers: {
+        authorization: `Bearer ${rootAuthority.accessToken}`,
+      },
     },
-  })) as { data: ISchema[] };
+  )) as { data: ISchema[] };
 
   return schemas;
 }

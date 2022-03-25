@@ -3,7 +3,7 @@ import { getBuildTimeConfig } from '../getBuildTimeConfig';
 import { addDevices } from './addDevices';
 import { createPolicyPackages } from './createPolicyPackages';
 import { createTokens } from './createTokens';
-import { grantTokenKvcToInstallers } from './grantTokenKvcToInstallers';
+import { grantTokenKycToInstallers } from './grantTokenKvcToInstallers';
 import { initInstallers } from './initInstallers';
 import { initRootAuthority } from './initRootAuthority';
 import { registerNewInstallers } from './registerNewInstallers';
@@ -19,12 +19,13 @@ export async function init() {
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
     DEVICE_INFOS,
   } = await getBuildTimeConfig({ env: ENV, clientName: CLIENT_NAME });
-
+  console.log('Initial root authority');
   await initRootAuthority({
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
     GUARDIAN_TYMLEZ_API_KEY,
   });
 
+  console.log('Initial create tokens');
   const tokens = await createTokens({
     GUARDIAN_TYMLEZ_API_KEY,
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
@@ -41,7 +42,7 @@ export async function init() {
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
   });
 
-  await grantTokenKvcToInstallers({
+  await grantTokenKycToInstallers({
     tokens,
     installers,
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,

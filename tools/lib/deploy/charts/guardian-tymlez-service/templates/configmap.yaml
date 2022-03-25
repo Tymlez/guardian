@@ -7,7 +7,7 @@ data:
   MQ_ADDRESS: {{ .Release.Name }}-guardian-message-broker-{{ .Release.Revision }}
   DB_HOST: {{ .Release.Name }}-mongodb
   MRV_RECEIVER_URL: http://{{ .Release.Name }}-guardian-message-broker-{{ .Release.Revision }}:3003/mrv
-  UI_SERVICE_BASE_URL: http://{{ .Release.Name }}-guardian-ui-service:3002
+  GUARDIAN_API_GW_URL: http://{{ .Release.Name }}-guardian-api-gateway:3000
   GUARDIAN_SERVICE_BASE_URL: http://{{ .Release.Name }}-guardian-service:3001
   MESSAGE_BROKER_BASE_URL: http://{{ .Release.Name }}-guardian-message-broker-{{ .Release.Revision }}:3003
 

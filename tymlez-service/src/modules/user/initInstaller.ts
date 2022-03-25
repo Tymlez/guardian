@@ -1,65 +1,82 @@
-import axios from 'axios';
-import { IUserProfile, UserState } from 'interfaces';
-import type { IUser } from './IUser';
+import type { ILoggedUser } from './ILoggedUser';
 import { getUserProfileFromUiService } from './getUserProfileFromUiService';
 import { loginToUiService, UserName } from './loginToUiService';
-import { getRandomKeyFromUiService } from '../key';
+import { getRandomKeyFromUiServiceWithRetry } from '../key';
+import { updateProfile } from './updateProfile';
+import pLimit from 'p-limit';
+import { associateUserTokenWithRetry, getTokensWithRetry } from '../token';
+import type { ITokenInfo } from 'interfaces';
 
 export async function initInstaller({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   username,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   username: UserName;
 }) {
   const user = await loginToUiService({
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
     username,
   });
+  const profile = await getUserProfileFromUiService({
+    guardianApiGatewayUrl,
+    user,
+  });
+  if (profile?.confirmed) {
+    await associateInstallerWithTokens({ guardianApiGatewayUrl, user });
 
-  if (user.state < UserState.HEDERA_CONFIRMED) {
-    await initInstallerHederaProfile({ uiServiceBaseUrl, user });
+    return {
+      message: `User '${username}' is already initialized.`,
+      profile,
+    };
   }
+  await initInstallerHederaProfile({ guardianApiGatewayUrl, user });
 
-  await associateInstallerWithTokens({ uiServiceBaseUrl, user });
+  await associateInstallerWithTokens({ guardianApiGatewayUrl, user });
 
-  return await getUserProfileFromUiService({ uiServiceBaseUrl, user });
+  return await getUserProfileFromUiService({ guardianApiGatewayUrl, user });
 }
 
 async function initInstallerHederaProfile({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   user,
 }: {
-  uiServiceBaseUrl: string;
-  user: IUser;
+  guardianApiGatewayUrl: string;
+  user: ILoggedUser;
 }) {
-  const randomKey = await getRandomKeyFromUiService({
-    uiServiceBaseUrl,
+  const randomKey = await getRandomKeyFromUiServiceWithRetry({
+    guardianApiGatewayUrl,
     user,
   });
 
-  await axios.post(
-    `${uiServiceBaseUrl}/api/profile/set-hedera-profile`,
-    {
+  await updateProfile({
+    guardianApiGatewayUrl,
+    user,
+    profile: {
       hederaAccountId: randomKey.id,
       hederaAccountKey: randomKey.key,
     },
-    {
-      headers: {
-        authorization: `Bearer ${user.accessToken}`,
-      },
-    },
-  );
+  });
 
-  let userProfile: IUserProfile | undefined;
+  let userProfile = await getUserProfileFromUiService({
+    guardianApiGatewayUrl,
+    user,
+  });
 
-  while (!userProfile || userProfile.state < UserState.HEDERA_CONFIRMED) {
+  while (!userProfile || !userProfile.confirmed) {
     console.log('Waiting for user to be initialized', userProfile);
 
-    userProfile = await getUserProfileFromUiService({ uiServiceBaseUrl, user });
+    userProfile = await getUserProfileFromUiService({
+      guardianApiGatewayUrl,
+      user,
+    });
 
-    if (userProfile && userProfile.state >= UserState.HEDERA_CONFIRMED) {
+    if (userProfile && userProfile.confirmed) {
       break;
+    }
+    if (userProfile && userProfile.failed) {
+      console.log('failed to setup installer account, retrying.....');
+      await initInstallerHederaProfile({ guardianApiGatewayUrl, user });
     }
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -67,43 +84,25 @@ async function initInstallerHederaProfile({
 }
 
 async function associateInstallerWithTokens({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   user,
 }: {
-  uiServiceBaseUrl: string;
-  user: IUser;
+  guardianApiGatewayUrl: string;
+  user: ILoggedUser;
 }) {
-  const { data: userTokens } = (await axios.get(
-    `${uiServiceBaseUrl}/api/tokens/user-tokens`,
-    {
-      headers: {
-        authorization: `Bearer ${user.accessToken}`,
-      },
-    },
-  )) as { data: IUserTokenResponse[] };
+  const userTokens = (await getTokensWithRetry({
+    guardianApiGatewayUrl,
+    user,
+  })) as ITokenInfo[];
 
+  const limit = pLimit(1);
   await Promise.all(
     userTokens
       .filter((token) => !token.associated)
-      .map(async (token) => {
-        await axios.post(
-          `${uiServiceBaseUrl}/api/tokens/associate`,
-          {
-            tokenId: token.tokenId,
-            associated: true,
-          },
-          {
-            headers: {
-              authorization: `Bearer ${user.accessToken}`,
-            },
-          },
-        );
-      }),
+      .map((token) =>
+        limit(() =>
+          associateUserTokenWithRetry({ guardianApiGatewayUrl, user, token }),
+        ),
+      ),
   );
-}
-
-interface IUserTokenResponse {
-  id: string;
-  associated: boolean;
-  tokenId: string;
 }
