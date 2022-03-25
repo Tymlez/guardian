@@ -35,7 +35,7 @@ export default Promise.all([
             console.log("Message broker receiving a mrv request");
             console.log(req.body);
 
-            await channel.request('ui-service', 'mrv-data', req.body, 'json');
+            await channel.request('guardian.*', 'mrv-data', req.body, 'json');
             res.sendStatus(200);
         } catch (e) {
             res.status(500).send(e.message);

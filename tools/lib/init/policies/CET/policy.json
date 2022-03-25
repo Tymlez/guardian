@@ -103,7 +103,7 @@
                         {
                           "name": "document.id",
                           "title": "ID",
-                          "type": "test"
+                          "type": "text"
                         },
                         {
                           "name": "document.credentialSubject.0.id",
