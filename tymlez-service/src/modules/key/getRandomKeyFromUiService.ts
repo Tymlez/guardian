@@ -3,14 +3,14 @@ import type { ILoggedUser } from '../user';
 import promiseRetry from 'promise-retry';
 
 export async function getRandomKeyFromUiService({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   user,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   user: ILoggedUser;
 }) {
   return (
-    await axios.get(`${uiServiceBaseUrl}/api/v1/demo/randomKey`, {
+    await axios.get(`${guardianApiGatewayUrl}/api/v1/demo/randomKey`, {
       headers: {
         authorization: `Bearer ${user.accessToken}`,
       },
@@ -20,17 +20,19 @@ export async function getRandomKeyFromUiService({
 
 export async function getRandomKeyFromUiServiceWithRetry(
   {
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
     user,
   }: {
-    uiServiceBaseUrl: string;
+    guardianApiGatewayUrl: string;
     user: ILoggedUser;
   },
   retries = 3,
 ) {
   return promiseRetry(
-    () => {
-      return getRandomKeyFromUiService({ uiServiceBaseUrl, user });
+    (retry) => {
+      return getRandomKeyFromUiService({ guardianApiGatewayUrl, user }).catch(
+        retry,
+      );
     },
     { retries },
   );

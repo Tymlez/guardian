@@ -4,14 +4,14 @@ import type { ILoggedUser } from '../user';
 export async function getNewSchemas({
   preImportSchemas,
   rootAuthority,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   rootAuthority: ILoggedUser;
   preImportSchemas: string[];
 }) {
   const postImportSchemas = await getAllSchemasFromUiService({
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
     rootAuthority,
   });
 

@@ -20,23 +20,23 @@ export const loadEnv = async (): Promise<void> => {
     clientName: process.env.CLIENT_NAME,
   });
 
-  console.log('Updating ./ui-service/.env.docker');
-  await updateTemplate({
-    templateFile: './ui-service/.env.docker.template',
-    data: {
-      GUARDIAN_OPERATOR_ID,
-      GUARDIAN_OPERATOR_KEY,
-    },
-  });
+  // console.log('Updating ./ui-service/.env.docker');
+  // await updateTemplate({
+  //   templateFile: './ui-service/.env.docker.template',
+  //   data: {
+  //     GUARDIAN_OPERATOR_ID,
+  //     GUARDIAN_OPERATOR_KEY,
+  //   },
+  // });
 
-  console.log('Updating ./ui-service/.env');
-  await updateTemplate({
-    templateFile: './ui-service/.env.template',
-    data: {
-      GUARDIAN_OPERATOR_ID,
-      GUARDIAN_OPERATOR_KEY,
-    },
-  });
+  // console.log('Updating ./ui-service/.env');
+  // await updateTemplate({
+  //   templateFile: './ui-service/.env.template',
+  //   data: {
+  //     GUARDIAN_OPERATOR_ID,
+  //     GUARDIAN_OPERATOR_KEY,
+  //   },
+  // });
 
   console.log('Updating ./tymlez-service/.env.docker');
   await updateTemplate({

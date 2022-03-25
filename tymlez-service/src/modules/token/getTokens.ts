@@ -4,15 +4,15 @@ import type { ILoggedUser } from '../user';
 import promiseRetry from 'promise-retry';
 
 interface IGettoken {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   user: ILoggedUser;
 }
 export async function getTokens({
   user,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: IGettoken): Promise<IToken[]> {
   const { data: allTokens } = await axios.get<IToken[]>(
-    `${uiServiceBaseUrl}/api/v1/tokens`,
+    `${guardianApiGatewayUrl}/api/v1/tokens`,
     {
       headers: {
         authorization: `Bearer ${user.accessToken}`,
@@ -23,10 +23,10 @@ export async function getTokens({
   return allTokens;
 }
 
-export const getTokesnWithRetry = async (params: IGettoken, retries = 3) =>
+export const getTokensWithRetry = async (params: IGettoken, retries = 3) =>
   promiseRetry(
-    () => {
-      return getTokens(params);
+    (retry) => {
+      return getTokens(params).catch(retry);
     },
     { retries },
   );

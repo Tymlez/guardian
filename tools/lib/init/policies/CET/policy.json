@@ -6,16 +6,30 @@
   "topicDescription": "Tymlez Policy to track Carbon Emission",
   "config": {
     "defaultActive": true,
-    "permissions": ["ROOT_AUTHORITY", "INSTALLER", "USER"],
+    "permissions": ["ROOT_AUTHORITY", "INSTALLER"],
     "blockType": "interfaceContainerBlock",
     "uiMetaData": {
       "type": "blank"
     },
     "children": [
       {
+        "id": "133b1d31-fa8c-4ff2-a03f-19e04346a6a5",
+        "tag": "choose_role_user_role",
+        "blockType": "policyRolesBlock",
+        "defaultActive": true,
+        "children": [],
+        "permissions": ["NO_ROLE"],
+        "uiMetaData": {
+          "title": "Registration",
+          "description": "Choose a role"
+        },
+        "roles": ["INSTALLER"],
+        "onErrorAction": "no-action"
+      },
+      {
         "defaultActive": true,
         "tag": "init_installer_steps",
-        "permissions": ["INSTALLER", "USER"],
+        "permissions": ["INSTALLER"],
         "blockType": "interfaceStepBlock",
         "uiMetaData": {
           "type": "blank"
@@ -24,8 +38,8 @@
           {
             "tag": "add_new_installer_request",
             "defaultActive": true,
-            "permissions": ["INSTALLER", "USER"],
-            "blockType": "requestVcDocument",
+            "permissions": ["INSTALLER"],
+            "blockType": "requestVcDocumentBlock",
             "schema": "#91bf250b-d809-40b2-b492-97240a746bbb&1.0.0",
             "idType": "OWNER",
             "uiMetaData": {
@@ -38,7 +52,7 @@
           },
           {
             "tag": "send_installer_vc_to_hedera",
-            "blockType": "sendToGuardian",
+            "blockType": "sendToGuardianBlock",
             "dataType": "hedera",
             "entityType": "Installer",
             "uiMetaData": {},
@@ -46,7 +60,7 @@
           },
           {
             "tag": "Submission_of_Installer_Information",
-            "blockType": "sendToGuardian",
+            "blockType": "sendToGuardianBlock",
             "dataType": "vc-documents",
             "entityType": "Installer",
             "uiMetaData": {},
@@ -56,7 +70,7 @@
           {
             "tag": "installer_header",
             "defaultActive": true,
-            "permissions": ["INSTALLER", "USER"],
+            "permissions": ["INSTALLER"],
             "blockType": "interfaceContainerBlock",
             "uiMetaData": {
               "type": "tabs"
@@ -65,7 +79,7 @@
               {
                 "tag": "sensors_page",
                 "defaultActive": true,
-                "permissions": ["INSTALLER", "USER"],
+                "permissions": ["INSTALLER"],
                 "blockType": "interfaceContainerBlock",
                 "uiMetaData": {
                   "type": "blank",
@@ -75,8 +89,8 @@
                   {
                     "tag": "sensors_grid",
                     "defaultActive": true,
-                    "permissions": ["INSTALLER", "USER"],
-                    "blockType": "interfaceDocumentsSource",
+                    "permissions": ["INSTALLER"],
+                    "blockType": "interfaceDocumentsSourceBlock",
                     "dependencies": ["SendVCtoGuardian"],
                     "onlyOwnDocuments": true,
                     "dataType": "vc-documents",
@@ -120,12 +134,26 @@
                         }
                       ]
                     },
-                    "id": "7cef934b-f8e9-40ae-aa51-3d587c4e1311"
+                    "id": "7cef934b-f8e9-40ae-aa51-3d587c4e1311",
+                    "children": [
+                      {
+                        "id": "a1308b27-14d3-40af-925b-c3a5e5162b7e",
+                        "tag": "sensors_grid_filters",
+                        "blockType": "documentsSourceAddon",
+                        "defaultActive": true,
+                        "permissions": ["INSTALLER"],
+                        "onErrorAction": "no-action",
+                        "filters": [],
+                        "dataType": "vc-documents",
+                        "onlyOwnDocuments": true,
+                        "schema": "#b578cb95-8530-46cc-9dc4-f31980744bf7&1.0.0"
+                      }
+                    ]
                   },
                   {
                     "tag": "download_config_btn",
-                    "blockType": "interfaceAction",
-                    "permissions": ["INSTALLER", "USER"],
+                    "blockType": "interfaceActionBlock",
+                    "permissions": ["INSTALLER"],
                     "type": "download",
                     "schema": "#7aeb0cec-d277-456e-a943-21d742d63816&1.0.0",
                     "stopPropagation": true,
@@ -139,7 +167,7 @@
                   {
                     "defaultActive": true,
                     "tag": "create_new_sensor_steps",
-                    "permissions": ["INSTALLER", "USER"],
+                    "permissions": ["INSTALLER"],
                     "blockType": "interfaceStepBlock",
                     "uiMetaData": {
                       "type": "blank"
@@ -148,8 +176,8 @@
                       {
                         "tag": "add_sensor_bnt",
                         "defaultActive": true,
-                        "permissions": ["INSTALLER", "USER"],
-                        "blockType": "requestVcDocument",
+                        "permissions": ["INSTALLER"],
+                        "blockType": "requestVcDocumentBlock",
                         "schema": "#b578cb95-8530-46cc-9dc4-f31980744bf7&1.0.0",
                         "idType": "DID",
                         "uiMetaData": {
@@ -166,7 +194,7 @@
                       },
                       {
                         "tag": "send_sensor_vc_to_hedera",
-                        "blockType": "sendToGuardian",
+                        "blockType": "sendToGuardianBlock",
                         "dataType": "hedera",
                         "entityType": "Inverter",
                         "uiMetaData": {},
@@ -174,7 +202,7 @@
                       },
                       {
                         "tag": "device_registration",
-                        "blockType": "sendToGuardian",
+                        "blockType": "sendToGuardianBlock",
                         "dataType": "vc-documents",
                         "entityType": "Inverter",
                         "stopPropagation": false,
@@ -191,7 +219,7 @@
               {
                 "tag": "mrv_page",
                 "defaultActive": true,
-                "permissions": ["INSTALLER", "USER"],
+                "permissions": ["INSTALLER"],
                 "blockType": "interfaceContainerBlock",
                 "uiMetaData": {
                   "type": "blank",
@@ -201,8 +229,8 @@
                   {
                     "tag": "mrv_grid",
                     "defaultActive": true,
-                    "permissions": ["INSTALLER", "USER"],
-                    "blockType": "interfaceDocumentsSource",
+                    "permissions": ["INSTALLER"],
+                    "blockType": "interfaceDocumentsSourceBlock",
                     "dependencies": ["SendVCtoGuardian"],
                     "onlyOwnDocuments": true,
                     "dataType": "vc-documents",
@@ -236,7 +264,20 @@
                         }
                       ]
                     },
-                    "id": "2acc083f-4af1-46af-b403-61bd31e80807"
+                    "id": "2acc083f-4af1-46af-b403-61bd31e80807",
+                    "children": [
+                      {
+                        "id": "0db00cd5-1142-4c98-be4f-cc82769c92f2",
+                        "tag": "mvr_grid_filters",
+                        "blockType": "documentsSourceAddon",
+                        "defaultActive": true,
+                        "permissions": ["INSTALLER"],
+                        "onErrorAction": "no-action",
+                        "filters": [],
+                        "dataType": "vc-documents",
+                        "schema": "#7aeb0cec-d277-456e-a943-21d742d63816&1.0.0"
+                      }
+                    ]
                   }
                 ],
                 "id": "4e532869-5f92-405b-80da-1958d5372816"
@@ -250,7 +291,7 @@
       {
         "tag": "mint_events",
         "defaultActive": true,
-        "permissions": ["ROOT_AUTHORITY", "INSTALLER", "USER"],
+        "permissions": ["ROOT_AUTHORITY", "INSTALLER"],
         "blockType": "interfaceContainerBlock",
         "uiMetaData": {
           "type": "blank"
@@ -266,7 +307,7 @@
           },
           {
             "tag": "Requesting_CET_issuance",
-            "blockType": "sendToGuardian",
+            "blockType": "sendToGuardianBlock",
             "dataType": "vc-documents",
             "entityType": "MRV",
             "uiMetaData": {},
@@ -275,7 +316,7 @@
           {
             "id": "b68dfae8-54dc-410b-a475-2d5808284b3c",
             "tag": "aggregate_co2Emission",
-            "blockType": "aggregateDocument",
+            "blockType": "aggregateDocumentBlock",
             "children": [],
             "uiMetaData": {},
             "rule": "mrvCarbonAmount",
@@ -283,7 +324,7 @@
           },
           {
             "tag": "mint_token",
-            "blockType": "mintDocument",
+            "blockType": "mintDocumentBlock",
             "tokenId": "<%= CET_TOKEN_ID %>",
             "rule": "1",
             "uiMetaData": {},
@@ -297,7 +338,7 @@
   },
   "status": "PUBLISH",
   "owner": "did:hedera:testnet:AGuispD3wvsHwxii5KktNVuQXNjaGPLmNek4D9Nv9MGS;hedera:testnet:fid=0.0.28523277",
-  "policyRoles": ["ROOT_AUTHORITY", "INSTALLER", "USER"],
+  "policyRoles": ["ROOT_AUTHORITY", "INSTALLER"],
   "topicId": "0.0.28523540",
   "policyTag": "TymlezCET"
 }

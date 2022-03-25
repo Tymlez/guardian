@@ -48,7 +48,7 @@ axios.interceptors.response.use(
       error.response?.data,
       error.response?.statusText,
     );
-    return Promise.reject(error);
+    return Promise.reject(new Error('Request error'));
   },
 );
 
@@ -59,7 +59,7 @@ const {
   DB_HOST,
   DB_DATABASE,
   GUARDIAN_TYMLEZ_API_KEY,
-  UI_SERVICE_BASE_URL,
+  GUARDIAN_API_GW_URL,
   GUARDIAN_SERVICE_BASE_URL,
   MESSAGE_BROKER_BASE_URL,
   OPERATOR_ID,
@@ -76,7 +76,7 @@ console.log('Starting tymlez-service', {
   DB_DATABASE,
   OPERATOR_ID,
   MRV_RECEIVER_URL,
-  UI_SERVICE_BASE_URL,
+  GUARDIAN_API_GW_URL,
   GUARDIAN_SERVICE_BASE_URL,
   MESSAGE_BROKER_BASE_URL,
   SERVICE_CHANNEL,
@@ -88,7 +88,7 @@ assert(DB_DATABASE, `DB_DATABASE is missing`);
 assert(SERVICE_CHANNEL, `SERVICE_CHANNEL is missing`);
 assert(MQ_ADDRESS, `MQ_ADDRESS is missing`);
 assert(MRV_RECEIVER_URL, `MRV_RECEIVER_URL is missing`);
-assert(UI_SERVICE_BASE_URL, `UI_SERVICE_BASE_URL is missing`);
+assert(GUARDIAN_API_GW_URL, `GUARDIAN_API_GW_URL is missing`);
 assert(GUARDIAN_SERVICE_BASE_URL, `GUARDIAN_SERVICE_BASE_URL is missing`);
 assert(MESSAGE_BROKER_BASE_URL, `MESSAGE_BROKER_BASE_URL is missing`);
 assert(GUARDIAN_TYMLEZ_API_KEY, `GUARDIAN_TYMLEZ_API_KEY is missing`);
@@ -153,7 +153,7 @@ Promise.all([
   app.use(
     '/info',
     makeInfoApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
       guardianServiceBaseUrl: GUARDIAN_SERVICE_BASE_URL,
       messageBrokerBaseUrl: MESSAGE_BROKER_BASE_URL,
     }),
@@ -177,39 +177,39 @@ Promise.all([
       policyPackageRepository,
       processedMrvRepository,
       mrvReceiverUrl: MRV_RECEIVER_URL,
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
   app.use(
     '/schema/',
     makeSchemaApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
   app.use(
     '/tokens/',
     makeTokenApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
   app.use(
     '/policy/',
     makePolicyApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
       policyPackageRepository,
     }),
   );
   app.use(
     '/user/',
     makeUserApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
 
   app.use(
     '/ipfs/',
     useIpfsApi({
-      uiServiceBaseUrl: UI_SERVICE_BASE_URL,
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
 

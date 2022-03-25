@@ -5,11 +5,11 @@ export async function publishPolicyToUiService(
   {
     policyId,
     rootAuthority,
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
     policyVersion,
   }: {
     policyId: string;
-    uiServiceBaseUrl: string;
+    guardianApiGatewayUrl: string;
     rootAuthority: ILoggedUser;
     policyVersion: string;
   },
@@ -17,7 +17,7 @@ export async function publishPolicyToUiService(
 ) {
   try {
     await axios.put(
-      `${uiServiceBaseUrl}/api/v1/policies/${policyId}/publish`,
+      `${guardianApiGatewayUrl}/api/v1/policies/${policyId}/publish`,
       { policyVersion },
       {
         headers: {
@@ -31,7 +31,7 @@ export async function publishPolicyToUiService(
         {
           policyId,
           rootAuthority,
-          uiServiceBaseUrl,
+          guardianApiGatewayUrl,
           policyVersion,
         },
         retry + 1,

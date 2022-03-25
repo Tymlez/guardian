@@ -4,13 +4,14 @@ import type { ILoggedUser } from './ILoggedUser';
 import { getUserProfileFromUiService } from './getUserProfileFromUiService';
 import type { IUser } from 'interfaces';
 import { uploadToIpfs } from '../ipfs';
+import promiseRetry from 'promise-retry';
 
 export async function initRootAuthority(
   rootAuthority: ILoggedUser,
-  uiServiceBaseUrl: string,
+  guardianApiGatewayUrl: string,
 ) {
   const profile = await getUserProfileFromUiService({
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
     user: rootAuthority,
   });
   if (profile?.confirmed) {
@@ -20,21 +21,22 @@ export async function initRootAuthority(
     };
   }
 
-  await initRootConfig({ uiServiceBaseUrl, rootAuthority });
+  await initRootConfigWithRetry({ guardianApiGatewayUrl, rootAuthority });
   return {
     success: true,
   };
 }
 
-async function initRootConfig({
-  uiServiceBaseUrl,
-  rootAuthority,
-}: {
-  uiServiceBaseUrl: string;
+interface IInitRootConfig {
+  guardianApiGatewayUrl: string;
   rootAuthority: ILoggedUser;
-}) {
+}
+async function initRootConfig({
+  guardianApiGatewayUrl,
+  rootAuthority,
+}: IInitRootConfig) {
   const randomKey = await getRandomKeyFromUiServiceWithRetry({
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
     user: rootAuthority,
   });
   console.log('Update profile with ', randomKey);
@@ -51,10 +53,14 @@ async function initRootConfig({
     },
   };
 
-  const vcDocUrl = await uploadToIpfs(uiServiceBaseUrl, rootAuthority, vcDoc);
+  const vcDocUrl = await uploadToIpfs(
+    guardianApiGatewayUrl,
+    rootAuthority,
+    vcDoc,
+  );
   console.log('vcDocument URL', vcDocUrl);
   await axios.put(
-    `${uiServiceBaseUrl}/api/v1/profile`,
+    `${guardianApiGatewayUrl}/api/v1/profiles/${rootAuthority.username}`,
     {
       vcDocument: {
         name: 'Tymlez',
@@ -83,14 +89,22 @@ async function initRootConfig({
     console.log('Waiting for user to be initialized', userProfile);
 
     userProfile = await getUserProfileFromUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       user: rootAuthority,
     });
 
     if (userProfile && userProfile.confirmed) {
       break;
     }
-
+    if (userProfile && userProfile.failed) {
+      throw new Error('Unable to setup root account');
+    }
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
+}
+
+async function initRootConfigWithRetry(params: IInitRootConfig, retries = 3) {
+  return promiseRetry(async (retry) => {
+    return initRootConfig(params).catch(retry);
+  });
 }

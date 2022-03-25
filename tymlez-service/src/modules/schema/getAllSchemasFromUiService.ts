@@ -4,13 +4,13 @@ import type { ILoggedUser } from '../user';
 
 export async function getAllSchemasFromUiService({
   rootAuthority,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   rootAuthority: ILoggedUser;
 }) {
   const { data: schemas } = (await axios.get(
-    `${uiServiceBaseUrl}/api/v1/schemas`,
+    `${guardianApiGatewayUrl}/api/v1/schemas`,
     {
       headers: {
         authorization: `Bearer ${rootAuthority.accessToken}`,

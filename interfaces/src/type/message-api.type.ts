@@ -38,5 +38,6 @@ export enum MessageAPI {
     GET_SETTINGS = 'GET_SETTINGS',
     WRITE_LOG = 'WRITE_LOG',
     GET_LOGS = 'GET_LOGS',
-    GET_ATTRIBUTES = 'GET_ATTRIBUTES'
+    GET_ATTRIBUTES = 'GET_ATTRIBUTES',
+    FIND_VP_DOCUMENTS = 'find-vp-documents'
 }

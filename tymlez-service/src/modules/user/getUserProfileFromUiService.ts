@@ -3,17 +3,20 @@ import type { IUser } from 'interfaces';
 import type { ILoggedUser } from '../user';
 
 export async function getUserProfileFromUiService({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   user,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   user: ILoggedUser;
 }): Promise<IUser | undefined> {
   return (
-    await axios.get(`${uiServiceBaseUrl}/api/v1/profile`, {
-      headers: {
-        authorization: `Bearer ${user.accessToken}`,
+    await axios.get(
+      `${guardianApiGatewayUrl}/api/v1/profiles/${user.username}`,
+      {
+        headers: {
+          authorization: `Bearer ${user.accessToken}`,
+        },
       },
-    })
+    )
   ).data;
 }

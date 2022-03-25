@@ -19,10 +19,10 @@ import type { PolicyPackage } from '@entity/policy-package';
 import type { Schema } from 'interfaces';
 
 export const makePolicyApi = ({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   policyPackageRepository,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   policyPackageRepository: MongoRepository<PolicyPackage>;
 }) => {
   const policyApi = Router();
@@ -48,23 +48,23 @@ export const makePolicyApi = ({
     }
 
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
     // const preImportSchemas = await getAllSchemasFromUiService({
-    //   uiServiceBaseUrl,
+    //   guardianApiGatewayUrl,
     //   rootAuthority,
     // });
 
     const importedPolicy = await importPolicyPackage({
       rootAuthority,
       inputPackage,
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
     });
 
     const newSchemas = await getNewSchemas({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       rootAuthority,
       preImportSchemas: inputPackage.schemas.map((x) => x.name),
     });
@@ -81,7 +81,7 @@ export const makePolicyApi = ({
       })),
     );
     await publishSchemasToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       rootAuthority,
       schemaIds: unpublishedSchema.map((schema) => schema.id),
       version: '1.0.0',
@@ -102,7 +102,7 @@ export const makePolicyApi = ({
       });
       await publishPolicyToUiService({
         policyId: importedPolicy.id,
-        uiServiceBaseUrl,
+        guardianApiGatewayUrl,
         rootAuthority,
         policyVersion: '1.0.0',
       });
@@ -127,14 +127,14 @@ export const makePolicyApi = ({
 
   policyApi.get('/list', async (req: Request, res: Response) => {
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
     assert(rootAuthority.did, `rootAuthority.did is missing`);
 
     const allPolicies = await getAllPoliciesFromUiService(
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       rootAuthority,
     );
 
@@ -145,12 +145,12 @@ export const makePolicyApi = ({
 };
 
 // async function publishSchema(
-//   uiServiceBaseUrl: string,
+//   guardianApiGatewayUrl: string,
 //   rootAuthority: ILoggedUser,
 //   schema: Schema,
 // ) {
 //   const { data } = await axios.put<Schema[]>(
-//     `${uiServiceBaseUrl}/api/v1/schemas/${schema.id}/publish`,
+//     `${guardianApiGatewayUrl}/api/v1/schemas/${schema.id}/publish`,
 //     { version: '1.0.0' },
 //     {
 //       headers: {
@@ -163,12 +163,12 @@ export const makePolicyApi = ({
 // }
 
 async function importSchema(
-  uiServiceBaseUrl: string,
+  guardianApiGatewayUrl: string,
   rootAuthority: ILoggedUser,
   schema: Schema,
 ) {
   const { data } = await axios.post<Schema>(
-    `${uiServiceBaseUrl}/api/v1/schemas`,
+    `${guardianApiGatewayUrl}/api/v1/schemas`,
     schema,
     {
       headers: {
@@ -181,12 +181,12 @@ async function importSchema(
 }
 
 async function createPolicy(
-  uiServiceBaseUrl: string,
+  guardianApiGatewayUrl: string,
   rootAuthority: ILoggedUser,
   policy: IPolicy,
 ) {
   const allPolicies = await getAllPoliciesFromUiService(
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
     rootAuthority,
   );
 
@@ -196,7 +196,7 @@ async function createPolicy(
   if (!findPolicies) {
     console.log('create policy %s', policy.name);
     const { data } = await axios.post<IPolicy[]>(
-      `${uiServiceBaseUrl}/api/v1/policies`,
+      `${guardianApiGatewayUrl}/api/v1/policies`,
       policy,
       {
         headers: {
@@ -213,11 +213,11 @@ async function createPolicy(
 async function importPolicyPackage({
   inputPackage,
   rootAuthority,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
   rootAuthority: ILoggedUser;
   inputPackage: IImportPolicyPackage;
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
 }) {
   assert(rootAuthority.did, `rootAuthority.did is missing`);
 
@@ -238,18 +238,18 @@ async function importPolicyPackage({
   };
   let existingSchemas = await getAllSchemasFromUiService({
     rootAuthority,
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
   });
   await Promise.all(
     packageImportData.schemas
       .filter((schema) => !existingSchemas.find((x) => x.name === schema.name))
       .map((schema) =>
-        importSchema(uiServiceBaseUrl, rootAuthority, schema as Schema),
+        importSchema(guardianApiGatewayUrl, rootAuthority, schema as Schema),
       ),
   );
 
   const importedPolicy = await createPolicy(
-    uiServiceBaseUrl,
+    guardianApiGatewayUrl,
     rootAuthority,
     packageImportData.policy,
   );

@@ -3,16 +3,16 @@ import axios from 'axios';
 import type { ILoggedUser } from './ILoggedUser';
 
 export async function loginToUiService({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   username,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   username: UserName;
 }) {
   const loginDetail = LOGIN_DETAILS[username];
   assert(loginDetail, `Cannot find login detail for ${username}`);
   const { data: user } = (await axios.post(
-    `${uiServiceBaseUrl}/api/v1/accounts/login`,
+    `${guardianApiGatewayUrl}/api/v1/accounts/login`,
     { username, password: loginDetail.password },
   )) as { data: ILoggedUser | undefined };
 

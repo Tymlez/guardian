@@ -7,15 +7,15 @@ export async function getDeviceConfigFromUiService({
   installer,
   device,
   policyId,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   policyId: string;
   device: IUIServiceDevice;
   installer: ILoggedUser;
 }): Promise<IUIServiceDeviceConfig> {
   const { data: downloadButton } = await axios.get(
-    `${uiServiceBaseUrl}/api/v1/policies/${policyId}/tag/download_config_btn`,
+    `${guardianApiGatewayUrl}/api/v1/policies/${policyId}/tag/download_config_btn`,
     {
       headers: {
         Authorization: `Api-Key ${installer.accessToken}`,
@@ -25,7 +25,7 @@ export async function getDeviceConfigFromUiService({
 
   const deviceConfig = (
     await axios.post(
-      `${uiServiceBaseUrl}/api/v1/policies/${policyId}/blocks/${downloadButton.id}`,
+      `${guardianApiGatewayUrl}/api/v1/policies/${policyId}/blocks/${downloadButton.id}`,
       {
         owner: device.owner,
         document: device.document,

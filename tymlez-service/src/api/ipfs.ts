@@ -3,19 +3,23 @@ import { uploadToIpfs } from '../modules/ipfs';
 import { loginToUiService } from '../modules/user';
 
 export const useIpfsApi = ({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
 }) => {
   const ipfsRouter = Router();
 
   ipfsRouter.post('/upload', async (req: Request, res: Response) => {
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
-    const url = await uploadToIpfs(uiServiceBaseUrl, rootAuthority, req.body);
+    const url = await uploadToIpfs(
+      guardianApiGatewayUrl,
+      rootAuthority,
+      req.body,
+    );
     res.json({ url });
   });
 

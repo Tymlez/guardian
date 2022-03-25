@@ -3,16 +3,16 @@ import type { ILoggedUser } from '../user';
 import type { IUIServiceDevice } from './IUIServiceDevice';
 
 export async function getDevicesFromUiService({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   policyId,
   installer,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   policyId: string;
   installer: ILoggedUser;
 }): Promise<IUIServiceDevice[]> {
   const { data: sensorGridId } = await axios.get(
-    `${uiServiceBaseUrl}/api/v1/policies/${policyId}/tag/sensors_grid`,
+    `${guardianApiGatewayUrl}/api/v1/policies/${policyId}/tag/sensors_grid`,
     {
       headers: {
         Authorization: `Api-Key ${installer.accessToken}`,
@@ -23,13 +23,14 @@ export async function getDevicesFromUiService({
   const {
     data: { data: devices },
   } = await axios.get(
-    `${uiServiceBaseUrl}/api/v1/policies/${policyId}/blocks/${sensorGridId.id}`,
+    `${guardianApiGatewayUrl}/api/v1/policies/${policyId}/blocks/${sensorGridId.id}`,
     {
       headers: {
         authorization: `Bearer ${installer.accessToken}`,
       },
     },
   );
+  console.log('devices', devices);
 
   return devices;
 }

@@ -3,16 +3,16 @@ import type { IUser } from 'interfaces';
 import type { ILoggedUser } from './ILoggedUser';
 
 export async function updateProfile({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   user,
   profile,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   user: ILoggedUser;
   profile: Partial<IUser>;
 }) {
   await axios.put(
-    `${uiServiceBaseUrl}/api/v1/profile`,
+    `${guardianApiGatewayUrl}/api/v1/profiles/${user.username}`,
     {
       ...profile,
     },

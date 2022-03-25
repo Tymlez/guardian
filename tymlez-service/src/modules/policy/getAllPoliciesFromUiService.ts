@@ -2,11 +2,11 @@ import axios from 'axios';
 import type { ILoggedUser } from '../user';
 
 export async function getAllPoliciesFromUiService(
-  uiServiceBaseUrl: string,
+  guardianApiGatewayUrl: string,
   rootAuthority: ILoggedUser,
 ) {
   return (
-    await axios.get(`${uiServiceBaseUrl}/api/v1/policies`, {
+    await axios.get(`${guardianApiGatewayUrl}/api/v1/policies`, {
       headers: {
         authorization: `Bearer ${rootAuthority.accessToken}`,
       },

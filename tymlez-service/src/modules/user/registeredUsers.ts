@@ -2,12 +2,12 @@ import axios from 'axios';
 import type { ILoggedUser } from './ILoggedUser';
 
 export async function registeredUsers({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
 }) {
   const { data: user } = (await axios.get(
-    `${uiServiceBaseUrl}/api/v1/demo/registeredUsers`,
+    `${guardianApiGatewayUrl}/api/v1/demo/registeredUsers`,
   )) as { data: ILoggedUser[] };
 
   return user;

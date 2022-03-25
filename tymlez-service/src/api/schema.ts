@@ -9,9 +9,9 @@ import {
 import { loginToUiService } from '../modules/user';
 
 export const makeSchemaApi = ({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
 }) => {
   const schemaApi = Router();
 
@@ -22,11 +22,11 @@ export const makeSchemaApi = ({
     assert(inputSchema.uuid, `schema.uuid is missing`);
 
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
-    await axios.post(`${uiServiceBaseUrl}/api/v1/schemas`, inputSchema, {
+    await axios.post(`${guardianApiGatewayUrl}/api/v1/schemas`, inputSchema, {
       headers: {
         authorization: `Bearer ${rootAuthority.accessToken}`,
         'content-type': 'application/json',
@@ -34,7 +34,7 @@ export const makeSchemaApi = ({
     });
 
     const allSchemas = await getAllSchemasFromUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       rootAuthority,
     });
     const importedSchema = allSchemas.find(
@@ -45,7 +45,7 @@ export const makeSchemaApi = ({
 
     if (publish && importedSchema.status !== 'PUBLISHED') {
       await publishSchemasToUiService({
-        uiServiceBaseUrl,
+        guardianApiGatewayUrl,
         rootAuthority,
         schemaIds: [importedSchema.id],
         version: '1.0.0',

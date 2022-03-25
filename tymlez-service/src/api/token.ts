@@ -1,29 +1,29 @@
 import assert from 'assert';
-import axios from 'axios';
 import { Request, Response, Router } from 'express';
 import type { IToken } from 'interfaces';
-import { loginToUiService } from '../modules/user';
+import { loginToUiService, UserName } from '../modules/user';
 import {
   createTokenWithRetry,
-  getUserKycFromUiService,
-  getTokesnWithRetry,
+  getUserKycFromUiServiceWithRetry,
+  getTokensWithRetry,
+  setUserKycWithRetry,
+  associateUserTokenWithRetry,
 } from '../modules/token';
-import promiseRetry from 'promise-retry';
 
 export const makeTokenApi = ({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
 }) => {
   const tokenApi = Router();
 
   tokenApi.get('/', async (req: Request, res: Response) => {
     const user = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
-    const tokens = await getTokesnWithRetry({ uiServiceBaseUrl, user });
+    const tokens = await getTokensWithRetry({ guardianApiGatewayUrl, user });
 
     res.status(200).json(tokens);
   });
@@ -34,13 +34,13 @@ export const makeTokenApi = ({
     assert(inputToken, `token is missing`);
 
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
     const createdToken = await createTokenWithRetry({
       rootAuthority,
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       inputToken,
     });
 
@@ -53,12 +53,12 @@ export const makeTokenApi = ({
     assert(userKycInput, `input is missing`);
 
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
-    const userKyc = await getUserKycFromUiService({
-      uiServiceBaseUrl,
+    const userKyc = await getUserKycFromUiServiceWithRetry({
+      guardianApiGatewayUrl,
       tokenId: userKycInput.tokenId,
       username: userKycInput.username,
       rootAuthority,
@@ -73,24 +73,25 @@ export const makeTokenApi = ({
       res.status(200).json({});
       return;
     }
-    const fn = async () => {
-      await axios.put(
-        `${uiServiceBaseUrl}/api/v1/tokens/${userKycInput.tokenId}/${userKycInput.username}/grantKyc`,
-        userKycInput,
-        {
-          headers: {
-            authorization: `Bearer ${rootAuthority.accessToken}`,
-          },
-        },
-      );
-    };
-    await promiseRetry(
-      async (retry) => {
-        fn().catch(retry);
-      },
-      { retries: 3 },
-    );
-    res.status(200).json(userKycInput);
+
+    const user = await loginToUiService({
+      guardianApiGatewayUrl,
+      username: userKycInput.username as UserName,
+    });
+    if (!userKyc.associated) {
+      await associateUserTokenWithRetry({
+        guardianApiGatewayUrl,
+        user,
+        token: userKyc,
+      });
+    }
+    const tokenInfo = await setUserKycWithRetry({
+      guardianApiGatewayUrl,
+      tokenId: userKycInput.tokenId,
+      username: userKycInput.username,
+      rootAuthority,
+    });
+    res.status(200).json(tokenInfo);
   });
 
   return tokenApi;

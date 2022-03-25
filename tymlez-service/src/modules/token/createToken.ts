@@ -5,17 +5,17 @@ import type { ILoggedUser } from '../user';
 import promiseRetry from 'promise-retry';
 
 interface ICreateToken {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   inputToken: IToken;
   rootAuthority: ILoggedUser;
 }
 export async function createToken({
   inputToken,
   rootAuthority,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: ICreateToken): Promise<IToken> {
   const { data: allTokens } = await axios.post<IToken[]>(
-    `${uiServiceBaseUrl}/api/v1/tokens`,
+    `${guardianApiGatewayUrl}/api/v1/tokens`,
     inputToken,
     {
       headers: {

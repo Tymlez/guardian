@@ -9,9 +9,9 @@ import {
 } from '../modules/user';
 
 export const makeUserApi = ({
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
 }) => {
   const userApi = Router();
 
@@ -25,20 +25,23 @@ export const makeUserApi = ({
         `Unexpected username: ${username}`,
       );
 
-      const user = await initInstaller({ uiServiceBaseUrl, username });
+      const user = await initInstaller({ guardianApiGatewayUrl, username });
 
       res.status(200).json(user);
     },
   );
 
   userApi.post('/init-root-authority', async (req: Request, res: Response) => {
-    await registeredUsers({ uiServiceBaseUrl });
+    await registeredUsers({ guardianApiGatewayUrl });
     const rootAuthority = await loginToUiService({
-      uiServiceBaseUrl,
+      guardianApiGatewayUrl,
       username: 'RootAuthority',
     });
 
-    const outcome = await initRootAuthority(rootAuthority, uiServiceBaseUrl);
+    const outcome = await initRootAuthority(
+      rootAuthority,
+      guardianApiGatewayUrl,
+    );
 
     res.status(200).json({ ...rootAuthority, outcome });
   });

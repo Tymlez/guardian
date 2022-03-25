@@ -28,6 +28,7 @@ export interface IUIServiceDeviceCredentialSubject {
   type: string;
   projectId: string;
   projectName: string;
+  deviceId: string;
   sensorType: string;
   capacity: string;
 }

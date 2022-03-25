@@ -4,7 +4,7 @@ import plimit from 'p-limit';
 import promiseRetry from 'promise-retry';
 
 interface IPublicSchemaRequest {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   schemaId: string;
   rootAuthority: ILoggedUser;
   version: string;
@@ -12,11 +12,11 @@ interface IPublicSchemaRequest {
 export async function publishSchemaToUiService({
   schemaId,
   rootAuthority,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   version = '1.0.0',
 }: IPublicSchemaRequest) {
   await axios.put(
-    `${uiServiceBaseUrl}/api/v1/schemas/${schemaId}/publish`,
+    `${guardianApiGatewayUrl}/api/v1/schemas/${schemaId}/publish`,
     { version },
     {
       headers: {
@@ -31,19 +31,20 @@ export async function publishSchemaToUiServiceWithRetry(
   retries = 3,
 ) {
   return promiseRetry(
-    () => {
-      return publishSchemaToUiService(input);
+    (retry) => {
+      return publishSchemaToUiService(input).catch(retry);
     },
     { retries },
   );
 }
+
 export async function publishSchemasToUiService({
   schemaIds,
   rootAuthority,
-  uiServiceBaseUrl,
+  guardianApiGatewayUrl,
   version = '1.0.0',
 }: {
-  uiServiceBaseUrl: string;
+  guardianApiGatewayUrl: string;
   schemaIds: string[];
   rootAuthority: ILoggedUser;
   version: string;
@@ -51,11 +52,11 @@ export async function publishSchemasToUiService({
   const limit = plimit(1);
   await Promise.all(
     schemaIds.map((schemaId) =>
-      limit(async () =>
-        publishSchemaToUiService({
+      limit(() =>
+        publishSchemaToUiServiceWithRetry({
           schemaId,
           rootAuthority,
-          uiServiceBaseUrl,
+          guardianApiGatewayUrl,
           version,
         }),
       ),

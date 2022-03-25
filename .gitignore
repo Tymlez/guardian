@@ -8,8 +8,6 @@ logger-service/dist/
 logger-helper/node_modules/
 logger-helper/dist/
 message-broker/node_modules/
-ui-service/node_modules/
-ui-service/dist/
 mrv-sender/node_modules/
 mrv-sender/dist/
 message-broker/dist/
@@ -22,7 +20,6 @@ config.keys
 interfaces/dist/
 interfaces/node_modules/
 www-data/
-ui-service/.vs/
 /test_results/
 /api-tests/node_modules/
 /api-docs/node_modules/
@@ -36,8 +33,6 @@ ipfs-client/package-lock.json
 /.tmp/
 tools/**/*.tgz
 guardian-service/config.json
-ui-service/.env
-ui-service/.env.docker
 tymlez-service/.env
 tymlez-service/.env.docker
 *.tsbuildinfo
