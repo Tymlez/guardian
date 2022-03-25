@@ -104,7 +104,10 @@ async function initRootConfig({
 }
 
 async function initRootConfigWithRetry(params: IInitRootConfig, retries = 3) {
-  return promiseRetry(async (retry) => {
-    return initRootConfig(params).catch(retry);
-  });
+  return promiseRetry(
+    async (retry) => {
+      return initRootConfig(params).catch(retry);
+    },
+    { retries },
+  );
 }
