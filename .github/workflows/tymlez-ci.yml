@@ -3,7 +3,7 @@ name: Tymlez CI
 on:
   push:
     branches:
-      - '**'
+      - 'truong/v1.2.0'
     tags-ignore:
       - '*.*'
     paths-ignore:
@@ -82,7 +82,7 @@ jobs:
       matrix:
         job: [cohort]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/truong/v1.2.0'
     needs: check
     env:
       ENV: 'dev'

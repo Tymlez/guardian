@@ -9,29 +9,29 @@ export async function pushImages({
 }) {
   console.log('Pushing images to ', { gcpProjectId, imageTag });
 
-  await pushImage({
-    gcpProjectId,
-    imageName: 'guardian-message-broker',
-    imageTag,
-  });
+  // await pushImage({
+  //   gcpProjectId,
+  //   imageName: 'guardian-message-broker',
+  //   imageTag,
+  // });
 
-  await pushImage({
-    gcpProjectId,
-    imageName: 'guardian-service',
-    imageTag,
-  });
+  // await pushImage({
+  //   gcpProjectId,
+  //   imageName: 'guardian-service',
+  //   imageTag,
+  // });
 
-  await pushImage({
-    gcpProjectId,
-    imageName: 'guardian-ui-service',
-    imageTag,
-  });
+  // await pushImage({
+  //   gcpProjectId,
+  //   imageName: 'guardian-ui-service',
+  //   imageTag,
+  // });
 
-  await pushImage({
-    gcpProjectId,
-    imageName: 'guardian-mrv-sender',
-    imageTag,
-  });
+  // await pushImage({
+  //   gcpProjectId,
+  //   imageName: 'guardian-mrv-sender',
+  //   imageTag,
+  // });
 
   await pushImage({
     gcpProjectId,

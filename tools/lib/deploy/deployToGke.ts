@@ -46,7 +46,7 @@ export async function deployToGke({
   );
 
   await exec(['helm', 'dependency', 'update'].join(' '), {
-    cwd: resolve(__dirname, 'charts/guardian-root'),
+    cwd: resolve(__dirname, 'charts/guardian-tymlez-service'),
   });
 
   await exec(
@@ -55,20 +55,20 @@ export async function deployToGke({
       'upgrade',
       '--install',
       '--debug',
-      `tymlez-guardian-${process.env.ENV}`,
+      `guardian-tymlez-service-${process.env.ENV}`,
       '.',
 
-      `--set-string guardian-message-broker.image.repository="asia.gcr.io/${gcpProjectId}/guardian-message-broker"`,
-      `--set-string guardian-message-broker.image.tag="${imageTag}"`,
-      `--set-string guardian-message-broker.configmap.data.DEPLOY_VERSION="${imageTag}"`,
+      // `--set-string guardian-message-broker.image.repository="asia.gcr.io/${gcpProjectId}/guardian-message-broker"`,
+      // `--set-string guardian-message-broker.image.tag="${imageTag}"`,
+      // `--set-string guardian-message-broker.configmap.data.DEPLOY_VERSION="${imageTag}"`,
 
-      `--set-string guardian-service.image.repository="asia.gcr.io/${gcpProjectId}/guardian-service"`,
-      `--set-string guardian-service.image.tag="${imageTag}"`,
-      `--set-string guardian-service.configmap.data.DEPLOY_VERSION="${imageTag}"`,
+      // `--set-string guardian-service.image.repository="asia.gcr.io/${gcpProjectId}/guardian-service"`,
+      // `--set-string guardian-service.image.tag="${imageTag}"`,
+      // `--set-string guardian-service.configmap.data.DEPLOY_VERSION="${imageTag}"`,
 
-      `--set-string guardian-ui-service.image.repository="asia.gcr.io/${gcpProjectId}/guardian-ui-service"`,
-      `--set-string guardian-ui-service.image.tag="${imageTag}"`,
-      `--set-string guardian-ui-service.configmap.data.DEPLOY_VERSION="${imageTag}"`,
+      // `--set-string guardian-ui-service.image.repository="asia.gcr.io/${gcpProjectId}/guardian-ui-service"`,
+      // `--set-string guardian-ui-service.image.tag="${imageTag}"`,
+      // `--set-string guardian-ui-service.configmap.data.DEPLOY_VERSION="${imageTag}"`,
 
       `--set-string guardian-tymlez-service.image.repository="asia.gcr.io/${gcpProjectId}/guardian-tymlez-service"`,
       `--set-string guardian-tymlez-service.image.tag="${imageTag}"`,
@@ -77,7 +77,7 @@ export async function deployToGke({
       // '--dry-run',
     ].join(' '),
     {
-      cwd: resolve(__dirname, 'charts/guardian-root'),
+      cwd: resolve(__dirname, 'charts/guardian-tymlez-service'),
     },
   );
 }

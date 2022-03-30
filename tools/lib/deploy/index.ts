@@ -32,7 +32,7 @@ export async function deploy() {
 
   const imageTag = GIT_TAG ?? Date.now().toString();
 
-  await exec(['docker-compose', 'build'].join(' '));
+  await exec(['docker-compose', 'build', 'tymlez-service'].join(' '));
 
   await exec(['gcloud', 'auth', 'configure-docker'].join(' '));
 

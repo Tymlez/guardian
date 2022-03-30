@@ -5,13 +5,15 @@ services:
     restart: always
     expose:
       - 27017
-
+    ports:
+      - "27017:27017"
   api-docs:
     build:
       context: .
       dockerfile: ./api-docs/Dockerfile
     expose:
       - 3001
+    
 
   message-broker:
     build:
@@ -83,9 +85,10 @@ services:
       - 3005
 
   web-proxy:
-    build:
-      context: .
-      dockerfile: ./web-proxy/Dockerfile
+    image: guardian_web-proxy
+    # build:
+    #   context: .
+    #   dockerfile: ./web-proxy/Dockerfile
     ports:
       - "3000:80"
     depends_on:
@@ -107,6 +110,6 @@ services:
 volumes:
   mongo:
   # volume-guardian-service:
-  # volume-ui-service:
+  # volume-api-gateway:
   # volume-mrv-sender:
 #  volume-message-broker:
