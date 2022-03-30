@@ -52,7 +52,7 @@ export const readConfig = async function (): Promise<any> {
             fileContent['VC_TOPIC_ID'] = net.vcTopicId;
             fileContent['DID_TOPIC_ID'] = net.didTopicId;
         } catch (error) {
-            throw ('Failed to create Address Book: \n' + error);
+            console.log('Failed to create Address Book: \n' , error);
         }
         await writeJSON(fileName, fileContent);
     }
