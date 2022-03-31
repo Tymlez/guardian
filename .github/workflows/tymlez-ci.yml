@@ -80,7 +80,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [cohort]
+        job: [uon]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/truong/v1.2.0'
     needs: check

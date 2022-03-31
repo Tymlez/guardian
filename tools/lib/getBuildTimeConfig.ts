@@ -86,16 +86,16 @@ const COHORT_DEVICE_INFOS: IDeviceInfo[] = [
 ];
 
 const STATIC_CONFIGS: Record<string, Partial<IConfig> | undefined> = {
-  'cohort-local': {
+  'uon-local': {
     DEVICE_INFOS: COHORT_DEVICE_INFOS,
   },
-  'cohort-dev': {
+  'uon-dev': {
     DEVICE_INFOS: COHORT_DEVICE_INFOS,
   },
-  'cohort-preprod': {
+  'uon-preprod': {
     DEVICE_INFOS: COHORT_DEVICE_INFOS,
   },
-  'cohort-prod': {
+  'uon-prod': {
     DEVICE_INFOS: COHORT_DEVICE_INFOS,
   },
 };
