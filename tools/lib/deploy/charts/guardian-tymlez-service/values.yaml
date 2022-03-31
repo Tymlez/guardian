@@ -27,7 +27,7 @@ securityContext:
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
+namespace: tymlez-guardian
 service:
   type: LoadBalancer
   ports:
@@ -38,11 +38,11 @@ service:
 
 resources:
   limits:
-    cpu: 2000m
-    memory: 8G
+    cpu: 1000m
+    memory: 2G
   requests:
     cpu: 1000m
-    memory: 4G
+    memory: 2G
 
 nodeSelector: {}
 
