@@ -70,9 +70,9 @@ export async function deployToGke({
       // `--set-string guardian-ui-service.image.tag="${imageTag}"`,
       // `--set-string guardian-ui-service.configmap.data.DEPLOY_VERSION="${imageTag}"`,
 
-      `--set-string guardian-tymlez-service.image.repository="asia.gcr.io/${gcpProjectId}/guardian-tymlez-service"`,
-      `--set-string guardian-tymlez-service.image.tag="${imageTag}"`,
-      `--set-string guardian-tymlez-service.configmap.data.DEPLOY_VERSION="${imageTag}"`,
+      `--set-string image.repository="asia.gcr.io/${gcpProjectId}/guardian-tymlez-service"`,
+      `--set-string image.tag="${imageTag}"`,
+      `--set-string configmap.data.DEPLOY_VERSION="${imageTag}"`,
 
       // '--dry-run',
     ].join(' '),
