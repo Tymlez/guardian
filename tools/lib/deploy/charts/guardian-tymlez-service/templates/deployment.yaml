@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
-namespace: {{ .Values.namespace }}
 metadata:
   name: {{ include "guardian-tymlez-service.fullname" . }}
+  namespace: {{ .Values.namespace }}
   labels:
     {{- include "guardian-tymlez-service.labels" . | nindent 4 }}
 spec:
