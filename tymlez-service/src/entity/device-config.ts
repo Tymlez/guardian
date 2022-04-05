@@ -53,6 +53,7 @@ export interface IUIServiceDeviceConfig {
   key: string;
   type: string;
   schema: any;
+  context: any;
   policyId: string;
   policyTag: string;
 }

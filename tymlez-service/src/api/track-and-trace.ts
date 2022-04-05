@@ -19,6 +19,7 @@ import type { ProcessedMrv } from '@entity/processed-mrv';
 import { mrvSettingSchema } from '../modules/track-and-trace/mrvSettingSchema';
 import type { IMrvSetting } from '../modules/track-and-trace/IMrvSetting';
 import type { IIsoDate } from '@entity/IIsoDate';
+import { getAllSchemasFromUiService } from '../modules/schema';
 
 export const makeTrackAndTraceApi = ({
   vcDocumentLoader,
@@ -295,6 +296,7 @@ export const makeTrackAndTraceApi = ({
         key,
         policyId,
         schema,
+        //  context,
         policyTag,
       } = deviceConfig.config;
 
@@ -315,27 +317,50 @@ export const makeTrackAndTraceApi = ({
         document = vc.toJsonTree();
 
         console.log('created vc');
-        console.log(document);
+        console.log(JSON.stringify(document, null, 2));
       } catch (e) {
         console.error(e);
         res.status(500).json(e);
         return;
       }
+      // overwrite the context to ipfs
+
+      const installerUser = await loginToUiService({
+        guardianApiGatewayUrl,
+        username: 'Installer',
+      });
+
+      const schemas = await getAllSchemasFromUiService({
+        guardianApiGatewayUrl,
+        rootAuthority: installerUser,
+      });
+
+      const mvrSchema = schemas.find(
+        (x) => x.name === 'TymlezMrv' && x.status === 'PUBLISHED',
+      );
+
+      // set context url to schema  url
+      document.credentialSubject[0]['@context'] = [
+        mvrSchema?.contextURL ||
+          'https://ipfs.io/ipfs/bafkreie2u7xmzi5d2dyl5nhsn3tsg4gipyrv3f64qsjkcnbvp3xp2sanlu',
+      ];
 
       const body = {
         document: document,
         owner: installer,
         policyTag: policyTag,
       };
-      try {
-        console.log('start post');
-        const resp = await axios.post(mrvReceiverUrl, body);
-        console.log('end post', resp?.status, resp?.data);
-      } catch (e) {
-        console.error(e);
-        res.status(500).json(e);
-        return;
-      }
+
+      const result = await axios.post(
+        `${guardianApiGatewayUrl}/api/v1/external`,
+        body,
+        {
+          headers: {
+            Authorization: `Api-Key ${installerUser.accessToken}`,
+          },
+        },
+      );
+      console.log('created VP document request result', result.data);
 
       try {
         console.error('start Transaction', JSON.stringify(vc, undefined, 2));
@@ -346,7 +371,6 @@ export const makeTrackAndTraceApi = ({
         res.status(500).json(e);
         return;
       }
-
       await saveProcessedMrv({
         processedMrvRepository,
         deviceId,

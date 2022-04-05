@@ -1,6 +1,5 @@
 import express from 'express';
 import 'express-async-errors';
-import FastMQ from 'fastmq';
 import { createConnection } from 'typeorm';
 import { DefaultDocumentLoader, VCHelper } from 'vc-modules';
 import passport from 'passport';
@@ -23,92 +22,92 @@ import { PolicyPackage } from '@entity/policy-package';
 import { ProcessedMrv } from '@entity/processed-mrv';
 import { useIpfsApi } from '@api/ipfs';
 
-axios.interceptors.request.use((request) => {
-  if (request.url?.includes('login')) {
-    console.log('Axios: Starting Request %s', request.method, request.url);
-  } else {
-    console.log(
-      'Axios: Starting Request',
-      JSON.stringify(
-        { url: `${request.method} -> ${request.url}`, data: request.data },
-        null,
-        2,
-      ),
-    );
-  }
-  return request;
-});
+(async () => {
+  axios.interceptors.request.use((request) => {
+    if (request.url?.includes('login')) {
+      console.log('Axios: Starting Request %s', request.method, request.url);
+    } else {
+      console.log(
+        'Axios: Starting Request',
+        JSON.stringify(
+          { url: `${request.method} -> ${request.url}`, data: request.data },
+          null,
+          2,
+        ),
+      );
+    }
+    return request;
+  });
 
-axios.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    console.error(
-      'Request error %s',
-      error.request.url,
-      error.response?.data,
-      error.response?.statusText,
-    );
-    return Promise.reject(new Error('Request error'));
-  },
-);
-
-const {
-  SERVICE_CHANNEL,
-  MQ_ADDRESS,
-  MRV_RECEIVER_URL,
-  DB_HOST,
-  DB_DATABASE,
-  GUARDIAN_TYMLEZ_API_KEY,
-  GUARDIAN_API_GW_URL,
-  GUARDIAN_SERVICE_BASE_URL,
-  MESSAGE_BROKER_BASE_URL,
-  OPERATOR_ID,
-} = process.env;
-
-const PORT = process.env.PORT || 3010;
-
-console.log('Starting tymlez-service', {
-  now: new Date().toString(),
-  BUILD_VERSION: process.env.BUILD_VERSION,
-  DEPLOY_VERSION: process.env.DEPLOY_VERSION,
-  PORT,
-  DB_HOST,
-  DB_DATABASE,
-  OPERATOR_ID,
-  MRV_RECEIVER_URL,
-  GUARDIAN_API_GW_URL,
-  GUARDIAN_SERVICE_BASE_URL,
-  MESSAGE_BROKER_BASE_URL,
-  SERVICE_CHANNEL,
-  MQ_ADDRESS,
-});
-
-assert(DB_HOST, `DB_HOST is missing`);
-assert(DB_DATABASE, `DB_DATABASE is missing`);
-assert(SERVICE_CHANNEL, `SERVICE_CHANNEL is missing`);
-assert(MQ_ADDRESS, `MQ_ADDRESS is missing`);
-assert(MRV_RECEIVER_URL, `MRV_RECEIVER_URL is missing`);
-assert(GUARDIAN_API_GW_URL, `GUARDIAN_API_GW_URL is missing`);
-assert(GUARDIAN_SERVICE_BASE_URL, `GUARDIAN_SERVICE_BASE_URL is missing`);
-assert(MESSAGE_BROKER_BASE_URL, `MESSAGE_BROKER_BASE_URL is missing`);
-assert(GUARDIAN_TYMLEZ_API_KEY, `GUARDIAN_TYMLEZ_API_KEY is missing`);
-
-passport.use(
-  new HeaderAPIKeyStrategy(
-    { header: 'Authorization', prefix: 'Api-Key ' },
-    false,
-    function (apiKey, done) {
-      if (apiKey === GUARDIAN_TYMLEZ_API_KEY) {
-        done(null, {});
-      } else {
-        done(createError(401), false);
-      }
+  axios.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError) => {
+      console.error(
+        'Request error %s',
+        error.request.url,
+        error.response?.data,
+        error.response?.statusText,
+      );
+      return Promise.reject(new Error('Request error'));
     },
-  ),
-);
+  );
 
-Promise.all([
-  createConnection({
+  const {
+    SERVICE_CHANNEL,
+    MQ_ADDRESS,
+    MRV_RECEIVER_URL,
+    DB_HOST,
+    DB_DATABASE,
+    GUARDIAN_TYMLEZ_API_KEY,
+    GUARDIAN_API_GW_URL,
+    GUARDIAN_SERVICE_BASE_URL,
+    MESSAGE_BROKER_BASE_URL,
+    OPERATOR_ID,
+  } = process.env;
+
+  const PORT = process.env.PORT || 3010;
+
+  console.log('Starting tymlez-service', {
+    now: new Date().toString(),
+    BUILD_VERSION: process.env.BUILD_VERSION,
+    DEPLOY_VERSION: process.env.DEPLOY_VERSION,
+    PORT,
+    DB_HOST,
+    DB_DATABASE,
+    OPERATOR_ID,
+    MRV_RECEIVER_URL,
+    GUARDIAN_API_GW_URL,
+    GUARDIAN_SERVICE_BASE_URL,
+    MESSAGE_BROKER_BASE_URL,
+    SERVICE_CHANNEL,
+    MQ_ADDRESS,
+  });
+
+  assert(DB_HOST, `DB_HOST is missing`);
+  assert(DB_DATABASE, `DB_DATABASE is missing`);
+  assert(SERVICE_CHANNEL, `SERVICE_CHANNEL is missing`);
+  assert(MQ_ADDRESS, `MQ_ADDRESS is missing`);
+  assert(MRV_RECEIVER_URL, `MRV_RECEIVER_URL is missing`);
+  assert(GUARDIAN_API_GW_URL, `GUARDIAN_API_GW_URL is missing`);
+  assert(GUARDIAN_SERVICE_BASE_URL, `GUARDIAN_SERVICE_BASE_URL is missing`);
+  assert(MESSAGE_BROKER_BASE_URL, `MESSAGE_BROKER_BASE_URL is missing`);
+  assert(GUARDIAN_TYMLEZ_API_KEY, `GUARDIAN_TYMLEZ_API_KEY is missing`);
+
+  passport.use(
+    new HeaderAPIKeyStrategy(
+      { header: 'Authorization', prefix: 'Api-Key ' },
+      false,
+      function (apiKey, done) {
+        if (apiKey === GUARDIAN_TYMLEZ_API_KEY) {
+          done(null, {});
+        } else {
+          done(createError(401), false);
+        }
+      },
+    ),
+  );
+
+  const db = await createConnection({
     type: 'mongodb',
     host: DB_HOST,
     database: DB_DATABASE,
@@ -119,10 +118,8 @@ Promise.all([
     cli: {
       entitiesDir: 'dist/entity',
     },
-  }),
-  FastMQ.Client.connect(SERVICE_CHANNEL, 7500, MQ_ADDRESS),
-]).then(async (values) => {
-  const [db, channel] = values;
+  });
+
   const app = express();
 
   app.use(
@@ -132,6 +129,7 @@ Promise.all([
       },
     }),
   );
+
   app.use(express.json());
 
   const deviceConfigRepository = db.getMongoRepository(DeviceConfig);
@@ -167,7 +165,13 @@ Promise.all([
   );
 
   app.use('/debug/', debugApi);
-  app.use('/audit/', makeAuditApi({ channel, deviceConfigRepository }));
+  app.use(
+    '/audit/',
+    makeAuditApi({
+      guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
+      deviceConfigRepository,
+    }),
+  );
   app.use(
     '/track-and-trace/',
     makeTrackAndTraceApi({
@@ -216,4 +220,4 @@ Promise.all([
   app.listen(PORT, () => {
     console.log('tymlez service started', PORT);
   });
-});
+})();

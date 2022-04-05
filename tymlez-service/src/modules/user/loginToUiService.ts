@@ -25,7 +25,11 @@ const LOGIN_DETAILS = {
   RootAuthority: { password: 'test' },
   Installer: { password: 'test' },
   Installer2: { password: 'test' },
+  Auditor: { password: 'test' },
 };
 
 export type UserName = keyof typeof LOGIN_DETAILS;
-export type InstallerUserName = Extract<UserName, 'Installer' | 'Installer2'>;
+export type InstallerUserName = Extract<
+  UserName,
+  'Installer' | 'Installer2' | 'Auditor'
+>;

@@ -320,7 +320,7 @@
             "children": [],
             "uiMetaData": {},
             "rule": "mrvCarbonAmount",
-            "threshold": "1"
+            "threshold": "0.001"
           },
           {
             "tag": "mint_token",
