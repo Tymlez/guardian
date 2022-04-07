@@ -1,6 +1,6 @@
 import { SSM } from 'aws-sdk';
 
-const ssm = new SSM();
+const ssm = new SSM({ region: 'ap-southeast-2' });
 
 export async function getParameters(
   names: string[],

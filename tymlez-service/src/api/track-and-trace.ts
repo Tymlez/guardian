@@ -27,7 +27,6 @@ export const makeTrackAndTraceApi = ({
   deviceConfigRepository,
   policyPackageRepository,
   processedMrvRepository,
-  mrvReceiverUrl,
   guardianApiGatewayUrl,
 }: {
   vcDocumentLoader: VCDocumentLoader;
@@ -35,7 +34,6 @@ export const makeTrackAndTraceApi = ({
   deviceConfigRepository: MongoRepository<DeviceConfig>;
   policyPackageRepository: MongoRepository<PolicyPackage>;
   processedMrvRepository: MongoRepository<ProcessedMrv>;
-  mrvReceiverUrl: string;
   guardianApiGatewayUrl: string;
 }) => {
   const trackAndTraceApi = Router();

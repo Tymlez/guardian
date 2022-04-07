@@ -57,7 +57,6 @@ export async function deployToGke({
       '--debug',
       `tymlez-guardian-${process.env.ENV}`,
       '.',
-
       // `--set-string guardian-message-broker.image.repository="asia.gcr.io/${gcpProjectId}/guardian-message-broker"`,
       // `--set-string guardian-message-broker.image.tag="${imageTag}"`,
       // `--set-string guardian-message-broker.configmap.data.DEPLOY_VERSION="${imageTag}"`,

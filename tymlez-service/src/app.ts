@@ -54,8 +54,6 @@ import { useIpfsApi } from '@api/ipfs';
 
   const {
     SERVICE_CHANNEL,
-    MQ_ADDRESS,
-    MRV_RECEIVER_URL,
     DB_HOST,
     DB_DATABASE,
     GUARDIAN_TYMLEZ_API_KEY,
@@ -75,19 +73,15 @@ import { useIpfsApi } from '@api/ipfs';
     DB_HOST,
     DB_DATABASE,
     OPERATOR_ID,
-    MRV_RECEIVER_URL,
     GUARDIAN_API_GW_URL,
     GUARDIAN_SERVICE_BASE_URL,
     MESSAGE_BROKER_BASE_URL,
     SERVICE_CHANNEL,
-    MQ_ADDRESS,
   });
 
   assert(DB_HOST, `DB_HOST is missing`);
   assert(DB_DATABASE, `DB_DATABASE is missing`);
   assert(SERVICE_CHANNEL, `SERVICE_CHANNEL is missing`);
-  assert(MQ_ADDRESS, `MQ_ADDRESS is missing`);
-  assert(MRV_RECEIVER_URL, `MRV_RECEIVER_URL is missing`);
   assert(GUARDIAN_API_GW_URL, `GUARDIAN_API_GW_URL is missing`);
   assert(GUARDIAN_SERVICE_BASE_URL, `GUARDIAN_SERVICE_BASE_URL is missing`);
   assert(MESSAGE_BROKER_BASE_URL, `MESSAGE_BROKER_BASE_URL is missing`);
@@ -180,7 +174,6 @@ import { useIpfsApi } from '@api/ipfs';
       deviceConfigRepository,
       policyPackageRepository,
       processedMrvRepository,
-      mrvReceiverUrl: MRV_RECEIVER_URL,
       guardianApiGatewayUrl: GUARDIAN_API_GW_URL,
     }),
   );
