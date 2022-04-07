@@ -50,7 +50,6 @@ export const makeAuditApi = ({
             },
           },
         );
-        console.log('trustchains', trustchains);
 
         // filter = { issuer: device.config.did, page, pageSize, period };
         // const vp = (

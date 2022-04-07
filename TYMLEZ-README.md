@@ -71,3 +71,13 @@ CLIENT_NAME=cohort npm run tools init
 
 1. `npm run tools init` will initialized the policies and devices, then it will store the device config in Mongo DB > `tymlez_db`
 2. There are 2 serverless functions between the QuestDB and the Guardian, they poll periodically from QuestDB and send MRV data to Guardian with device ID and data, the policies are configured to aggregate all MRV data until 1 Metric Ton of carbon has reached.
+
+## Run bootstrap new environment
+
+```
+EXPORT env=dev/prod
+// make sure aws context is for the target environments
+
+npm run tools init
+
+```
