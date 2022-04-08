@@ -81,3 +81,13 @@ EXPORT env=dev/prod
 npm run tools init
 
 ```
+
+## access deployed on GCP
+
+config kubectl using gcp then run below commands
+
+```sh
+kubectl port-forward service/tymlez-guardian-dev-guardian-web-proxy 8888:80 -n tymlez-guardian
+```
+
+Then you will able to access guardian ui on port 8888 on localhost:80

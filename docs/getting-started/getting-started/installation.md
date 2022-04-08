@@ -105,7 +105,7 @@ npm install
 npm run build
 ```
 
-To start the service (found on [http://localhost:3002](http://localhost:3002)):
+To start the service (found on [http://localhost:3000](http://localhost:3000)):
 
 ```
 npm start
@@ -127,6 +127,10 @@ npm start
 ```
 
 ([back to top](https://github.com/hashgraph/guardian/tree/develop#top))
+
+{% hint style="info" %}
+**Note**: Once you start the service, please wait for the Initialization Process to be completed.
+{% endhint %}
 
 ### Unit Tests
 

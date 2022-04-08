@@ -258,20 +258,6 @@ export const documentsAPI = async function (
             const documents: IVPDocument[] = await vpDocumentRepository.find();
             res.send(new MessageResponse(documents));
         }
-    });
-
-    /**
-     * Return VP Documents using filters
-     * 
-     * @param {Object} [payload] - filters
-     * 
-     * @returns {IVPDocument[]} - VP Documents
-     */
-     channel.response(MessageAPI.FIND_VP_DOCUMENTS, async (msg, res) => {        
-        const reqObj: any = { where: {} };
-        if (msg.payload.type) {
-            reqObj.where['type'] = { $eq: msg.payload.type }
-        }
         if (msg.payload.owner) {
             reqObj.where['owner'] = { $eq: msg.payload.owner }
         }
