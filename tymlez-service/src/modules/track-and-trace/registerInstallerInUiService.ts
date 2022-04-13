@@ -46,7 +46,7 @@ export async function registerInstallerInUiService({
     user: installer,
   });
 
-  //assert(installerSchema, `Cannot find ${schemaName} schema`);
+  // assert(installerSchema, `Cannot find ${schemaName} schema`);
   if (!installerSchema) {
     console.log('Skip setup installer as no schema found');
     return;
