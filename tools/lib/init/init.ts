@@ -19,9 +19,7 @@ export async function init() {
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
     DEVICE_INFOS,
   } = await getBuildTimeConfig({ env: ENV, clientName: CLIENT_NAME });
-  console.log(
-    'Initial root authority'
-  );
+  console.log('Initial root authority');
   await initRootAuthority({
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
     GUARDIAN_TYMLEZ_API_KEY,
@@ -50,7 +48,6 @@ export async function init() {
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
     GUARDIAN_TYMLEZ_API_KEY,
   });
-
   await registerNewInstallers({
     policyPackages,
     GUARDIAN_TYMLEZ_SERVICE_BASE_URL,

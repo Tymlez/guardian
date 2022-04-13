@@ -1,0 +1,117 @@
+{
+  "name": "UonMrv",
+  "uuid": "b578cb95-8530-46cc-9dc4-f31980744102",
+  "entity": "MRV",
+  "document": {
+    "$id": "#b578cb95-8530-46cc-9dc4-f31980744102",
+    "$comment": "{\"term\": \"b578cb95-8530-46cc-9dc4-f31980744102\", \"@id\": \"https://localhost/schema#b578cb95-8530-46cc-9dc4-f31980744102\"}",
+    "title": "UonMrv",
+    "description": "",
+    "type": "object",
+    "properties": {
+      "@context": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "readOnly": true
+      },
+      "type": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "readOnly": true
+      },
+      "id": {
+        "type": "string",
+        "readOnly": true
+      },
+      "mrvWaterPumpAmount": {
+        "title": "Amount of water in liter",
+        "description": "Amount of water in liter",
+        "readOnly": false,
+        "$comment": "{\"term\": \"mrvWaterPumpAmount\", \"@id\": \"https://www.schema.org/text\"}",
+        "type": "number"
+      },
+      "mrvFuelAmount": {
+        "title": "Fuel Used Amount",
+        "description": "Total fuel amount in liter used during period",
+        "readOnly": false,
+        "$comment": "{\"term\": \"mrvFuelAmount\", \"@id\": \"https://www.schema.org/text\"}",
+        "type": "number"
+      },
+
+      "mrvEnergyAmount": {
+        "title": "Energy Amount",
+        "description": "Energy Amount",
+        "readOnly": false,
+        "$comment": "{\"term\": \"mrvEnergyAmount\", \"@id\": \"https://www.schema.org/text\"}",
+        "type": "number"
+      },
+      "mrvCarbonAmount": {
+        "title": "Carbon Amount",
+        "description": "Carbon Amount",
+        "readOnly": false,
+        "$comment": "{\"term\": \"mrvCarbonAmount\", \"@id\": \"https://www.schema.org/text\"}",
+        "type": "number"
+      },
+      "mrvTimestamp": {
+        "title": "Timestamp",
+        "description": "Timestamp in ISO Date",
+        "readOnly": false,
+        "$comment": "{\"term\": \"mrvTimestamp\", \"@id\": \"https://www.schema.org/text\"}",
+        "type": "string",
+        "format": "date"
+      },
+      "mrvDuration": {
+        "title": "Duration",
+        "description": "Duration in milliseconds",
+        "readOnly": false,
+        "$comment": "{\"term\": \"mrvDuration\", \"@id\": \"https://www.schema.org/text\"}",
+        "type": "number"
+      },
+      "accountId": {
+        "title": "accountId",
+        "description": "accountId",
+        "readOnly": true,
+        "$comment": "{\"term\": \"accountId\", \"@id\": \"https://www.schema.org/text\"}",
+        "type": "string"
+      },
+      "policyId": {
+        "title": "policyId",
+        "description": "policyId",
+        "readOnly": true,
+        "$comment": "{\"term\": \"policyId\", \"@id\": \"https://www.schema.org/text\"}",
+        "type": "string"
+      }
+    },
+    "required": [
+      "@context",
+      "type",
+      "mrvFuelAmount",
+      "mrvWaterPumpAmount",
+      "mrvCarbonAmount",
+      "mrvTimestamp",
+      "mrvDuration",
+      "accountId",
+      "policyId"
+    ],
+    "additionalProperties": false
+  },
+  "relationships": []
+}

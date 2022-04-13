@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { IPolicyPackage } from '../../../tymlez-service/src/entity/policy-package';
 import type { UserName } from '../../../tymlez-service/src/modules/user';
+import { config } from './config';
 
 export async function registerNewInstallers({
   policyPackages,
@@ -48,6 +49,7 @@ async function registerNewInstaller({
       username,
       policyTag,
       installerInfo,
+      schemaName: config().installerSchemaName,
     },
     {
       headers: {

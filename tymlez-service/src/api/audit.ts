@@ -101,9 +101,12 @@ function extractAndFormatVp(
         .map((vc) => {
           return vc.credentialSubject.map((cs) => {
             return {
+              vcId: vc.id,
               mrvEnergyAmount: Number(cs.mrvEnergyAmount),
               mrvCarbonAmount: Number(cs.mrvCarbonAmount),
+              mrvFuelAmount: Number(cs.mrvFuelAmount),
               mrvTimestamp: cs.mrvTimestamp as string,
+              mrvWaterPumpAmount: Number(cs.mrvWaterPumpAmount),
               mrvDuration: Number(cs.mrvDuration),
             };
           });
@@ -114,18 +117,29 @@ function extractAndFormatVp(
         (prevValue, vcRecord) => {
           prevValue.totalEnergyValue += Number(vcRecord.mrvEnergyAmount);
           prevValue.totalCarbonAmount += Number(vcRecord.mrvCarbonAmount);
+          prevValue.totalFuelAmount += Number(vcRecord.mrvFuelAmount);
+          prevValue.totalWaterPumpAmount += Number(vcRecord.mrvWaterPumpAmount);
           return prevValue;
         },
-        { totalEnergyValue: 0, totalCarbonAmount: 0 },
+        {
+          totalEnergyValue: 0,
+          totalCarbonAmount: 0,
+          totalFuelAmount: 0,
+          totalWaterPumpAmount: 0,
+        },
       );
+      const testnet = vpDocument.owner.includes('testnet') ? 'testnet' : 'app';
 
       return {
-        vpId: vpDocument.id,
-        vcRecords,
+        vpId: vpDocument.document.id,
         energyType: deviceType,
         energyValue: energyCarbonValue.totalEnergyValue,
         co2Produced: energyCarbonValue.totalCarbonAmount,
+        fuelConsumed: energyCarbonValue.totalFuelAmount,
+        waterPumpAmount: energyCarbonValue.totalWaterPumpAmount,
         timestamp: vpDocument.createDate,
+        onChainUrl: `https://${testnet}.dragonglass.me/hedera/search?q="${vpDocument.document.id}"`,
+        vcRecords,
       } as IVpRecord;
     });
 }
@@ -150,6 +164,9 @@ export interface IVpRecord {
   timestamp: Date;
   co2Produced: number;
   co2Saved?: number;
+  fuelConsumed?: number;
+  waterPumpAmount?: number;
+  onChainUrl?: string;
 }
 
 export type VerificationPeriod = 'all' | '24h';

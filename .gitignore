@@ -36,3 +36,4 @@ guardian-service/config.json
 tymlez-service/.env
 tymlez-service/.env.docker
 *.tsbuildinfo
+.DS_Store

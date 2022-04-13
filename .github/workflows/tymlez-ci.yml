@@ -76,7 +76,7 @@ jobs:
           npm run build
           npm run lint
 
-  deploy-dev:
+  deploy-preprod:
     strategy:
       fail-fast: false
       matrix:
@@ -85,7 +85,7 @@ jobs:
     if: github.ref == 'refs/heads/truong/v1.2.0'
     needs: check
     env:
-      ENV: 'dev'
+      ENV: 'preprod'
       CLIENT_NAME: '${{ matrix.job }}'
 
     steps:

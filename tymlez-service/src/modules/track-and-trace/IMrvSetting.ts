@@ -8,4 +8,6 @@ export interface IMrvSetting {
   mrvCarbonAmount: IMetricTon;
   mrvTimestamp: IIsoDate;
   mrvDuration: ITimeSpanMsec;
+  mrvFuelAmount: number;
+  mrvWaterPumpAmount: number;
 }

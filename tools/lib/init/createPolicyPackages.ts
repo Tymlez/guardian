@@ -28,6 +28,7 @@ export async function createPolicyPackages({
     CET_TOKEN_ID: findToken(tokens, 'TYM_CET').tokenId,
     CRU_TOKEN_ID: findToken(tokens, 'TYM_CRU').tokenId,
     CRUF_TOKEN_ID: findToken(tokens, 'TYM_CRUF').tokenId,
+    UON_CET_TOKEN_ID: findToken(tokens, 'UON_CET').tokenId,
   };
 
   const policyFolders = await getPolicyFolders();

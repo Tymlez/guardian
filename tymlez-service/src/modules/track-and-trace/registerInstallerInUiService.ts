@@ -1,4 +1,4 @@
-import assert from 'assert';
+// import assert from 'assert';
 import { ILoggedUser, loginToUiService } from '../user';
 import type { PolicyPackage } from '@entity/policy-package';
 import { getAllSchemasFromUiService } from '../schema';
@@ -10,15 +10,18 @@ export async function registerInstallerInUiService({
   policyId,
   policyPackage,
   guardianApiGatewayUrl,
+  schemaName = 'TymlezInstaller',
 }: {
   policyPackage: PolicyPackage;
   guardianApiGatewayUrl: string;
   policyId: string;
   installerInfo: any;
   installer: ILoggedUser;
+  schemaName: string;
 }) {
   const installerSchema = policyPackage.schemas.find(
-    (schema) => schema.inputName === 'TymlezInstaller',
+    (schema) =>
+      schema.inputName.toLocaleLowerCase() === schemaName.toLocaleLowerCase(),
   );
 
   const rootAuthority = await loginToUiService({
@@ -31,7 +34,8 @@ export async function registerInstallerInUiService({
     rootAuthority,
   });
   const actualInstallerSchema = allSchemas.find(
-    (schema) => schema.name === 'TymlezInstaller',
+    (schema) =>
+      schema.name?.toLocaleLowerCase() === schemaName.toLocaleLowerCase(),
   );
 
   await sendBlockDataWithRetry({
@@ -42,8 +46,11 @@ export async function registerInstallerInUiService({
     user: installer,
   });
 
-  assert(installerSchema, `Cannot find TymlezInstaller schema`);
-
+  //assert(installerSchema, `Cannot find ${schemaName} schema`);
+  if (!installerSchema) {
+    console.log('Skip setup installer as no schema found');
+    return;
+  }
   await sendBlockDataWithRetry({
     guardianApiGatewayUrl,
     policyId,

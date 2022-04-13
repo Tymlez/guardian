@@ -41,12 +41,16 @@ export const makeTrackAndTraceApi = ({
   trackAndTraceApi.post(
     '/register-installer',
     async (req: Request, res: Response) => {
-      const { username, policyTag, installerInfo } = req.body as {
+      const { username, policyTag, installerInfo, schemaName } = req.body as {
         policyTag: string | undefined;
         username: InstallerUserName | undefined;
         installerInfo: any;
+        schemaName: string;
       };
-
+      console.log('register-installer *****************', {
+        policyTag,
+        schemaName,
+      });
       assert(username, `username is missing`);
       assert(
         username === 'Installer' || username === 'Installer2',
@@ -112,6 +116,7 @@ export const makeTrackAndTraceApi = ({
         policyId: policyPackage.policy.id,
         installerInfo,
         installer,
+        schemaName,
       });
 
       res.status(200).json({});
@@ -137,12 +142,14 @@ export const makeTrackAndTraceApi = ({
   );
 
   trackAndTraceApi.post('/add-device', async (req: Request, res: Response) => {
-    const { username, deviceId, deviceInfo, policyTag } = req.body as {
-      username: InstallerUserName | undefined;
-      policyTag: string | undefined;
-      deviceId: string | undefined;
-      deviceInfo: any;
-    };
+    const { username, deviceId, deviceInfo, policyTag, deviceSchemaName } =
+      req.body as {
+        username: InstallerUserName | undefined;
+        policyTag: string | undefined;
+        deviceId: string | undefined;
+        deviceInfo: any;
+        deviceSchemaName: string;
+      };
 
     assert(username, `username is missing`);
     assert(
@@ -184,6 +191,7 @@ export const makeTrackAndTraceApi = ({
       policyId: policyPackage.policy.id,
       deviceInfo,
       installer,
+      deviceSchemaName,
     });
 
     const addedDevice = await waitForDeviceAdded({
@@ -266,7 +274,7 @@ export const makeTrackAndTraceApi = ({
       const deviceConfig = await deviceConfigRepository.findOne({
         where: { key: deviceConfigKey },
       });
-
+      console.log(deviceConfigKey);
       if (!deviceConfig) {
         res.status(404).send(`Cannot find device config for ${deviceId}`);
         return;
@@ -332,9 +340,9 @@ export const makeTrackAndTraceApi = ({
         guardianApiGatewayUrl,
         rootAuthority: installerUser,
       });
-
+      const mrvSchemaName = inputPolicyTag.replace('CET', 'Mrv');
       const mvrSchema = schemas.find(
-        (x) => x.name === 'TymlezMrv' && x.status === 'PUBLISHED',
+        (x) => x.name === mrvSchemaName && x.status === 'PUBLISHED',
       );
 
       // set context url to schema  url

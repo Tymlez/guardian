@@ -10,15 +10,19 @@ export async function addDeviceToUiService({
   deviceInfo,
   policyId,
   guardianApiGatewayUrl,
+  deviceSchemaName = 'TymlezDevice',
 }: {
   policyPackage: PolicyPackage;
   guardianApiGatewayUrl: string;
   policyId: string;
   deviceInfo: any;
   installer: ILoggedUser;
+  deviceSchemaName: string;
 }): Promise<void> {
   const inverterSchema = policyPackage.schemas.find(
-    (schema) => schema.inputName === 'TymlezDevice',
+    (schema) =>
+      schema.inputName?.toLocaleLowerCase() ===
+      deviceSchemaName.toLocaleLowerCase(),
   );
 
   assert(inverterSchema, `Cannot find TymlezDevice schema`);
@@ -40,7 +44,8 @@ export async function addDeviceToUiService({
     rootAuthority,
   });
   const actualDeviceSchema = allSchemas.find(
-    (schema) => schema.name === 'TymlezDevice',
+    (schema) =>
+      schema.name?.toLocaleLowerCase() === deviceSchemaName.toLocaleLowerCase(),
   );
 
   const updateDeviceData = {

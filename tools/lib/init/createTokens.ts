@@ -68,6 +68,18 @@ async function getExistingTokens({
 
 const INIT_TOKENS: ITokenRequest[] = [
   {
+    tokenName: 'Uon CET',
+    tokenSymbol: 'UON_CET',
+    tokenType: 'fungible',
+    decimals: '2',
+    initialSupply: '0',
+    enableAdmin: true,
+    changeSupply: true,
+    enableFreeze: true,
+    enableKYC: true,
+    enableWipe: true,
+  },
+  {
     tokenName: 'Tymlez CET',
     tokenSymbol: 'TYM_CET',
     tokenType: 'fungible',

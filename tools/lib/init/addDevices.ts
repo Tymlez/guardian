@@ -2,6 +2,7 @@ import axios from 'axios';
 import pLimit from 'p-limit';
 import type { InstallerUserName } from '../../../tymlez-service/src/modules/user';
 import type { IDeviceInfo } from '../getBuildTimeConfig';
+import { config } from './config';
 
 export async function addDevices({
   GUARDIAN_TYMLEZ_API_KEY,
@@ -23,44 +24,45 @@ export async function addDevices({
             GUARDIAN_TYMLEZ_API_KEY,
             GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
             username: 'Installer',
-            policyTag: 'TymlezCET',
+            policyTag: config().withPrefix('CET'),
             deviceInfo,
           }),
         ),
       ),
   );
+  if (process.env.CLIENT_NAME !== 'uon') {
+    await Promise.all(
+      deviceInfos
+        .filter((deviceInfo) => deviceInfo.deviceType === 'generation')
+        .map((deviceInfo) =>
+          limit(() =>
+            addDevice({
+              GUARDIAN_TYMLEZ_API_KEY,
+              GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
+              username: 'Installer',
+              policyTag: 'TymlezCRU',
+              deviceInfo,
+            }),
+          ),
+        ),
+    );
 
-  await Promise.all(
-    deviceInfos
-      .filter((deviceInfo) => deviceInfo.deviceType === 'generation')
-      .map((deviceInfo) =>
-        limit(() =>
-          addDevice({
-            GUARDIAN_TYMLEZ_API_KEY,
-            GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
-            username: 'Installer',
-            policyTag: 'TymlezCRU',
-            deviceInfo,
-          }),
+    await Promise.all(
+      deviceInfos
+        .filter((deviceInfo) => deviceInfo.deviceType === 'generation-forecast')
+        .map((deviceInfo) =>
+          limit(() =>
+            addDevice({
+              GUARDIAN_TYMLEZ_API_KEY,
+              GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
+              username: 'Installer',
+              policyTag: 'TymlezCRUF',
+              deviceInfo,
+            }),
+          ),
         ),
-      ),
-  );
-
-  await Promise.all(
-    deviceInfos
-      .filter((deviceInfo) => deviceInfo.deviceType === 'generation-forecast')
-      .map((deviceInfo) =>
-        limit(() =>
-          addDevice({
-            GUARDIAN_TYMLEZ_API_KEY,
-            GUARDIAN_TYMLEZ_SERVICE_BASE_URL,
-            username: 'Installer',
-            policyTag: 'TymlezCRUF',
-            deviceInfo,
-          }),
-        ),
-      ),
-  );
+    );
+  }
 }
 
 async function addDevice({
@@ -85,6 +87,7 @@ async function addDevice({
       policyTag,
       deviceId: deviceInfo.deviceId,
       deviceInfo: deviceInfo,
+      deviceSchemaName: config().deviceSchemaName,
     },
     {
       headers: {

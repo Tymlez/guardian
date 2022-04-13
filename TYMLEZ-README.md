@@ -81,3 +81,9 @@ EXPORT env=dev/prod
 npm run tools init
 
 ```
+
+## Access to the deployment on gcp
+```
+kubectl port-forward service/tymlez-guardian-dev-mongodb 27019:27017 -n tymlez-guardian
+
+```

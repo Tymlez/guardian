@@ -1,0 +1,6 @@
+{
+  "tokenId": "<%= UON_CET_TOKEN_ID %>",
+  "tokenName": "Uon CET",
+  "tokenSymbol": "UON_CET",
+  "selected": true
+}
