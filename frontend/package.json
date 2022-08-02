@@ -20,7 +20,7 @@
     "@transmute/ed25519-signature-2018": "^0.7.0-unstable.5",
     "@transmute/security-context": "^0.7.0-unstable.5",
     "@transmute/vc.js": "^0.7.0-unstable.5",
-    "codemirror": "^5.65.0",
+    "codemirror": "^6.0.1",
     "crypto-browserify": "^3.12.0",
     "interfaces": "file:../interfaces",
     "moment": "^2.29.1",
